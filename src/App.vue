@@ -1,32 +1,54 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+  <v-app id="inspire">
+    <div v-if="$store.state.userProfile != null">
+      <v-app-bar
+        app
+        flat
+      >
+        <v-avatar
+          size="32"
+        ></v-avatar>
+        <v-tabs centered class="ml-n9">
+          <v-tab key="homeTab" to="/">Home</v-tab>
+          <v-tab v-if="$store.state.userProfile.loggedIn" to="/exercises">Exercises</v-tab>
+          <v-tab v-if="$store.state.userProfile.loggedIn" @click="signOut()">Sign Out</v-tab>
+          <v-tab v-if="!$store.state.userProfile.loggedIn" to="/login">Login</v-tab>
+          <v-tab v-if="!$store.state.userProfile.loggedIn" to="/signup">Sign Up</v-tab>
+        </v-tabs>
+        <v-avatar
+          class="hidden-sm-and-down"
+          size="32"
+        ></v-avatar>
+      </v-app-bar>
+
+      <v-main class="lighten-3">
+          <router-view></router-view>
+      </v-main>
     </div>
-    <router-view/>
-  </div>
+    <div v-else>
+      <v-app-bar app flat>
+      </v-app-bar>
+      <v-main class="lighten-3">
+        <v-container>
+          <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
+        </v-container>
+      </v-main>
+    </div>
+  </v-app>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import { auth } from './firebase'
+export default {
+  data() {
+    return {
+    }
+  },
 
-#nav {
-  padding: 30px;
+  methods: {
+    signOut: function() {
+      auth.signOut()
+    }
+  }
 }
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+</script>
