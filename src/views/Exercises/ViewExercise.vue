@@ -39,7 +39,15 @@
             </v-card>
 
             <v-card outlined>
-                <CommentSection :exercise-id="this.$route.params.exerciseid" :is-liked="isLiked" :followableComponent="true" @likeToggle="likeToggle"></CommentSection>
+                <CommentSection 
+                    :exercise-id="this.$route.params.exerciseid" 
+                    :is-liked="isLiked" 
+                    :like-count="exerciseData.likeCount"
+                    :commentCount="exerciseData.commentCount"
+                    :followableComponent="true" 
+                    :recentComments="exerciseData.recentComments"
+                    @likeToggle="likeToggle"
+                ></CommentSection>
             </v-card>
         </v-container>
 

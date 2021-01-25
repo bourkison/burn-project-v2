@@ -252,6 +252,9 @@ export default {
         // Will call idUnique watcher when completed.
         idAttempts: function() {
             this.exerciseForm.id = this.exerciseForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase() + "-" + this.generateId(7);
+            this.exerciseForm.likeCount = 0;
+            this.exerciseForm.recentComments = [];
+            this.exerciseForm.commentCount = 0;
 
             db.collection("exercises").doc(this.exerciseForm.id).get().then(idTestDoc => {
                 if (!idTestDoc.exists) {

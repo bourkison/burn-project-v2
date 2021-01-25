@@ -11,6 +11,7 @@
 
 <template>
     <v-container class="commentSection">
+        <span>{{ likeCount }} <span v-if="likeCount != 1">likes</span><span v-else>like</span> | {{ commentCounter }} <span v-if="commentCount != 1">comments</span><span v-else>comment</span> | x follows</span>
         <v-row class="lcsCont">
             <v-col cols="12" sm="6">
                 <v-icon large @click="handleLike" :color="likeIconColor">{{ likeIcon }}</v-icon>
@@ -27,6 +28,8 @@
             <v-form style="padding:10px" @submit.prevent="addComment">
                 <v-text-field v-model="newComment.content" label="New Comment" append-icon="mdi-send" @click:append="addComment"></v-text-field>
             </v-form>
+
+            <v-btn @click="loadComments" :loading="isLoading" v-if="commentCounter > comments.length">Load More Comments</v-btn>
         </div>
 
         <v-snackbar
@@ -66,11 +69,23 @@ export default {
         followableComponent: {
             type: Boolean,
             required: true
+        },
+        likeCount: {
+            type: Number,
+            required: true
+        },
+        recentComments: {
+            type: Array,
+            required: true
+        },
+        commentCount: {
+            type: Number,
+            required: true
         }
     },
     data() {
         return {
-            isLoading: true,
+            isLoading: false,
             collectionPath: null,
             comments: [],
             newComment: {},
@@ -81,6 +96,7 @@ export default {
             errorMessage: '',
             isFollowable: false,
             isFollowed: '',
+            commentCounter: 0,
 
             // Vuetify:
             likeIcon: '',
@@ -129,17 +145,8 @@ export default {
             })
         }
         
-
-        // Need to pull existing comments.
-        // TODO: Alter DB so that most relevant 5 are in exercise doc (using Firebase functions),
-        // // Then toggle comments calles this function instead (with pagination) 
-        this.collectionPath.doc(this.$props.exerciseId).collection("comments").get().then(commentSnapshot => {
-            commentSnapshot.forEach(comment => {
-                let c = comment.data();
-                c.id = comment.id;
-                this.comments.push(c);
-            })
-        })
+        this.commentCounter = this.$props.commentCount;
+        this.comments = this.$props.recentComments;
 
     },
 
@@ -257,26 +264,47 @@ export default {
             }
         },
 
-        addComment: function() {
-            this.newComment.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username }
-            this.newComment.createdAt = new Date();
+        loadComments: function() {
+            this.isLoading = true;
+            this.collectionPath.doc(this.docId).collection("comments").orderBy("createdAt", "desc").get().then(commentSnapshot => {
+                this.comments = [];
+                commentSnapshot.forEach(comment => {
+                    let c = comment.data();
+                    c.id = comment.id;
+                    this.comments.push(c);
+                })
+                this.isLoading = false;
+                this.commentCounter = commentSnapshot.size;
+            })
+        },
 
-            // First add comment to the relevant collection.
-            this.collectionPath.doc(this.docId).collection("comments").add(this.newComment).then(commentRef => {
-                console.log(commentRef.id);
-                // Now add comment to the user.
-                let commentPayload = { type: this.pageType, docId: this.docId, createdAt: new Date() }
-                db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("comments").doc(commentRef.id).set(commentPayload).then(() => {
-                    this.comments.push(this.newComment);
-                    this.newComment = {};
+        addComment: function() {
+            if (this.newComment.content.trim() != "") {
+                let payload = this.newComment;
+                this.newComment = {};
+                payload.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username }
+                payload.createdAt = new Date();
+
+                // First add comment to the relevant collection.
+                this.collectionPath.doc(this.docId).collection("comments").add(payload).then(commentRef => {
+                    console.log(commentRef.id);
+                    // Now add comment to the user.
+                    let commentPayload = { type: this.pageType, docId: this.docId, createdAt: new Date() }
+                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("comments").doc(commentRef.id).set(commentPayload).then(() => {
+                        this.comments.push(payload);
+                        this.commentCounter ++;
+                    }).catch(e => {
+                        this.errorMessage = "Error adding comment to user: " + e;
+                        console.log(this.errorMessage);
+                    })
                 }).catch(e => {
-                    this.errorMessage = "Error adding comment to user: " + e;
+                    this.errorMessage = "Error adding comment to comments: " + e;
                     console.log(this.errorMessage);
                 })
-            }).catch(e => {
-                this.errorMessage = "Error adding comment to comments: " + e;
-                console.log(this.errorMessage);
-            })
+            } else {
+                console.log("Comment can't be blank.");
+                this.newComment = {}
+            }
         }
     },
 

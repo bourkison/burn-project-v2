@@ -14,7 +14,17 @@
                     </v-col>
                 </v-row>
                 <v-container class="mdOutput" v-html="compiledMarkdown"></v-container>
-                <div align="left" style="margin: 0 -10px;"><CommentSection :exercise-id="this.$props.userExerciseData.id" :is-liked="isLiked" :followableComponent="true"></CommentSection></div>
+                <div align="left" style="margin: 0 -10px;">
+                    <CommentSection 
+                        :exercise-id="this.$props.userExerciseData.id" 
+                        :is-liked="isLiked" 
+                        :like-count="exerciseData.likeCount" 
+                        :recentComments="exerciseData.recentComments"
+                        :commentCount="exerciseData.commentCount"
+                        :followableComponent="true" 
+                        @likeToggle="likeToggle"
+                    ></CommentSection>
+                    </div>
             </v-sheet>
         </v-container>
     </v-card>
@@ -96,6 +106,16 @@ export default {
             }
 
             document.activeElement.blur();
+        },
+
+        likeToggle: function(s) {
+            if (s === '') {
+                this.exerciseData.likeCount --;
+            } else {
+                this.exerciseData.likeCount ++;
+            }
+
+            this.isLiked = s; 
         }
     },
 

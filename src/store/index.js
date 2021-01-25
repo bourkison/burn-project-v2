@@ -7,17 +7,12 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    darkMode: true,
     userProfile: null,
     activeNavTab: undefined
   },
   mutations: {
     setLoggedInUser: function(state, user) {
       state.userProfile = user;
-    },
-
-    toggleDarkMode: function(state) {
-      state.darkMode = !state.darkMode;
     }
   },
   actions: {
