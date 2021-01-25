@@ -57,6 +57,9 @@ const routes = [
     path: '/exercises',
     name: 'Exercises',
     component: Exercises,
+    meta: {
+      requiresAuth: true
+    },
     children: [
       {
         path: '/exercises/new',

@@ -128,6 +128,7 @@ export default {
                 dob: null,
                 height: null,
                 heightUnit: 'cm',
+                profilePhotoFile: null,
                 weight: null,
                 weightUnit: 'kg',
                 country: "United States"

@@ -73,6 +73,7 @@ export default {
     },
 
     created: function() {
+        console.log("created");
         // Download Exercise Data
         db.collection("exercises").doc(this.$props.userExerciseData.id).get().then(exerciseDoc => {
             this.exerciseData = exerciseDoc.data();

@@ -11,7 +11,7 @@
 
 <template>
     <v-container class="commentSection">
-        <span>{{ likeCount }} <span v-if="likeCount != 1">likes</span><span v-else>like</span> | {{ commentCounter }} <span v-if="commentCount != 1">comments</span><span v-else>comment</span> | {{ followCount }} <span v-if="followCount != 1">follows</span><span v-else>follow</span></span>
+        <span>{{ likeCount }} <span v-if="likeCount != 1">likes</span><span v-else>like</span> | {{ commentCounter }} <span v-if="commentCount != 1">comments</span><span v-else>comment</span> | {{ followCounter }} <span v-if="followCounter != 1">follows</span><span v-else>follow</span></span>
         <v-row class="lcsCont">
             <v-col cols="12" sm="6">
                 <v-icon large @click="handleLike" :color="likeIconColor">{{ likeIcon }}</v-icon>
@@ -150,8 +150,8 @@ export default {
         }
         
         this.commentCounter = this.$props.commentCount;
+        this.followCounter = this.$props.followCount;
         this.comments = this.$props.recentComments;
-
     },
 
     methods: {
@@ -236,6 +236,7 @@ export default {
                         db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.docId).set(followPayload).then(() => {
                             this.isFollowed = this.docId;
                             this.snackbarHandler(true);
+                            this.followCounter ++;
                         }).catch(e => {
                             this.errorMessage = "Error creating follow. Error pushing to user's follows: " + e;
                             console.log(this.errorMessage);
@@ -255,6 +256,7 @@ export default {
                         db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.isFollowed).delete().then(() => {
                             this.isFollowed = '';
                             this.snackbarHandler(true);
+                            this.followCounter --;
                         }).catch(e => {
                             this.errorMessage = "Error deleting follow. Error deleting from user's follows: " + e;
                             console.log(this.errorMessage);
@@ -288,13 +290,14 @@ export default {
                 this.newComment = {};
                 payload.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username }
                 payload.createdAt = new Date();
+                payload.likeCount = 0;
 
                 // First add comment to the relevant collection.
                 this.collectionPath.doc(this.docId).collection("comments").add(payload).then(commentRef => {
-                    console.log(commentRef.id);
                     // Now add comment to the user.
                     let commentPayload = { type: this.pageType, docId: this.docId, createdAt: new Date() }
                     db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("comments").doc(commentRef.id).set(commentPayload).then(() => {
+                        payload.id = commentRef.id;
                         this.comments.push(payload);
                         this.commentCounter ++;
                     }).catch(e => {

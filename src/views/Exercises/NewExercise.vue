@@ -31,7 +31,7 @@
                     <v-carousel v-if="imageObjs.length > 0" v-model="model">
                         <v-carousel-item v-for="img in imageObjs" :key="img.id" :src="img.tempUrl"></v-carousel-item>
                     </v-carousel>
-                    <v-file-input prepend-icon="mdi-camera" chips multiple label="Add Up to 10 photos and/or a video." v-model="imageFiles" @change="handleFileUpload"></v-file-input> 
+                    <v-file-input prepend-icon="mdi-camera" chips clear-icon="" multiple label="Add Up to 10 photos and/or a video." v-model="imageFiles" append-icon="mdi-close" @change="handleFileUpload" @click:append="handleFileClose" ></v-file-input> 
                 </v-card>
                 <MarkdownInput @update-text="updateDescription"></MarkdownInput>
                 <v-row align="center" justify="center">
@@ -182,8 +182,12 @@ export default {
             this.imageObjs.forEach(img => {
                 this.imageFiles.push(img.file);
             })
-            console.log(this.imageFiles);
-            console.log(this.imageObjs);
+        },
+
+        handleFileClose() {
+            this.imageObjs = [];
+            this.imageFiles = [];
+            console.log("Close!");
         },
 
         updateDescription(t) {

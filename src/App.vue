@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import { auth, userCollection } from './firebase'
+import { auth, storage, userCollection } from './firebase'
 import SignUpForm from './components/SignUpForm.vue'
 import LogInForm from './components/LogInForm.vue'
 
@@ -130,11 +130,29 @@ export default {
           country: this.signUpForm.country
       }
 
+
       auth.createUserWithEmailAndPassword(this.signUpForm.email, this.signUpForm.password).then(user => {
           // User now created in Auth system. We now need to create User in Firestore.
           userCollection.doc(user.user.uid).set(userPayload).then(() => {
-                this.isLoading = false;
+                let imageRef = storage.ref("users/" + user.user.uid + "/pp/" + Number(new Date()));
 
+                imageRef.put(this.signUpForm.profilePhotoFile).then(() => {
+                  imageRef.getDownloadURL().then(profilePhotoUrl => {
+                    userCollection.doc(user.user.uid).update({ profilePhotoUrl }).then(() => {
+                      this.isLoading = false;
+                      this.signUpDialog = false;
+                    }).catch(e => {
+                      this.errorMessage = "Error assigning image URL to user." + e;
+                      console.log(this.errorMessage);
+                    })
+                  }).catch(e => {
+                    this.errorMessage = "Error downloading image URL." + e;
+                    console.log(this.errorMessage);
+                  })
+                }).catch(e => {
+                  this.errorMessage = "Error uploading image." + e;
+                  console.log(this.errorMessage);
+                })                
             }).catch(e => {
                 // TODO: Delete newly created user as not created properly.
                 this.errorMessage = "User signed up but error creating user doc." + e;
@@ -151,10 +169,10 @@ export default {
     login: function() {
       this.isLoading = true;
       auth.signInWithEmailAndPassword(this.signInForm.email, this.signInForm.password).then(() => {
-        this.isLoading = false
+        this.signInDialog = false;
+        this.isLoading = false;
       }).catch(e => {
         this.errorMEssage = "Error signing in: " + e;
-        console.log(this.errorMEssage);
         this.isLoading = false;
       });
     },
@@ -168,8 +186,15 @@ export default {
     },
 
     signOut: function() {
-      auth.signOut()
+      auth.signOut();
+      this.$router.push("/");
     }
   }
 }
 </script>
+
+<style scoped>
+  .ml-n9 {
+    margin-left: 0 !important;
+  }
+</style>
