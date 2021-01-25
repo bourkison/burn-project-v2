@@ -11,7 +11,7 @@
 
 <template>
     <v-container class="commentSection">
-        <span>{{ likeCount }} <span v-if="likeCount != 1">likes</span><span v-else>like</span> | {{ commentCounter }} <span v-if="commentCount != 1">comments</span><span v-else>comment</span> | x follows</span>
+        <span>{{ likeCount }} <span v-if="likeCount != 1">likes</span><span v-else>like</span> | {{ commentCounter }} <span v-if="commentCount != 1">comments</span><span v-else>comment</span> | {{ followCount }} <span v-if="followCount != 1">follows</span><span v-else>follow</span></span>
         <v-row class="lcsCont">
             <v-col cols="12" sm="6">
                 <v-icon large @click="handleLike" :color="likeIconColor">{{ likeIcon }}</v-icon>
@@ -29,7 +29,7 @@
                 <v-text-field v-model="newComment.content" label="New Comment" append-icon="mdi-send" @click:append="addComment"></v-text-field>
             </v-form>
 
-            <v-btn @click="loadComments" :loading="isLoading" v-if="commentCounter > comments.length">Load More Comments</v-btn>
+            <div align="center"><v-btn @click="loadComments" :loading="isLoading" v-if="commentCounter > comments.length">Load Comments</v-btn></div>
         </div>
 
         <v-snackbar
@@ -79,6 +79,10 @@ export default {
             required: true
         },
         commentCount: {
+            type: Number,
+            required: true
+        },
+        followCount: {
             type: Number,
             required: true
         }

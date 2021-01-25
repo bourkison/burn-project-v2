@@ -21,6 +21,7 @@
                         :like-count="exerciseData.likeCount" 
                         :recentComments="exerciseData.recentComments"
                         :commentCount="exerciseData.commentCount"
+                        :followCount="exerciseData.followCount"
                         :followableComponent="true" 
                         @likeToggle="likeToggle"
                     ></CommentSection>

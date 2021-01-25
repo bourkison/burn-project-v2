@@ -28,7 +28,7 @@ export default {
 
     created: function() {
         // Download relevant exercises.
-        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").get().then(exercisesSnapshot => {
+        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").orderBy("createdAt", "desc").get().then(exercisesSnapshot => {
             exercisesSnapshot.forEach(exercise => {
                 let data = { createdAt: exercise.data().createdAt, createdBy: exercise.data().createdBy, id: exercise.id }
                 this.exercises.push(data);

@@ -44,6 +44,7 @@
                     :is-liked="isLiked" 
                     :like-count="exerciseData.likeCount"
                     :commentCount="exerciseData.commentCount"
+                    :followCount="exerciseData.followCount"
                     :followableComponent="true" 
                     :recentComments="exerciseData.recentComments"
                     @likeToggle="likeToggle"
@@ -128,6 +129,11 @@ export default {
         },
 
         likeToggle: function(s) {
+            if (s) {
+                this.exerciseData.likeCount ++;
+            } else {
+                this.exerciseData.likeCount --;
+            }
             this.isLiked = s;
         }
     },
@@ -146,6 +152,7 @@ export default {
                         }
                     })
                     this.isLoading = false;
+                    console.log(this.exerciseData);
                 });
             }
         }

@@ -255,6 +255,7 @@ export default {
             this.exerciseForm.likeCount = 0;
             this.exerciseForm.recentComments = [];
             this.exerciseForm.commentCount = 0;
+            this.exerciseForm.followCount = 0;
 
             db.collection("exercises").doc(this.exerciseForm.id).get().then(idTestDoc => {
                 if (!idTestDoc.exists) {
