@@ -62,7 +62,7 @@
 import { db, storage } from '../../firebase'
 import * as marked from 'marked'
 
-import MuscleGroup from '../Utility/MuscleGroup.vue'
+import MuscleGroup from '../../components/MuscleGroup.vue'
 import CommentSection from '../Comments/CommentSection.vue'
 
 export default {

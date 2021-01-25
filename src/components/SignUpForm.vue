@@ -1,104 +1,107 @@
 <template>
     <v-container class="innerCont">
-        <h1 class="text-center">Sign Up</h1>
-        <v-text-field 
-            v-model="signUpForm.email" 
-            label="Email" 
-            :rules="[rules.required]" >
-        </v-text-field>
-        <!-- TODO: Add asynchronous rule to check for username uniqueness. -->
-        <v-text-field 
-            v-model="signUpForm.username" 
-            label="Username" 
-            :rules="[rules.required]" >
-        </v-text-field>
-        <v-row>
-            <v-col rows="12" md="6">
-                <v-text-field 
-                    v-model="signUpForm.password" 
-                    :rules="[rules.required, rules.min]"
-                    :type="showPassword ? 'text' : 'password'"
-                    label="Password"
-                    class="input-group--focused"
-                ></v-text-field>
-            </v-col>
-            <v-col rows="12" md="6">
-                <v-text-field
-                    v-model="signUpForm.confPassword"
-                    :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                    :rules="[rules.required, rules.passMatch, rules.min]"
-                    :type="showPassword ? 'text' : 'password'"
-                    label="Confirm Password"
-                    class="input-group--focused"
-                    @click:append="showPassword = !showPassword"
-                ></v-text-field>
-            </v-col>
-        </v-row>
-        <v-row>
-            <v-col cols="12" md="6">
-                <v-text-field
-                    v-model="signUpForm.firstName"
-                    label="First Name"
-                    :rules="[rules.required]"
-                ></v-text-field>
-            </v-col>
-            <v-col cols="12" md="6">
-                <v-text-field
-                    v-model="signUpForm.surname"
-                    label="Surname"
-                    :rules="[rules.required]"
-                ></v-text-field>
-            </v-col>                                
-        </v-row>
-        <v-menu
-            ref="menu"
-            v-model="birthdayMenu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            min-width="auto"
-        >
-            <template v-slot:activator="{on, attrs}">
-                <v-text-field
+        <v-form @submit.prevent="callSignUp">
+            <h1 class="text-center">Sign Up</h1>
+            <v-text-field 
+                v-model="signUpForm.email" 
+                label="Email" 
+                :rules="[rules.required]" >
+            </v-text-field>
+            <!-- TODO: Add asynchronous rule to check for username uniqueness. -->
+            <v-text-field 
+                v-model="signUpForm.username" 
+                label="Username" 
+                :rules="[rules.required]" >
+            </v-text-field>
+            <v-row>
+                <v-col rows="12" md="6">
+                    <v-text-field 
+                        v-model="signUpForm.password" 
+                        :rules="[rules.required, rules.min]"
+                        :type="showPassword ? 'text' : 'password'"
+                        label="Password"
+                        class="input-group--focused"
+                    ></v-text-field>
+                </v-col>
+                <v-col rows="12" md="6">
+                    <v-text-field
+                        v-model="signUpForm.confPassword"
+                        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                        :rules="[rules.required, rules.passMatch, rules.min]"
+                        :type="showPassword ? 'text' : 'password'"
+                        label="Confirm Password"
+                        class="input-group--focused"
+                        @click:append="showPassword = !showPassword"
+                    ></v-text-field>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col cols="12" md="6">
+                    <v-text-field
+                        v-model="signUpForm.firstName"
+                        label="First Name"
+                        :rules="[rules.required]"
+                    ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="6">
+                    <v-text-field
+                        v-model="signUpForm.surname"
+                        label="Surname"
+                        :rules="[rules.required]"
+                    ></v-text-field>
+                </v-col>                                
+            </v-row>
+            <v-menu
+                ref="menu"
+                v-model="birthdayMenu"
+                :close-on-content-click="false"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+            >
+                <template v-slot:activator="{on, attrs}">
+                    <v-text-field
+                        v-model="signUpForm.dob"
+                        label="Birthday"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                    ></v-text-field>
+                </template>
+                <v-date-picker
+                    ref="picker"
                     v-model="signUpForm.dob"
-                    label="Birthday"
-                    prepend-icon="mdi-calendar"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                ></v-text-field>
-            </template>
-            <v-date-picker
-                ref="picker"
-                v-model="signUpForm.dob"
-                :max="new Date().toISOString().substr(0,10)"
-                min="1921-01-01"
-                @change="inputBirthday"
-            ></v-date-picker>
-        </v-menu>
-        <v-row>
-            <v-col rows="12" md="4">
-                <v-text-field
-                    v-model="signUpForm.height"
-                    label="Height"
-                    :rules="[rules.required]"
-                ></v-text-field>
-            </v-col>
-            <v-col rows="12" md="2">
-                <v-select v-model="signUpForm.heightUnit" :items="['cm', 'inches']" :rules="[rules.required]"></v-select>
-            </v-col>
-            <v-col rows="12" md="4">
-                <v-text-field
-                    v-model="signUpForm.weight"
-                    label="Weight"
-                    :rules="[rules.required]"
-                ></v-text-field>
-            </v-col>
-            <v-col rows="12" md="2">
-                <v-select v-model="signUpForm.weightUnit" :items="['kg', 'lbs']" :rules="[rules.required]"></v-select>
-            </v-col>
-        </v-row>
-        <v-select v-model="signUpForm.country" :items="countryList" label="Country" :rules="[rules.required]"></v-select>
+                    :max="new Date().toISOString().substr(0,10)"
+                    min="1921-01-01"
+                    @change="inputBirthday"
+                ></v-date-picker>
+            </v-menu>
+            <v-row>
+                <v-col rows="12" md="4">
+                    <v-text-field
+                        v-model="signUpForm.height"
+                        label="Height"
+                        :rules="[rules.required]"
+                    ></v-text-field>
+                </v-col>
+                <v-col rows="12" md="2">
+                    <v-select v-model="signUpForm.heightUnit" :items="['cm', 'inches']" :rules="[rules.required]"></v-select>
+                </v-col>
+                <v-col rows="12" md="4">
+                    <v-text-field
+                        v-model="signUpForm.weight"
+                        label="Weight"
+                        :rules="[rules.required]"
+                    ></v-text-field>
+                </v-col>
+                <v-col rows="12" md="2">
+                    <v-select v-model="signUpForm.weightUnit" :items="['kg', 'lbs']" :rules="[rules.required]"></v-select>
+                </v-col>
+            </v-row>
+            <v-select v-model="signUpForm.country" :items="countryList" label="Country" :rules="[rules.required]"></v-select>
+            <input type="select" style="visibility:hidden;"/>
+        </v-form>
     </v-container>
 </template>
 
@@ -128,6 +131,10 @@ export default {
     methods: {
         inputBirthday: function(date) {
             this.$refs.menu.save(date);
+        },
+
+        callSignUp: function() {
+            this.$emit("callSignUp");
         }
     },
     

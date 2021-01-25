@@ -32,7 +32,9 @@
                 </v-btn>
               </template>
                 <v-card>
-                  <LogInForm :signInForm="signInForm"></LogInForm>
+                  <v-form @submit.prevent="login">
+                    <LogInForm @callLogin="callLogin" :signInForm="signInForm"></LogInForm>
+                  </v-form>
                 </v-card>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -52,7 +54,7 @@
                 </v-btn>
               </template>
               <v-card>
-                <SignUpForm :signUpForm="signUpForm"></SignUpForm>
+                <SignUpForm @callSignUp="callSignUp" :signUpForm="signUpForm"></SignUpForm>
               </v-card>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -155,6 +157,14 @@ export default {
         console.log(this.errorMEssage);
         this.isLoading = false;
       });
+    },
+
+    callLogin: function() {
+      this.login();
+    },
+
+    callSignUp: function() {
+      this.signUp();
     },
 
     signOut: function() {

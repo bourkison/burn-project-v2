@@ -75,8 +75,8 @@
 
 <script>
 import { db, storage } from '../../firebase'
-import MarkdownInput from '../Utility/MarkdownInput.vue'
-import MuscleGroupSelect from '../Utility/MuscleGroupSelect.vue'
+import MarkdownInput from '../../components/MarkdownInput.vue'
+import MuscleGroupSelect from '../../components/MuscleGroupSelect.vue'
 
 export default {
     name: "NewExercise",
