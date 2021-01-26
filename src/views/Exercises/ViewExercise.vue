@@ -15,8 +15,8 @@
                                 <v-icon v-bind="attrs" v-on="on">mdi-dots-vertical</v-icon>
                             </template>
                             <v-list>
-                                <v-list-item @click="editExercise" selectable>Edit</v-list-item>
-                                <v-list-item @click="deleteExercise" color="error" selectable>Delete</v-list-item>
+                                <v-list-item @click="editExercise" v-if="exerciseData.createdBy.id == $store.state.userProfile.data.uid" selectable>Edit</v-list-item>
+                                <v-list-item @click.stop="isDeletingDialogue = true" v-if="exerciseData.createdBy.id == $store.state.userProfile.data.uid" color="error" selectable>Delete</v-list-item>
                                 <v-list-item @click="reportExercise" color="error" selectable>Report</v-list-item>
                             </v-list>
                         </v-menu>
@@ -50,16 +50,33 @@
                     @likeToggle="likeToggle"
                 ></CommentSection>
             </v-card>
+            <!-- Delete Confirm Dialog -->
+            <v-dialog
+                v-if="exerciseData.createdBy.id == $store.state.userProfile.data.uid"
+                v-model="isDeletingDialogue"
+                width="500"
+            >
+                <v-card>
+                    <v-card-title>Delete?</v-card-title>
+                    <v-card-text>Are you sure you want to delete? You can not un-delete.</v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn text @click="isDeletingDialogue = false">Cancel</v-btn>
+                        <v-btn text color="error" @click="deleteExercise" :loading="isLoading">Delete</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <!-- End Delete Dialogue -->
         </v-container>
 
         <v-container v-else>
-            <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
+            <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div><v-btn @click="deleteExercise">Test Delete</v-btn>
         </v-container>
     </v-sheet>
 </template>
 
 <script>
-import { db, storage } from '../../firebase'
+import { db, storage, functions } from '../../firebase'
 import * as marked from 'marked'
 
 import MuscleGroup from '../../components/MuscleGroup.vue'
@@ -75,13 +92,15 @@ export default {
             exerciseData: {},
             imgUrls: [],
             isLiked: '',
+            errorMessage: '',
 
             // Firebase:
             downloadedImageCounter: 0,
 
             // Vuetify:
             model: 0,
-            starsAmount: 0
+            starsAmount: 0,
+            isDeletingDialogue: false
         }
     },
     created: function() {
@@ -121,7 +140,19 @@ export default {
         },
 
         deleteExercise: function() {
-            console.log("delete");
+            console.log(this.exerciseData);
+
+            // As deleting an exercise would be too resource intensive, we must call a Firebase Function.
+            let deleteFunction = functions.httpsCallable("deleteExercise");
+            let path = "exercises/" + this.$route.params.exerciseid;
+
+            deleteFunction({ path: path }).then(result => {
+                console.log("Success" + result);
+            }).catch(e => {
+                console.log("Failure" + e);
+            })
+
+            this.isDeletingDialogue = false;
         },
 
         reportExercise: function() {

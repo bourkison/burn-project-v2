@@ -5,7 +5,7 @@
             <v-container v-if="exercises.length > 0 && !isLoading">
                 <ViewExerciseMin v-for="exercise in exercises" :userExerciseData="exercise" :key="exercise.id"></ViewExerciseMin>
             </v-container>
-            <v-container v-else-if="!isLoading">
+            <v-container v-else-if="isLoading">
                 <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
             </v-container>
             <v-container v-else>

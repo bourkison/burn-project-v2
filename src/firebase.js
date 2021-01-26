@@ -22,6 +22,9 @@ const storage = firebase.storage();
 const userCollection = db.collection("users");
 const exerciseCollection = db.collection("exercises");
 
+// Set our functions region.
+var functions= firebase.app().functions("australia-southeast1");
+
 // Function waits for login to happen, and is called in guarded routes.
 // Fixes the problem of instantly getting redirected on guarded routes when
 // firebase hasn't had time to log in yet.
@@ -34,4 +37,4 @@ firebase.getCurrentUser = () => {
     })
 };
 
-export { db, auth, userCollection, exerciseCollection, storage }
+export { db, auth, userCollection, exerciseCollection, storage, functions }
