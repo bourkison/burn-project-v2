@@ -10,10 +10,7 @@
         imgUrl: array of URL strings,
         videoSrc: video src string,
         createdBy: userId,
-        createdAt: Timestamp,
-
-        likes: [], // Array of user IDs
-
+        createdAt: Timestamp
     }
 -->
 

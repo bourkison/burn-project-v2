@@ -7,7 +7,7 @@
                     <v-card >
                         <v-list flat> 
                             <v-list-item-group v-model="selection" color="primary">
-                                <v-list-item to="/exercises">
+                                <v-list-item to="/exercises" class="homeListItem">
                                     <v-list-item-icon>
                                         <v-icon>mdi-home-outline</v-icon>
                                     </v-list-item-icon>
@@ -57,13 +57,28 @@ export default {
             isLoading: false,
 
             // Vuetify:
-            selection: []
+            selection: 0
         }
     },
 
     methods: {
         clear: function() {
             this.selection = [];
+        }
+    },
+
+    watch: {
+        selection: function(n) {
+            if (n === undefined) {
+                this.selection = 0;
+                return;
+            }
+
+            if (this.selection != 0) {
+                document.querySelector(".homeListItem").classList.remove("v-item--active", "v-list-item--active");
+            } else {
+                document.querySelector(".homeListItem").classList.add("v-item--active", "v-list-item--active");
+            }
         }
     }
 }
