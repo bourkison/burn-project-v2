@@ -70,7 +70,7 @@
         </v-container>
 
         <v-container v-else>
-            <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div><v-btn @click="deleteExercise">Test Delete</v-btn>
+            <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
         </v-container>
     </v-sheet>
 </template>
@@ -136,7 +136,7 @@ export default {
         },
 
         editExercise: function() {
-            console.log("edit");
+            this.$router.push("/exercises/" + this.$route.params.exerciseid + "/edit");
         },
 
         deleteExercise: function() {

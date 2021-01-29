@@ -34,3 +34,4 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 * Look at distributed counters for Likes count: [Docs](https://firebase.google.com/docs/firestore/solutions/counters#web) [Tutorial](https://fireship.io/lessons/firestore-cloud-functions-data-aggregation/)
 * Add a 5 most recent comments array onto the parent of Exercises/Workouts etc
 * Images on exercises have no order. Fix that.
+* Add graphs to user's profile for recent workouts.

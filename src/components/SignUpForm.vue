@@ -1,5 +1,5 @@
 <template>
-    <v-container class="innerCont">
+    <v-container class="innerCont" style="overflow-x:hidden;">
         <v-form @submit.prevent="callSignUp">
             <h1 class="text-center">Sign Up</h1>
             <v-row align="center" justify="center">

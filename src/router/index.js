@@ -6,6 +6,7 @@ import Home from '../views/Home.vue'
 
 import Exercises from '../views/Exercises/Exercise.vue'
 import NewExercise from '../views/Exercises/NewExercise.vue'
+import EditExercise from '../views/Exercises/EditExercise.vue'
 import ViewExercise from '../views/Exercises/ViewExercise.vue'
 import ViewAllExercises from '../views/Exercises/ViewAllExercises.vue'
 import ViewExercises from '../views/Exercises/ViewExercises.vue'
@@ -75,6 +76,11 @@ const routes = [
         path: '/exercises/:exerciseid',
         name: 'View Exercise',
         component: ViewExercise
+      },
+      {
+        path: '/exercises/:exerciseid/edit',
+        name: 'Edit Exercise',
+        component: EditExercise
       },
       {
         path: '/exercises',
