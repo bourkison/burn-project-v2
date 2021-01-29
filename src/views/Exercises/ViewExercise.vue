@@ -149,12 +149,12 @@ export default {
             deleteFunction({ path: path }).then(result => {
                 console.log("Success" + result);
                 this.isLoading = false;
+                this.isDeletingDialogue = false;
                 this.$router.push("/exercises");
             }).catch(e => {
                 console.log("Failure" + e);
             })
 
-            this.isDeletingDialogue = false;
         },
 
         reportExercise: function() {

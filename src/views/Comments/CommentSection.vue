@@ -161,7 +161,7 @@ export default {
         },
 
         snackbarHandler: function(t) {
-            if (t) {
+            if (t === true) {
                 this.snackbar = true;
                 if (this.isFollowed) {
                     this.snackbarText = this.pageType.charAt(0).toUpperCase() + this.pageType.slice(1) + " followed!";
@@ -288,7 +288,7 @@ export default {
             if (this.newComment.content.trim() != "") {
                 let payload = this.newComment;
                 this.newComment = {};
-                payload.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username }
+                payload.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhotoUrl: this.$store.state.userProfile.docData.profilePhotoUrl }
                 payload.createdAt = new Date();
                 payload.likeCount = 0;
 
