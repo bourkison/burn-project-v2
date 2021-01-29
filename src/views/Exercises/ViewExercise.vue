@@ -140,14 +140,16 @@ export default {
         },
 
         deleteExercise: function() {
-            console.log(this.exerciseData);
-
             // As deleting an exercise would be too resource intensive, we must call a Firebase Function.
+            // This deletes this document, all subcollections underneath, as well as the documents for all follows that follow this.
+            this.isLoading = true;
             let deleteFunction = functions.httpsCallable("deleteExercise");
             let path = "exercises/" + this.$route.params.exerciseid;
 
             deleteFunction({ path: path }).then(result => {
                 console.log("Success" + result);
+                this.isLoading = false;
+                this.$router.push("/exercises");
             }).catch(e => {
                 console.log("Failure" + e);
             })
