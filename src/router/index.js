@@ -4,12 +4,16 @@ import VueRouter from 'vue-router'
 
 import Home from '../views/Home.vue'
 
-import Exercises from '../views/Exercises/Exercise.vue'
+import Exercise from '../views/Exercises/Exercise.vue'
 import NewExercise from '../views/Exercises/NewExercise.vue'
 import EditExercise from '../views/Exercises/EditExercise.vue'
 import ViewExercise from '../views/Exercises/ViewExercise.vue'
 import ViewAllExercises from '../views/Exercises/ViewAllExercises.vue'
 import ViewExercises from '../views/Exercises/ViewExercises.vue'
+
+import Workout from '../views/Workouts/Workout.vue'
+import NewWorkout from '../views/Workouts/NewWorkout.vue'
+import ViewWorkouts from '../views/Workouts/ViewWorkouts.vue'
 
 import UserProfile from '../views/Users/UserProfile.vue'
 import Profile from '../views/Users/Profile.vue'
@@ -57,7 +61,7 @@ const routes = [
   {
     path: '/exercises',
     name: 'Exercises',
-    component: Exercises,
+    component: Exercise,
     meta: {
       requiresAuth: true
     },
@@ -89,6 +93,26 @@ const routes = [
       },    
     ]
   },
+  {
+    path: '/workouts',
+    name: 'Workouts',
+    component: Workout,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path: '/workouts/new',
+        name: 'New Workout',
+        component: NewWorkout
+      },
+      {
+        path: '/workouts',
+        name: 'View Workouts',
+        component: ViewWorkouts
+      }
+    ]
+  }
 ]
 
 const router = new VueRouter({

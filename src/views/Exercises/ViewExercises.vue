@@ -40,7 +40,7 @@ export default {
                 })
             }
             this.isLoading = false;
-        }).catch( e=> {
+        }).catch(e => {
             this.isLoading = false;
             this.errorMessage = "Error downloading exercises" + e;
             console.log(this.errorMessage);

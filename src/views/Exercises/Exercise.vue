@@ -61,9 +61,13 @@ export default {
         }
     },
 
-    methods: {
-        clear: function() {
-            this.selection = [];
+    mounted: function() {
+        if (this.$route.name == "New Exercise") {
+            this.selection = 2;
+            document.querySelector(".homeListItem").classList.remove("v-item--active", "v-list-item--active");
+        } else if (this.$route.name == "View Exercises") {
+            this.selection = 1;
+            document.querySelector(".homeListItem").classList.remove("v-item--active", "v-list-item--active");
         }
     },
 
