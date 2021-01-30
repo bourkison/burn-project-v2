@@ -1,44 +1,47 @@
 <template>
     <v-sheet>
         <v-container v-if="!isLoading">
-            <h1>{{ newExerciseData.name }}</h1>
-            <v-text-field v-model="newExerciseData.name" :rules=[rules.required] label="Exercise Name"></v-text-field>
-            <div>TODO: Image</div>
-            <MarkdownInput :starting-text="oldExerciseData.description" @update-text="updateDescription"></MarkdownInput>
-            <v-row>
-                <v-col cols="12" sm="6">
-                    <MuscleGroupSelect :selectedMgs="oldExerciseData.muscleGroups" @mgCH="updateMgs"></MuscleGroupSelect>
-                    <v-card class="difficultyCard" align="center" outlined style="margin-top: 10px;">
-                        <h2>Difficulty</h2>
-                        <v-icon :color="stars[0].color" @click="starClick(0)" @mouseover="starHover(true, 0)" @mouseleave="starHover(false, 0)" x-large>{{ stars[0].icon }}</v-icon>
-                        <v-icon :color="stars[1].color" @click="starClick(1)" @mouseover="starHover(true, 1)" @mouseleave="starHover(false, 1)" x-large>{{ stars[1].icon }}</v-icon>
-                        <v-icon :color="stars[2].color" @click="starClick(2)" @mouseover="starHover(true, 2)" @mouseleave="starHover(false, 2)" x-large>{{ stars[2].icon }}</v-icon>
-                        <v-icon :color="stars[3].color" @click="starClick(3)" @mouseover="starHover(true, 3)" @mouseleave="starHover(false, 3)" x-large>{{ stars[3].icon }}</v-icon>
-                        <v-icon :color="stars[4].color" @click="starClick(4)" @mouseover="starHover(true, 4)" @mouseleave="starHover(false, 4)" x-large>{{ stars[4].icon }}</v-icon>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" sm="6">
-                    <v-card style="margin-top:10px;" align="center" outlined>
-                        <v-container class="setsAdder">
-                            <h2>Suggested Sets</h2>
-                            <v-row v-for="set in newExerciseData.suggestedSets" :key="set.id" align="center" justify="center" style="border-bottom: 1px solid var(--v-secondary-base);">
-                                <v-col cols="12" xl="6" sm="12">
-                                    <v-select :items="measureByOptions" v-model="set.measureBy"></v-select>
-                                </v-col>
-                                <v-col cols="12" xl="5" sm="10">
-                                    <v-text-field v-if="set.measureBy == 'Time'" label="Suggested Time (secs)" :rules=[rules.isNumber] v-model="set.measureAmount"></v-text-field>
-                                    <v-text-field v-if="set.measureBy == 'Reps'" label="Suggested Reps" :rules=[rules.isNumber] v-model="set.measureAmount"></v-text-field>
-                                </v-col>
+            <v-form @submit.prevent="updateExercise">
+                <h1>{{ newExerciseData.name }}</h1>
+                <v-text-field v-model="newExerciseData.name" :rules=[rules.required] label="Exercise Name"></v-text-field>
+                <div>TODO: Image</div>
+                <MarkdownInput :starting-text="oldExerciseData.description" @update-text="updateDescription"></MarkdownInput>
+                <v-row>
+                    <v-col cols="12" sm="6">
+                        <MuscleGroupSelect :selectedMgs="oldExerciseData.muscleGroups" @mgCH="updateMgs"></MuscleGroupSelect>
+                        <v-card class="difficultyCard" align="center" outlined style="margin-top: 10px;">
+                            <h2>Difficulty</h2>
+                            <v-icon :color="stars[0].color" @click="starClick(0)" @mouseover="starHover(true, 0)" @mouseleave="starHover(false, 0)" x-large>{{ stars[0].icon }}</v-icon>
+                            <v-icon :color="stars[1].color" @click="starClick(1)" @mouseover="starHover(true, 1)" @mouseleave="starHover(false, 1)" x-large>{{ stars[1].icon }}</v-icon>
+                            <v-icon :color="stars[2].color" @click="starClick(2)" @mouseover="starHover(true, 2)" @mouseleave="starHover(false, 2)" x-large>{{ stars[2].icon }}</v-icon>
+                            <v-icon :color="stars[3].color" @click="starClick(3)" @mouseover="starHover(true, 3)" @mouseleave="starHover(false, 3)" x-large>{{ stars[3].icon }}</v-icon>
+                            <v-icon :color="stars[4].color" @click="starClick(4)" @mouseover="starHover(true, 4)" @mouseleave="starHover(false, 4)" x-large>{{ stars[4].icon }}</v-icon>
+                        </v-card>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                        <v-card style="margin-top:10px;" align="center" outlined>
+                            <v-container class="setsAdder">
+                                <h2>Suggested Sets</h2>
+                                <v-row v-for="set in newExerciseData.suggestedSets" :key="set.id" align="center" justify="center" style="border-bottom: 1px solid var(--v-secondary-base);">
+                                    <v-col cols="12" xl="6" sm="12">
+                                        <v-select :items="measureByOptions" v-model="set.measureBy"></v-select>
+                                    </v-col>
+                                    <v-col cols="12" xl="5" sm="10">
+                                        <v-text-field v-if="set.measureBy == 'Time'" label="Suggested Time (secs)" :rules=[rules.isNumber] v-model="set.measureAmount"></v-text-field>
+                                        <v-text-field v-if="set.measureBy == 'Reps'" label="Suggested Reps" :rules=[rules.isNumber] v-model="set.measureAmount"></v-text-field>
+                                    </v-col>
 
-                                <v-col cols="12" xl="1" sm="2">
-                                    <v-icon width="100%" @click="deleteSet(set.id)" color="error">mdi-close</v-icon>
-                                </v-col>
-                            </v-row>
-                            <v-btn @click="addSet" style="margin-top: 25px;">Add Set</v-btn>
-                        </v-container>
-                    </v-card>
-                </v-col>
-            </v-row>
+                                    <v-col cols="12" xl="1" sm="2">
+                                        <v-icon width="100%" @click="deleteSet(set.id)" color="error">mdi-close</v-icon>
+                                    </v-col>
+                                </v-row>
+                                <v-btn @click="addSet" style="margin-top: 25px;">Add Set</v-btn>
+                            </v-container>
+                        </v-card>
+                    </v-col>
+                </v-row>
+                <div class="text-center" style="margin-top:10px;"><v-btn type="submit" :loading="isUpdating" :disabled="isUpdating">Update Exercise</v-btn></div>
+            </v-form>
         </v-container>
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
@@ -57,6 +60,7 @@ export default {
     data() {
         return {
             isLoading: true,
+            isUpdating: false,
             oldExerciseData: {},
             newExerciseData: {},
             imgUrls: [],
@@ -120,6 +124,23 @@ export default {
             })
         },
 
+        updateExercise: function() {
+            this.isUpdating = true;
+
+            // First step, remove ID from the suggested sets.
+            this.newExerciseData.suggestedSets.forEach(s => {
+                delete s.id;
+            })
+
+            db.collection("exercises").doc(this.$route.params.exerciseid).update(this.newExerciseData).then(() => {
+                this.isUpdating = false;
+                this.$router.push("/exercises/" + this.$route.params.exerciseid);
+            }).catch(e => {
+                console.log("Error updating exexrcise", e);
+                this.isUpdating = false;
+            });
+        },
+
         addSet: function() {
             this.setIterator ++;
             this.newExerciseData.suggestedSets.push({ id: this.setIterator, measureBy: this.newExerciseData.suggestedSets[this.newExerciseData.suggestedSets.length - 1].measureBy })
@@ -168,7 +189,7 @@ export default {
         },
 
         updateMgs: function(mg) {
-            this.exerciseForm.muscleGroups = mg;
+            this.newExerciseData.muscleGroups = mg;
         }
     },
 
