@@ -73,7 +73,16 @@
 <script>
 export default {
     name: 'MuscleGroup',
-    props: ["editable", "selectedGroups"],
+    props: {
+        editable: {
+            type: Boolean,
+            required: false
+        },
+        selectedGroups: {
+            type: Array,
+            required: false
+        }
+    },
     data() {
         return {
             // Temp variable as watcher doesn't seem to work when clicking body parts.

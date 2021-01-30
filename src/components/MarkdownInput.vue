@@ -69,6 +69,12 @@ import _ from 'lodash'
 
 export default {
     name: 'MarkdownInput',
+    props: {
+        startingText: {
+            type: String,
+            required: false
+        }
+    },
     data() {
         return {
             inputDescription: '',
@@ -87,6 +93,12 @@ export default {
                 required: value => !!value || 'Required.',
                 max: value => value.length <= 5096 || 'Max 5096 characters.'
             }
+        }
+    },
+
+    mounted: function() {
+        if (this.$props.startingText) {
+            this.inputDescription = this.$props.startingText
         }
     },
 

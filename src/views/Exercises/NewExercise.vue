@@ -17,7 +17,7 @@
 <template>
     <v-sheet>
         <v-container>
-            <h1 align="center">{{ this.exerciseForm.name ? this.exerciseForm.name : 'New Exercise' }}</h1>
+            <h1 align="center">{{ exerciseForm.name ? exerciseForm.name : 'New Exercise' }}</h1>
             <v-form @submit.prevent="createExercise">
                 <v-text-field
                     v-model="exerciseForm.name"

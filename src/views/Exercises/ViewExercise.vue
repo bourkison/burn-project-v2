@@ -1,6 +1,6 @@
 <template>
     <v-sheet class="mainSheet" min-height="70vh" rounded="lg">
-        <v-container v-if="exerciseData.imgPaths">
+        <v-container v-if="!isLoading">
             <v-card>
             <v-row class="headerRow" align="center" justify="center">
                 <v-col cols="12" sm="6">
@@ -131,7 +131,6 @@ export default {
                     this.exerciseExists = false;
                     this.isLoading = false;
                 }
-                this.isLoading = false;
             })
         },
 
@@ -185,6 +184,7 @@ export default {
                         }
                     })
                     this.isLoading = false;
+                    console.log(this.isLoading);
                 });
             }
         }
