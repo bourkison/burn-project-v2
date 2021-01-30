@@ -1,8 +1,8 @@
 <template>
-    <v-container>
+    <v-container class="mainCont" fluid>
         <v-row>
             <v-spacer></v-spacer>
-            <v-col cols="12" sm="2">
+            <v-col cols="12"  sm="3" xl="2">
                 <v-sheet rounded="lg">
                     <v-card >
                         <v-list flat> 
@@ -39,7 +39,7 @@
             <v-col cols="12" sm="6">
                 <router-view></router-view>
             </v-col>
-            <v-col cols="12" sm="2">
+            <v-col cols="12" sm="3" xl="2">
                 <v-sheet rounded="lg" min-height="268">
                     <!--  -->
                 </v-sheet>
@@ -83,3 +83,10 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+    .mainCont {
+        width: 100%;
+        max-width: 1400px !important;
+    }
+</style>

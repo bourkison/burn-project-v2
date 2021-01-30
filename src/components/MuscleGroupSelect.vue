@@ -35,12 +35,25 @@ import MuscleGroup from './MuscleGroup.vue'
 export default {
     name: "MuscleGroupSelect",
     components: { MuscleGroup },
+    props: {
+        selectedMgs: {
+            type: Array,
+            required: false
+        }
+    },
     data() { 
         return {
             selectedMuscleGroups: [],
             allMuscleGroups: ["Trapezius","Deltoids","Forearms","Lats","Abs","Obliques","Pectorals","Adductors","Calves","Hamstrings","Glutes","Quads","Triceps","Biceps"] 
         }
     },
+
+    mounted: function() {
+        if (this.$props.selectedMgs) {
+            this.selectedMuscleGroups = this.$props.selectedMgs;
+        }
+    },
+
     methods: {
         muscleGroupClickHandler: function(id) {
             if (!this.selectedMuscleGroups.includes(id)) {
