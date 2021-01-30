@@ -1,18 +1,33 @@
 <template>
-    <div>New Workout</div>
+    <v-sheet>
+        <v-container v-if="!isLoading">
+            <h1 align="center">{{ workoutForm.name ? workoutForm.name : 'New Workout' }}</h1>
+            <ExerciseSelector :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises"></ExerciseSelector>
+        </v-container>
+        <v-container v-else>
+            <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
+        </v-container>
+    </v-sheet>
 </template>
 
 <script>
 import { db } from '../../firebase'
+import ExerciseSelector from '../../components/ExerciseSelector.vue'
 
 export default {
     name: 'NewWorkout',
+    components: { ExerciseSelector },
     data() {
         return {
             isLoading: true,
             errorMessage: '',
             userCreatedExercises: [],
-            userFollowedExercises: []
+            userFollowedExercises: [],
+            workoutForm: {
+                name: '',
+                description: '',
+                exercises: []
+            }
         }
     },
 
