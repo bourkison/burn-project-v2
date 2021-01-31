@@ -17,7 +17,7 @@
 
 <script>
 import { db } from '../../firebase'
-import ViewExerciseMin from './ViewExerciseMin'
+import ViewExerciseMin from './ViewExerciseMin.vue'
 
 export default {
     name: 'ViewExercises',

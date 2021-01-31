@@ -7,7 +7,7 @@
             <v-sheet align="center">
                 <v-row>
                     <v-col cols="12" sm="6">
-                        <router-link :to="'/exercises/' + userExerciseData.id"><h1 align="left">{{ exerciseData.name }}</h1></router-link>
+                        <router-link :to="'/exercises/' + userExerciseData.id"><h2 align="left">{{ exerciseData.name }}</h2></router-link>
                     </v-col>
                     <v-col cols="12" sm="6">
                         <div align="right"><v-icon large class="expandChevron" @click="descriptionToggle($event)">mdi-chevron-down</v-icon></div>

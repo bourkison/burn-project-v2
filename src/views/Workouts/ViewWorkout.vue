@@ -22,6 +22,18 @@
                     <ExerciseExpandable v-for="exercise in workoutData.exercises" :key="exercise.id" :exercise="exercise"></ExerciseExpandable>
                 </v-expansion-panels>
             </v-card>
+            <v-card style="margin-top: 10px;">
+                <CommentSection
+                    :workout-id="this.$route.params.workoutid"
+                    :is-liked="isLiked"
+                    :like-count="workoutData.likeCount"
+                    :recentComments="workoutData.recentComments"
+                    :commentCount="workoutData.commentCount"
+                    :followCount="workoutData.followCount"
+                    :followableComponent="true"
+                    @likeToggle="likeToggle"
+                ></CommentSection>
+            </v-card>
         </v-container>
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
@@ -33,15 +45,17 @@
 import { db } from '../../firebase'
 import * as marked from 'marked'
 
+import CommentSection from '../Comments/CommentSection.vue'
 import ExerciseExpandable from '../../components/Exercise/ExerciseExpandable.vue'
 
 export default {
     name: 'ViewWorkout',
-    components: { ExerciseExpandable },
+    components: { CommentSection, ExerciseExpandable },
     data() {
         return {
             isLoading: true,
-            workoutData: {}
+            workoutData: {},
+            isLiked: ''
         }
     },
 
@@ -65,10 +79,27 @@ export default {
                 if (workoutDoc.exists) {
                     this.workoutData = workoutDoc.data();
 
-                    // Then download exercise data.
-                    this.isLoading = false;
+                    // Check if the user has liked.
+                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$route.params.workoutid).get().then(likeSnapshot => {
+                        likeSnapshot.forEach(like => {
+                            if (like.exists) {
+                                this.isLiked = like.id;
+                            }
+                        })
+                        this.isLoading = false;
+                    })                
                 }
             })
+        },
+
+        likeToggle: function(s) {
+            if (s) {
+                this.workoutData.likeCount ++;
+            } else {
+                this.workoutData.likeCount --;
+            }
+
+            this.isLiked = s;
         }
     }
 }

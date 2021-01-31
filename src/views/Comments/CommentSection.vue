@@ -62,6 +62,10 @@ export default {
             type: String,
             required: false
         },
+        workoutId: {
+            type: String,
+            required: false
+        },
         isLiked: {
             type: String,
             required: true
@@ -120,7 +124,12 @@ export default {
             this.pageType = "exercise";
             this.collectionPathString = "exercises";
             this.docId = this.$props.exerciseId;
-        }   
+        } else if (this.$props.workoutId) {
+            this.collectionPath = db.collection("workouts");
+            this.pageType = "workout";
+            this.collectionPathString = "workouts";
+            this.docId = this.$props.workoutId;
+        }
 
         // Check if liked or not.
         if (this.isLiked) {

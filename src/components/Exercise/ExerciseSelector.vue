@@ -2,7 +2,7 @@
     <v-card outlined>
         <v-container v-if="!isLoading">
             <v-row>
-                <v-col cols="12" sm="6">
+                <v-col cols="12" md="6" sm="12">
                     <h4>Exercises</h4>
                     <v-list flat>
                         <v-list-group v-if="createdExercisesData.length > 0" sub-group no-action>
@@ -39,31 +39,21 @@
                     </v-list>
                 </v-col>
 
-                <v-col cols="12" sm="6">
+                <v-col cols="12" md="6" sm="12">
                     <h4>Selected Exercises</h4>
-                    <div id="selectedContainer">
-                        <!-- <div class="selectedExercise" v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
-                            <v-row align="center" justify="center">
-                                <v-col cols="12" sm="10">{{selectedExercise.name}}</v-col>
-                                <v-col cols="12" sm="2" class="sortableHandle"><v-icon>mdi-drag-horizontal-variant</v-icon></v-col>
-                            </v-row>
-                        </div> -->
-                        <v-expansion-panels>
-                            <v-expansion-panel v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
-                                <v-expansion-panel-header>
-                                    <v-row>
-                                        <v-col cols="12" sm="10">{{ selectedExercise.name }}</v-col>
-                                        <v-col cols="12" sm="2" class="sortableHandle"><v-icon>mdi-drag-horizontal-variant</v-icon></v-col>
-                                    </v-row>
-                                </v-expansion-panel-header>
-                                <v-expansion-panel-content>
-                                    <v-sheet align="center">
-                                        <v-container v-html="compiledMarkdown(selectedExercise.description)"></v-container>
-                                    </v-sheet>
-                                </v-expansion-panel-content>    
-                            </v-expansion-panel>
-                        </v-expansion-panels>   
-                    </div>
+                    <v-expansion-panels id="selectedContainer">
+                        <v-expansion-panel v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
+                            <v-expansion-panel-header>
+                                <span>{{ selectedExercise.name }}</span>
+                                <span class="sortableHandle" style="text-align:right;" @click.native.stop>
+                                    <v-icon>mdi-drag-horizontal-variant</v-icon>
+                                </span>
+                            </v-expansion-panel-header>
+                            <v-expansion-panel-content>
+                                <v-sheet class="mdOutput" v-html="compiledMarkdown(selectedExercise.description)"></v-sheet>
+                            </v-expansion-panel-content>    
+                        </v-expansion-panel>
+                    </v-expansion-panels>   
                 </v-col>
             </v-row>
         </v-container>
@@ -220,4 +210,18 @@ export default {
     .sortableHandle:hover {
         cursor: pointer;
     }
+
+    .mdOutput h1,
+    .mdOutput h2,
+    .mdOutput h3,
+    .mdOutput h4,
+    .mdOutput h5,
+    .mdOutput h6 {
+        font-size: 12px;
+    }
+
+    .mdOutput {
+        font-size: 10px;
+    }
+
 </style>
