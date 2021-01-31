@@ -42,12 +42,27 @@
                 <v-col cols="12" sm="6">
                     <h4>Selected Exercises</h4>
                     <div id="selectedContainer">
-                        <div class="selectedExercise" v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
+                        <!-- <div class="selectedExercise" v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
                             <v-row align="center" justify="center">
                                 <v-col cols="12" sm="10">{{selectedExercise.name}}</v-col>
                                 <v-col cols="12" sm="2" class="sortableHandle"><v-icon>mdi-drag-horizontal-variant</v-icon></v-col>
                             </v-row>
-                        </div>
+                        </div> -->
+                        <v-expansion-panels>
+                            <v-expansion-panel v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
+                                <v-expansion-panel-header>
+                                    <v-row>
+                                        <v-col cols="12" sm="10">{{ selectedExercise.name }}</v-col>
+                                        <v-col cols="12" sm="2" class="sortableHandle"><v-icon>mdi-drag-horizontal-variant</v-icon></v-col>
+                                    </v-row>
+                                </v-expansion-panel-header>
+                                <v-expansion-panel-content>
+                                    <v-sheet align="center">
+                                        <v-container v-html="compiledMarkdown(selectedExercise.description)"></v-container>
+                                    </v-sheet>
+                                </v-expansion-panel-content>    
+                            </v-expansion-panel>
+                        </v-expansion-panels>   
                     </div>
                 </v-col>
             </v-row>
@@ -59,8 +74,9 @@
 </template>
 
 <script>
-import { db } from '../firebase'
+import { db } from '../../firebase'
 import Sortable from 'sortablejs'
+import * as marked from 'marked'
 
 export default {
     name: 'ExerciseSelector',
@@ -133,6 +149,11 @@ export default {
             if (event.newIndex !== event.oldIndex) {
                 this.selectedExercisesData.splice(event.newIndex, 0, this.selectedExercisesData.splice(event.oldIndex, 1)[0]);
             }
+        },
+
+        compiledMarkdown: function(description) {
+            console.log(description);
+            return marked(description);
         }
     },
 

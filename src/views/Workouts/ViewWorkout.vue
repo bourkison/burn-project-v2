@@ -12,6 +12,16 @@
                     </v-col>
                 </v-row>
             </v-card>
+            <v-card>
+                <v-sheet align="center">
+                    <v-container class="mdOutput" v-html="compiledMarkdown"></v-container>
+                </v-sheet>
+            </v-card>
+            <v-card>
+                <v-expansion-panels>
+                    <ExerciseExpandable v-for="exercise in workoutData.exercises" :key="exercise.id" :exercise="exercise"></ExerciseExpandable>
+                </v-expansion-panels>
+            </v-card>
         </v-container>
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
@@ -21,9 +31,13 @@
 
 <script>
 import { db } from '../../firebase'
+import * as marked from 'marked'
+
+import ExerciseExpandable from '../../components/Exercise/ExerciseExpandable.vue'
 
 export default {
     name: 'ViewWorkout',
+    components: { ExerciseExpandable },
     data() {
         return {
             isLoading: true,
@@ -37,6 +51,12 @@ export default {
 
     beforeRouteUpdate: function() {
         this.downloadWorkout();
+    },
+
+    computed: {
+        compiledMarkdown: function() {
+            return marked(this.workoutData.description);
+        }
     },
 
     methods: {
