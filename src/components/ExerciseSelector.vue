@@ -41,7 +41,14 @@
 
                 <v-col cols="12" sm="6">
                     <h4>Selected Exercises</h4>
-                    <p v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">{{selectedExercise.name}}</p>
+                    <div id="selectedContainer">
+                        <div class="selectedExercise" v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
+                            <v-row align="center" justify="center">
+                                <v-col cols="12" sm="10">{{selectedExercise.name}}</v-col>
+                                <v-col cols="12" sm="2" class="sortableHandle"><v-icon>mdi-drag-horizontal-variant</v-icon></v-col>
+                            </v-row>
+                        </div>
+                    </div>
                 </v-col>
             </v-row>
         </v-container>
@@ -53,6 +60,7 @@
 
 <script>
 import { db } from '../firebase'
+import Sortable from 'sortablejs'
 
 export default {
     name: 'ExerciseSelector',
@@ -72,6 +80,14 @@ export default {
             createdExercisesData: [],
             followedExercisesData: [],
             selectedExercisesData: [],
+
+            // Sortable: 
+            sortable: null,
+            sortableOptions: {
+                handle: '.sortableHandle',
+                animation: 300,
+                onEnd: this.changeOrder
+            },
 
             // Firebase:
             downloadedExercises: 0,
@@ -110,10 +126,14 @@ export default {
                 console.log("Error downloading followed exercise data", e, exerciseId);
             })
         })
+
     },
 
     methods: {
-
+        changeOrder: function(event) {
+            // Changes order of this.selectedExercisesData after dragging and dropping.
+            this.selectedExercisesData.splice(event.newIndex, 0, this.selectedExercisesData.splice(event.oldIndex, 1)[0]);
+        }
     },
 
     watch: {
@@ -128,7 +148,12 @@ export default {
             } else {
                 const id = o.filter(x => !n.includes(x))[0];
                 this.selectedExercisesData = this.selectedExercisesData.filter(o => o.id !== id);
-                console.log("Selected Exercises Data", this.selectedExercisesData);
+            }
+
+            if (o.length === 0 && this.selectedExercisesData.length === 1) {
+                this.sortable = new Sortable(document.getElementById("selectedContainer"), this.sortableOptions);
+            } else if (this.selectedExercisesData.length === 0) {
+                this.sortable = null;
             }
         },
 
@@ -141,8 +166,11 @@ export default {
                 this.selectedExercisesData = this.selectedExercisesData.filter(o => o.id !== id);
             }
 
-            console.log("n", n, "o", o);
-            console.log("Selected Exercises Data", this.selectedExercisesData);
+            if (o.length === 0 && this.selectedExercisesData.length === 1) {
+                this.sortable = new Sortable(document.getElementById("selectedContainer"), this.sortableOptions);
+            } else if (this.selectedExercisesData.length === 0) {
+                this.sortable = null;
+            }
         },
 
         downloadedExercises: function() {
@@ -157,5 +185,14 @@ export default {
 <style scoped>
     .subgroup {
         padding-left: 0 !important;
+    }
+
+    .selectedExercise {
+        height: 48px;
+        border: 1px solid white;
+    }
+
+    .sortableHandle:hover {
+        cursor: pointer;
     }
 </style>
