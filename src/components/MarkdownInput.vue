@@ -142,7 +142,6 @@ export default {
 
             // Checks with lists and enter.
             if (this.caretRow > 0) {
-                console.log(e.keycode, aboveOlRow);
                 // If Enter, Above list (as we've just pressed enter) and Above row length is 2, then above ul was empty, so ditch it.
                 // Also check for if the new row has content, as if the user has pressed enter there they probably are intending for * to stay.
                 if (e.keyCode === 13 && aboveUlRow && this.inputByRow[this.caretRow - 1].length === 2 && this.inputByRow[this.caretRow].length === 0) {

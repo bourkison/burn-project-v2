@@ -1,8 +1,23 @@
+<!--
+    workout:
+    {
+        name: string,
+        description: string,
+        difficulty: integer,
+        exercises: array of objects // { exercise: name, id, suggestedSets }
+    }
+-->
+
 <template>
     <v-sheet>
         <v-container v-if="!isLoading">
             <h1 align="center">{{ workoutForm.name ? workoutForm.name : 'New Workout' }}</h1>
-            <ExerciseSelector :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises"></ExerciseSelector>
+            <v-form @submit.prevent="createWorkout">
+                <v-text-field v-model="workoutForm.name" label="Workout Name" :rules=[rules.required]></v-text-field>
+                <MarkdownInput @update-text="updateDescription"></MarkdownInput>
+                <ExerciseSelector class="exerciseSelector" :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises" @selectedExercisesChange="updateSelectedExercises"></ExerciseSelector>
+                <div class="text-center submitButton"><v-btn type="submit" :loading="isCreating" :disabled="isCreating">Create Workout</v-btn></div>
+            </v-form>
         </v-container>
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
@@ -12,14 +27,16 @@
 
 <script>
 import { db } from '../../firebase'
+import MarkdownInput from '../../components/MarkdownInput.vue'
 import ExerciseSelector from '../../components/ExerciseSelector.vue'
 
 export default {
     name: 'NewWorkout',
-    components: { ExerciseSelector },
+    components: { MarkdownInput, ExerciseSelector },
     data() {
         return {
             isLoading: true,
+            isCreating: false,
             errorMessage: '',
             userCreatedExercises: [],
             userFollowedExercises: [],
@@ -27,6 +44,14 @@ export default {
                 name: '',
                 description: '',
                 exercises: []
+            },
+
+            // Firebase:
+            idAttempts: 0,
+
+            // Vuetify:
+            rules: {
+                required: value => !!value || 'Required.'
             }
         }
     },
@@ -42,8 +67,6 @@ export default {
                         this.userCreatedExercises.push(exercise.id);
                     }
 
-                    console.log("Created", this.userCreatedExercises);
-                    console.log("Followed", this.userFollowedExercises);
                     this.isLoading = false;
                 })
             }
@@ -52,6 +75,85 @@ export default {
             this.errorMessage = "Error downloading exercises " + e;
             console.log(this.errorMessage);
         })
+    },
+
+    methods: {
+        updateDescription: function(d) {
+            this.workoutForm.description = d;
+        },
+
+        updateSelectedExercises: function(s) {
+            this.workoutForm.exercises = s;
+        },
+
+        generateId(n) {
+            let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+            let id = '';
+            // 7 random characters
+            for (let i = 0; i < n; i++) {
+                id += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+            }
+            return id;
+        },
+
+        createWorkout: function() {
+            this.isCreating = true;
+            this.workoutForm.createdAt = new Date();
+            this.workoutForm.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl }
+            
+            // Update the exercises to only include name, id, suggestedSets
+            let i = 0;
+            this.workoutForm.exercises.forEach(exercise => {
+                this.workoutForm.exercises[i] = { name: exercise.name, id: exercise.id, suggestedSets: exercise.suggestedSets }
+                i ++;
+            })
+
+            // Setting this to 1 will call the watcher, which begins the upload process.
+            this.idAttempts = 1;
+        }
+    },
+
+    watch: {
+        // Upload begin:
+        idAttempts: function() {
+            this.workoutForm.id = this.workoutForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase() + "-" + this.generateId(7);
+            this.workoutForm.likeCount = 0;
+            this.workoutForm.recentComments = [];
+            this.workoutForm.commentCount = 0;
+            this.workoutForm.followCount = 0;
+            
+            db.collection("workouts").doc(this.workoutForm.id).get().then(idTestDoc => {
+                if (!idTestDoc.exists) {
+                    // If the ID doesn't exist, first set the workout document in workouts collection.
+                    db.collection("workouts").doc(this.workoutForm.id).set(this.workoutForm).then(() => {
+                        // Then in users collection
+                        let workoutPayload = { createdAt: this.workoutForm.createdAt, createdBy: this.workoutForm.createdBy, isFollow: false }
+                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").doc(this.workoutForm.id).set(workoutPayload).then(() => {
+                            this.isCreating = false;
+                            this.$router.push("/workouts/" + this.workoutForm.id);
+                        }).catch(e => {
+                            this.errorMessage = "Error updating user: " + e;
+                            console.log(this.errorMessage);
+                        })
+                    }).catch(e => {
+                        this.errorMessage = "Error creating workout: " + e;
+                        console.log(this.errorMessage);
+                    })
+                } else {
+                    this.idAttempts++;
+                }
+            })
+        }
     }
 }
 </script>
+
+<style scoped>
+    .exerciseSelector {
+        margin-top: 20px;
+    }
+
+    .submitButton {
+        margin-top: 10px;
+    }
+</style>

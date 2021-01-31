@@ -101,14 +101,12 @@ export default {
     created: function() {
         // Retrieve created exercises data.
         this.$props.createdExercises.forEach(exerciseId => {
-            console.log("within foreach")
             db.collection("exercises").doc(exerciseId).get().then(exerciseDoc => {
                 let d = exerciseDoc.data();
                 d.id = exerciseId;
 
                 this.createdExercisesData.push(d);
                 this.downloadedExercises ++;
-                console.log(this.createdExercisesData, this.downloadedExercises);
             }).catch(e => {
                 console.log("Error downloading created exercise data", e, exerciseId);
             })
@@ -132,7 +130,9 @@ export default {
     methods: {
         changeOrder: function(event) {
             // Changes order of this.selectedExercisesData after dragging and dropping.
-            this.selectedExercisesData.splice(event.newIndex, 0, this.selectedExercisesData.splice(event.oldIndex, 1)[0]);
+            if (event.newIndex !== event.oldIndex) {
+                this.selectedExercisesData.splice(event.newIndex, 0, this.selectedExercisesData.splice(event.oldIndex, 1)[0]);
+            }
         }
     },
 
@@ -177,6 +177,10 @@ export default {
             if (this.downloadedExercises == this.createdExercises.length + this.followedExercises.length) {
                 this.isLoading = false;
             }
+        },
+
+        selectedExercisesData: function() {
+            this.$emit("selectedExercisesChange", this.selectedExercisesData);
         }
     }
 }

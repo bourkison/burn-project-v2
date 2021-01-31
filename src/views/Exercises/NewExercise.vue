@@ -98,7 +98,6 @@ export default {
 
             // Firebase:
             idAttempts: 0,
-            idUnique: false,
             imagesUploaded: 0,
             // Vuetify:
             model: 0,
@@ -120,7 +119,7 @@ export default {
     methods: {
         createExercise() {
             this.isLoading = true;
-            this.exerciseForm.createdBy = {id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username};
+            this.exerciseForm.createdBy = {id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl};
             this.exerciseForm.createdAt = new Date();
             
             this.exerciseForm.suggestedSets.forEach (s => {
@@ -249,8 +248,8 @@ export default {
                 console.log(n, o);
             }
         },
-        // This watcher tests for uniqueness of exercise id.
-        // Will call idUnique watcher when completed.
+        // This watcher tests for uniqueness of exercise id, then starts upload on images.
+        // Will call imagesUploaded watcher when completed.
         idAttempts: function() {
             this.exerciseForm.id = this.exerciseForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase() + "-" + this.generateId(7);
             this.exerciseForm.likeCount = 0;
@@ -260,19 +259,8 @@ export default {
 
             db.collection("exercises").doc(this.exerciseForm.id).get().then(idTestDoc => {
                 if (!idTestDoc.exists) {
-                    this.idUnique = true;
-                } else {
-                    this.idAttempts ++;
-                }
-            })
-        },
-
-        // Once we know id is unique, we can get started on uploading.
-        // Will call imagesUploaded watcher when completed.
-        idUnique: function() {
-            if (this.idUnique) {
-                // We upload images first so their references can be added to the Exercise doc.
-                this.imageObjs.forEach(img => {
+                    // We upload images first so their references can be added to the Exercise doc.
+                    this.imageObjs.forEach(img => {
                     let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4))
 
                     imageRef.put(img.file).then(() => {
@@ -283,14 +271,17 @@ export default {
                         console.log(this.errorMessage);
                     })
                 })
-            }
+                } else {
+                    this.idAttempts ++;
+                }
+            })
         },
 
         // Once our images have uploaded, we can get started on uploading the exercise doc.
         imagesUploaded: function() {
             if (this.imagesUploaded >= this.imageObjs.length) {
                 db.collection("exercises").doc(this.exerciseForm.id).set(this.exerciseForm).then(() => {
-                    let exercisePayload = { createdAt: this.exerciseForm.createdAt, isFollow: false, createdBy: { username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid } }                    
+                    let exercisePayload = { createdAt: this.exerciseForm.createdAt, isFollow: false, createdBy: this.exerciseForm.createdBy }                    
                     // Doc now created, lets push the exercise ID to the user doc.
                     db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").doc(this.exerciseForm.id).set(exercisePayload).then(() => {
                         this.$router.push("/exercises/" + this.exerciseForm.id);
