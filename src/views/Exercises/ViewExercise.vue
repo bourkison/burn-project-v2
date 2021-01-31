@@ -2,27 +2,27 @@
     <v-sheet class="mainSheet" min-height="70vh" rounded="lg">
         <v-container v-if="!isLoading">
             <v-card>
-            <v-row class="headerRow" align="center" justify="center">
-                <v-col cols="12" sm="6">
-                    <h1 align="left">{{ exerciseData.name }}</h1>
-                    <router-link :to="'/profile/' + exerciseData.createdBy.username">{{ exerciseData.createdBy.username }}</router-link>
-                </v-col>
-                <v-col cols="12" sm="6">
-                    <div align="right">
-                        <v-icon v-for="star in exerciseData.difficulty" color="yellow darken-2" :key="star">mdi-star</v-icon>    
-                        <v-menu :offset-y="true">
-                            <template v-slot:activator="{ on, attrs }">
-                                <v-icon v-bind="attrs" v-on="on">mdi-dots-vertical</v-icon>
-                            </template>
-                            <v-list>
-                                <v-list-item @click="editExercise" v-if="exerciseData.createdBy.id == $store.state.userProfile.data.uid" selectable>Edit</v-list-item>
-                                <v-list-item @click.stop="isDeletingDialogue = true" v-if="exerciseData.createdBy.id == $store.state.userProfile.data.uid" color="error" selectable>Delete</v-list-item>
-                                <v-list-item @click="reportExercise" color="error" selectable>Report</v-list-item>
-                            </v-list>
-                        </v-menu>
-                    </div>
-                </v-col>
-            </v-row>
+                <v-row class="headerRow" align="center" justify="center">
+                    <v-col cols="12" sm="6">
+                        <h1 align="left">{{ exerciseData.name }}</h1>
+                        <router-link :to="'/profile/' + exerciseData.createdBy.username">{{ exerciseData.createdBy.username }}</router-link>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                        <div align="right">
+                            <v-icon v-for="star in exerciseData.difficulty" color="yellow darken-2" :key="star">mdi-star</v-icon>    
+                            <v-menu :offset-y="true">
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-icon v-bind="attrs" v-on="on">mdi-dots-vertical</v-icon>
+                                </template>
+                                <v-list>
+                                    <v-list-item @click="editExercise" v-if="exerciseData.createdBy.id == $store.state.userProfile.data.uid" selectable>Edit</v-list-item>
+                                    <v-list-item @click.stop="isDeletingDialogue = true" v-if="exerciseData.createdBy.id == $store.state.userProfile.data.uid" color="error" selectable>Delete</v-list-item>
+                                    <v-list-item @click="reportExercise" color="error" selectable>Report</v-list-item>
+                                </v-list>
+                            </v-menu>
+                        </div>
+                    </v-col>
+                </v-row>
             </v-card>
             <v-card outlined>
                 <v-carousel v-if="exerciseData.imgPaths.length > 0" v-model="model">

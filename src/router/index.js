@@ -13,6 +13,7 @@ import ViewExercises from '../views/Exercises/ViewExercises.vue'
 
 import Workout from '../views/Workouts/Workout.vue'
 import NewWorkout from '../views/Workouts/NewWorkout.vue'
+import ViewWorkout from '../views/Workouts/ViewWorkout.vue'
 import ViewWorkouts from '../views/Workouts/ViewWorkouts.vue'
 
 import UserProfile from '../views/Users/UserProfile.vue'
@@ -105,6 +106,11 @@ const routes = [
         path: '/workouts/new',
         name: 'New Workout',
         component: NewWorkout
+      },
+      {
+        path: '/workouts/:workoutid',
+        name: 'View Workout',
+        component: ViewWorkout
       },
       {
         path: '/workouts',

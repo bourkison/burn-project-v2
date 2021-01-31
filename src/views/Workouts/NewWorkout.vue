@@ -4,7 +4,7 @@
         name: string,
         description: string,
         difficulty: integer,
-        exercises: array of objects // { exercise: name, id, suggestedSets }
+        exercises: array of objects // { name, id, suggestedSets }
     }
 -->
 
