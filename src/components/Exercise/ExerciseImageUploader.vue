@@ -71,7 +71,7 @@ export default {
     methods: {
         downloadImage: function(ref, order) {
             storage.ref(ref).getDownloadURL().then(url => {
-                this.downloadedImageUrls.push({ order: order, imgUrl: url })
+                this.downloadedImageUrls.push({ order: order, imgUrl: url, imgPath: ref })
                 this.downloadedImageCounter ++;
             })
         },
@@ -109,7 +109,7 @@ export default {
             if (change) {
                 e.forEach(file => {
                     const i = this.imgIterator;
-                    this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file) });
+                    this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file), path: null });
                     this.imgIterator ++;
                 })
             }
@@ -130,7 +130,7 @@ export default {
             if (change) {
                 e.forEach(file => {
                     const i = this.imgIterator;
-                    this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file) });
+                    this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file), path: null });
                     this.imgIterator ++;
                 })
             }
@@ -141,13 +141,9 @@ export default {
                     this.additionalFiles.push(img.file)
                 }
             })
-
-            console.log("Objs:", this.imageObjs);
-            console.log("Additional:", this.additionalFiles);
         },
 
         deleteImage: function(id) {
-            console.log(id);
             let index = this.imageObjs.findIndex(x => x.id === id);
             
             this.imageObjs.splice(index, 1);
@@ -180,7 +176,11 @@ export default {
                 this.sortable = null;
             }
 
-            this.$emit("updateImgFiles", this.imageFiles);
+            if (!this.$props.initImages) {
+                this.$emit("updateImgFiles", this.imageFiles);
+            } else {
+                this.$emit("editImgFiles", this.imageObjs);
+            }
         },
 
         downloadedImageCounter: function() {
@@ -190,8 +190,7 @@ export default {
                     this.downloadedImageUrls.sort((a, b) => a.order - b.order)
 
                     this.downloadedImageUrls.forEach(img => {
-                        this.imageObjs.push({ id: img.order, tempUrl: img.imgUrl, file: null });
-                        this.imageFiles.push(img.imgUrl);
+                        this.imageObjs.push({ id: img.order, tempUrl: img.imgUrl, file: null, path: img.imgPath });
                     })
 
                     this.imgIterator = this.imageObjs.length;

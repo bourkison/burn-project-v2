@@ -4,7 +4,7 @@
             <v-form @submit.prevent="updateExercise">
                 <h1>{{ newExerciseData.name }}</h1>
                 <v-text-field v-model="newExerciseData.name" :rules=[rules.required] label="Exercise Name"></v-text-field>
-                <ExerciseImageUploader :initImages="oldExerciseData.imgPaths"></ExerciseImageUploader>
+                <ExerciseImageUploader :initImages="oldExerciseData.imgPaths" @editImgFiles="editImgFiles"></ExerciseImageUploader>
                 <MarkdownInput :starting-text="oldExerciseData.description" @update-text="updateDescription"></MarkdownInput>
                 <v-row>
                     <v-col cols="12" sm="6">
@@ -62,8 +62,12 @@ export default {
             imgUrls: [],
             setIterator: 0,
 
+            imageObjs: [],
+            additionalFiles: [],
+
             // Firebase:
             downloadImageCounter: 0,
+            imageChecker: 0,
 
             // Vuetify:
             measureByOptions: ["Time", "Reps"],
@@ -112,18 +116,26 @@ export default {
         updateExercise: function() {
             this.isUpdating = true;
 
-            // First step, remove ID from the suggested sets.
-            this.newExerciseData.suggestedSets.forEach(s => {
-                delete s.id;
-            })
+            let i = 0;
+            // First step, check for additional images, then upload them.
+            this.imageObjs.forEach(imageObj => {
+                if (imageObj.file) {
+                    this.uploadImage(imageObj.file, i);
+                } else {
+                    this.imageChecker ++;
+                }
 
-            db.collection("exercises").doc(this.$route.params.exerciseid).update(this.newExerciseData).then(() => {
-                this.isUpdating = false;
-                this.$router.push("/exercises/" + this.$route.params.exerciseid);
-            }).catch(e => {
-                console.log("Error updating exexrcise", e);
-                this.isUpdating = false;
-            });
+                i ++;
+            })
+        },
+
+        uploadImage: function(file, order) {
+            let imageRef = storage.ref("exercises/" + this.$route.params.exerciseid + "/images/" + Number(new Date()) + "-" + this.generateId(4));
+
+            imageRef.put(file).then(() => {
+                this.imageObjs[order].path = imageRef.fullPath;
+                this.imageChecker ++;
+            })
         },
 
         addSet: function() {
@@ -148,6 +160,21 @@ export default {
 
         updateMgs: function(mg) {
             this.newExerciseData.muscleGroups = mg;
+        },
+
+        editImgFiles: function(arr) {
+            this.imageObjs = arr;
+            console.log("Please",this.imageObjs);
+        },
+
+        generateId(n) {
+            let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+            let id = '';
+            // 7 random characters
+            for (let i = 0; i < n; i++) {
+                id += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+            }
+            return id;
         }
     },
 
@@ -155,6 +182,32 @@ export default {
         downloadImageCounter: function() {
             if (this.downloadImageCounter >= this.newExerciseData.imgPaths.length) {
                 this.isLoading = false;
+            }
+        },
+
+        imageChecker: function() {
+            if (this.imageChecker >= this.imageObjs.length) {
+                // First we need to build out the imgPaths array.
+                this.newExerciseData.imgPaths = [];
+
+                this.imageObjs.forEach(img => {
+                    this.newExerciseData.imgPaths.push(img.path);
+                })
+
+                // Next, remove ID from the suggested sets.
+                this.newExerciseData.suggestedSets.forEach(s => {
+                    delete s.id;
+                })
+
+                console.log(this.newExerciseData);
+
+                db.collection("exercises").doc(this.$route.params.exerciseid).update(this.newExerciseData).then(() => {
+                    this.isUpdating = false;
+                    this.$router.push("/exercises/" + this.$route.params.exerciseid);
+                }).catch(e => {
+                    console.log("Error updating exexrcise", e);
+                    this.isUpdating = false;
+                });
             }
         }
     }
