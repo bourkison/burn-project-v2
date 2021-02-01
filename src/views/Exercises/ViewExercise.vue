@@ -121,16 +121,24 @@ export default {
             db.collection("exercises").doc(this.$route.params.exerciseid).get().then(exerciseDoc => {
                 if (exerciseDoc.exists) {
                     this.exerciseData = exerciseDoc.data();
+                    let i = 0;
                     this.exerciseData.imgPaths.forEach(img => {
-                        storage.ref(img).getDownloadURL().then(url => {
-                            this.imgUrls.push({id: this.downloadedImageCounter, imgUrl: url});
-                            this.downloadedImageCounter++;
-                        })
+                        this.downloadImages(img, i)
+                        i ++;
                     })
                 } else {
                     this.exerciseExists = false;
                     this.isLoading = false;
                 }
+            })
+        },
+        
+        // Called in downloadExercise function.
+        // This function is run to keep order of the images.
+        downloadImages: function(ref, order) {
+            storage.ref(ref).getDownloadURL().then(url => {
+                this.imgUrls.push({ order: order, imgUrl: url })
+                this.downloadedImageCounter ++;
             })
         },
 
@@ -174,6 +182,8 @@ export default {
         // Done loading the exeracise.
         downloadedImageCounter: function() {
             if (this.downloadedImageCounter >= this.exerciseData.imgPaths.length) {
+                this.imgUrls.sort((a, b) => a.order - b.order);
+
                 this.exerciseExists = true;
                 this.starsAmount = this.exerciseData.difficulty;
                 // Check if the user has liked.

@@ -1,7 +1,7 @@
 <template>
     <v-card outlined>
         <v-container>
-            <v-file-input class="imageInput" prepend-icon="mdi-camera" chips clear-icon="" multiple label="Add Up to 10 photos and/or a video." v-model="imageFiles" append-icon="mdi-close" @change="handleFileUpload" @click:append="handleFileClose" ></v-file-input>
+            <v-file-input accept="image/png,image/jpg,image/jpeg" class="imageInput" prepend-icon="mdi-camera" chips clear-icon="" multiple label="Add Up to 10 photos and/or a video." v-model="imageFiles" append-icon="mdi-close" @change="handleFileUpload" @click:append="handleFileClose" ></v-file-input>
             <v-row justify="center" align="center" id="sortableContainer">
                 <v-col class="sortableCol" cols="12" md="4" v-for="image in imageObjs" :key="image.id">
                     <v-card outlined>
@@ -99,6 +99,8 @@ export default {
 
     watch: {
         imageObjs: function(n) {
+            console.log(typeof this.imageObjs[0])
+
             if (n.length > 0 && !this.sortable) {
                 this.sortable = new Sortable(document.getElementById("sortableContainer"), this.sortableOptions);
             } else {

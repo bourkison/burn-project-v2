@@ -1,7 +1,7 @@
 <template>
     <v-card v-if="!isLoading" class="exerciseMin" outlined>
         <v-carousel v-model="model">
-            <v-carousel-item v-for="img in imgUrls" :key="img.id" :src="img"></v-carousel-item>
+            <v-carousel-item v-for="img in imgUrls" :key="img.order" :src="img.imgUrl"></v-carousel-item>
         </v-carousel>
         <v-container>
             <v-sheet align="center">
@@ -58,7 +58,7 @@ export default {
             isLiked: '',
 
             // Firebase: 
-            downloadedImages: 0,
+            downloadedImageCounter: 0,
 
             // Vuetify:
             model: 0,
@@ -76,17 +76,23 @@ export default {
         // Download Exercise Data
         db.collection("exercises").doc(this.$props.userExerciseData.id).get().then(exerciseDoc => {
             this.exerciseData = exerciseDoc.data();
+            let i = 0;
 
             this.exerciseData.imgPaths.forEach(imgPath => {
-                storage.ref(imgPath).getDownloadURL().then(url => {
-                    this.imgUrls.push(url);
-                    this.downloadedImages ++;
-                })
+                this.downloadImages(imgPath, i);
+                i ++;
             })        
         })
     },
 
     methods: {
+        downloadImages: function(ref, order) {
+            storage.ref(ref).getDownloadURL().then(url => {
+                this.imgUrls.push({ order: order, imgUrl: url })
+                this.downloadedImageCounter ++;
+            })
+        },
+
         descriptionToggle: function(e) {
             let descContainer = e.target.parentElement.parentElement.parentElement.parentElement.querySelector(".container .mdOutput");
 
@@ -121,8 +127,9 @@ export default {
     },
 
     watch: {
-        downloadedImages: function() {
-            if (this.downloadedImages >= this.exerciseData.imgPaths.length) {
+        downloadedImageCounter: function() {
+            if (this.downloadedImageCounter >= this.exerciseData.imgPaths.length) {
+                this.imgUrls.sort((a, b) => a.order - b.order);
                 // Check if the user has liked.
                 db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$props.userExerciseData.id).get().then(likeSnapshot => {
                     likeSnapshot.forEach(like => {
