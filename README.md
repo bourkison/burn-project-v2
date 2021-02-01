@@ -31,6 +31,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 * In "New Exercise", on "Add Set" button, auto focus to the new reps count.
 * Images on exercises have no order. Fix that.
 * Add image editing on upload
+* In delete function, delete images from storage too.
 
 
 ### User

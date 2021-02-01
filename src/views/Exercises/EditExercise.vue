@@ -4,7 +4,7 @@
             <v-form @submit.prevent="updateExercise">
                 <h1>{{ newExerciseData.name }}</h1>
                 <v-text-field v-model="newExerciseData.name" :rules=[rules.required] label="Exercise Name"></v-text-field>
-                <div>TODO: Image</div>
+                <ExerciseImageUploader :initImages="oldExerciseData.imgPaths"></ExerciseImageUploader>
                 <MarkdownInput :starting-text="oldExerciseData.description" @update-text="updateDescription"></MarkdownInput>
                 <v-row>
                     <v-col cols="12" sm="6">
@@ -45,13 +45,14 @@
 <script>
 import { db, storage } from '../../firebase'
 
+import ExerciseImageUploader from '../../components/Exercise/ExerciseImageUploader.vue'
 import DifficultySelector from '../../components/DifficultySelector.vue'
 import MarkdownInput from '../../components/MarkdownInput.vue'
 import MuscleGroupSelect from '../../components/MuscleGroupSelect.vue'
 
 export default {
     name: 'EditExercise',
-    components: { DifficultySelector, MarkdownInput, MuscleGroupSelect },
+    components: { ExerciseImageUploader, DifficultySelector, MarkdownInput, MuscleGroupSelect },
     data() {
         return {
             isLoading: true,
@@ -90,9 +91,6 @@ export default {
                         s.id = this.setIterator;
                         this.setIterator ++;
                     })
-
-                    // Set stars:
-                    this.starClick(this.newExerciseData.difficulty - 1);
 
                     // Download images:
                     this.newExerciseData.imgPaths.forEach(img => {

@@ -123,7 +123,7 @@ export default {
                     this.exerciseData = exerciseDoc.data();
                     let i = 0;
                     this.exerciseData.imgPaths.forEach(img => {
-                        this.downloadImages(img, i)
+                        this.downloadImage(img, i)
                         i ++;
                     })
                 } else {
@@ -135,7 +135,7 @@ export default {
         
         // Called in downloadExercise function.
         // This function is run to keep order of the images.
-        downloadImages: function(ref, order) {
+        downloadImage: function(ref, order) {
             storage.ref(ref).getDownloadURL().then(url => {
                 this.imgUrls.push({ order: order, imgUrl: url })
                 this.downloadedImageCounter ++;

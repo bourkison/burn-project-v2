@@ -79,14 +79,14 @@ export default {
             let i = 0;
 
             this.exerciseData.imgPaths.forEach(imgPath => {
-                this.downloadImages(imgPath, i);
+                this.downloadImage(imgPath, i);
                 i ++;
             })        
         })
     },
 
     methods: {
-        downloadImages: function(ref, order) {
+        downloadImage: function(ref, order) {
             storage.ref(ref).getDownloadURL().then(url => {
                 this.imgUrls.push({ order: order, imgUrl: url })
                 this.downloadedImageCounter ++;
