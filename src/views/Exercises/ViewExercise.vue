@@ -194,7 +194,6 @@ export default {
                         }
                     })
                     this.isLoading = false;
-                    console.log(this.isLoading);
                 });
             }
         }

@@ -124,8 +124,6 @@ export default {
         handleEditFileUpload: function(e) {
             let change = this.checkIfChange(e);
 
-            console.log(change);
-
             // If there's been a change, push new file into imageObjs.
             if (change) {
                 e.forEach(file => {

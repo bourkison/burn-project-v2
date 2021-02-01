@@ -164,7 +164,6 @@ export default {
 
         editImgFiles: function(arr) {
             this.imageObjs = arr;
-            console.log("Please",this.imageObjs);
         },
 
         generateId(n) {
@@ -198,8 +197,6 @@ export default {
                 this.newExerciseData.suggestedSets.forEach(s => {
                     delete s.id;
                 })
-
-                console.log(this.newExerciseData);
 
                 db.collection("exercises").doc(this.$route.params.exerciseid).update(this.newExerciseData).then(() => {
                     this.isUpdating = false;
