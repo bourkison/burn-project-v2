@@ -16,6 +16,7 @@
                 <v-text-field v-model="workoutForm.name" label="Workout Name" :rules=[rules.required]></v-text-field>
                 <MarkdownInput @update-text="updateDescription"></MarkdownInput>
                 <ExerciseSelector class="exerciseSelector" :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises" @selectedExercisesChange="updateSelectedExercises"></ExerciseSelector>
+                <DifficultySelector @setDifficulty="setDifficulty"></DifficultySelector>
                 <div class="text-center submitButton"><v-btn type="submit" :loading="isCreating" :disabled="isCreating">Create Workout</v-btn></div>
             </v-form>
         </v-container>
@@ -28,11 +29,12 @@
 <script>
 import { db } from '../../firebase'
 import MarkdownInput from '../../components/MarkdownInput.vue'
+import DifficultySelector from '../../components/DifficultySelector.vue'
 import ExerciseSelector from '../../components/Exercise/ExerciseSelector.vue'
 
 export default {
     name: 'NewWorkout',
-    components: { MarkdownInput, ExerciseSelector },
+    components: { MarkdownInput, ExerciseSelector, DifficultySelector },
     data() {
         return {
             isLoading: true,
@@ -43,7 +45,8 @@ export default {
             workoutForm: {
                 name: '',
                 description: '',
-                exercises: []
+                exercises: [],
+                difficulty: 1
             },
 
             // Firebase:
@@ -84,6 +87,11 @@ export default {
 
         updateSelectedExercises: function(s) {
             this.workoutForm.exercises = s;
+        },
+
+        setDifficulty: function(d) {
+            this.workoutForm.difficulty = d;
+            console.log(this.workoutForm.difficulty);
         },
 
         generateId(n) {

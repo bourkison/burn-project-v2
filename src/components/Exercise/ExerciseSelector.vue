@@ -45,7 +45,7 @@
                         <v-expansion-panel v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
                             <v-expansion-panel-header>
                                 <span>{{ selectedExercise.name }}</span>
-                                <span class="sortableHandle" style="text-align:right;" @click.native.stop>
+                                <span class="sortableHandle" style="text-align:right;">
                                     <v-icon>mdi-drag-horizontal-variant</v-icon>
                                 </span>
                             </v-expansion-panel-header>

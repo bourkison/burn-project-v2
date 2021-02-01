@@ -9,14 +9,7 @@
                 <v-row>
                     <v-col cols="12" sm="6">
                         <MuscleGroupSelect :selectedMgs="oldExerciseData.muscleGroups" @mgCH="updateMgs"></MuscleGroupSelect>
-                        <v-card class="difficultyCard" align="center" outlined style="margin-top: 10px;">
-                            <h2>Difficulty</h2>
-                            <v-icon :color="stars[0].color" @click="starClick(0)" @mouseover="starHover(true, 0)" @mouseleave="starHover(false, 0)" x-large>{{ stars[0].icon }}</v-icon>
-                            <v-icon :color="stars[1].color" @click="starClick(1)" @mouseover="starHover(true, 1)" @mouseleave="starHover(false, 1)" x-large>{{ stars[1].icon }}</v-icon>
-                            <v-icon :color="stars[2].color" @click="starClick(2)" @mouseover="starHover(true, 2)" @mouseleave="starHover(false, 2)" x-large>{{ stars[2].icon }}</v-icon>
-                            <v-icon :color="stars[3].color" @click="starClick(3)" @mouseover="starHover(true, 3)" @mouseleave="starHover(false, 3)" x-large>{{ stars[3].icon }}</v-icon>
-                            <v-icon :color="stars[4].color" @click="starClick(4)" @mouseover="starHover(true, 4)" @mouseleave="starHover(false, 4)" x-large>{{ stars[4].icon }}</v-icon>
-                        </v-card>
+                        <DifficultySelector :initialDifficulty="oldExerciseData.difficulty" @setDifficulty="setDifficulty"></DifficultySelector>
                     </v-col>
                     <v-col cols="12" sm="6">
                         <v-card style="margin-top:10px;" align="center" outlined>
@@ -51,12 +44,14 @@
 
 <script>
 import { db, storage } from '../../firebase'
-import MarkdownInput from '../../components/MarkdownInput'
-import MuscleGroupSelect from '../../components/MuscleGroupSelect'
+
+import DifficultySelector from '../../components/DifficultySelector.vue'
+import MarkdownInput from '../../components/MarkdownInput.vue'
+import MuscleGroupSelect from '../../components/MuscleGroupSelect.vue'
 
 export default {
     name: 'EditExercise',
-    components: { MarkdownInput, MuscleGroupSelect },
+    components: { DifficultySelector, MarkdownInput, MuscleGroupSelect },
     data() {
         return {
             isLoading: true,
@@ -71,14 +66,6 @@ export default {
 
             // Vuetify:
             measureByOptions: ["Time", "Reps"],
-            stars: [
-                {color: "yellow darken-2", icon: "mdi-star", hover: false, clicked: true},
-                {color: "", icon: "mdi-star-outline", hover: false, clicked: false},
-                {color: "", icon: "mdi-star-outline", hover: false, clicked: false},
-                {color: "", icon: "mdi-star-outline", hover: false, clicked: false},
-                {color: "", icon: "mdi-star-outline", hover: false, clicked: false}
-
-            ],
             rules: {
                 required: value => !!value || 'Required.',
                 isNumber: value => !isNaN(value) || 'Must be a number'
@@ -153,35 +140,8 @@ export default {
             }
         },
 
-        starHover: function(hover, star) {
-            if (hover) {
-                for (let i = 0; i <= star; i++) {
-                    this.stars[i].icon = "mdi-star";
-                } 
-            } else {
-                for (let i = 0; i <= star; i++) {
-                    if (!this.stars[i].clicked) {
-                        this.stars[i].icon = "mdi-star-outline";
-                    }
-                }
-            }
-        },
-
-        starClick: function(star) {
-            for (let i = 0; i <= star; i++) {
-                this.stars[i].icon = "mdi-star";
-                this.stars[i].color = "yellow darken-2"
-                this.stars[i].clicked = true;
-            }
-
-            for (let i = star + 1; i < 5; i ++) {
-                this.stars[i].icon = "mdi-star-outline";
-                this.stars[i].color = "";
-                this.stars[i].clicked = false;
-            }
-            
-            this.newExerciseData.difficulty = star + 1;
-            document.activeElement.blur();
+        setDifficulty: function(d) {
+            this.newExerciseData.difficulty = d;
         },
 
         updateDescription: function(t) {

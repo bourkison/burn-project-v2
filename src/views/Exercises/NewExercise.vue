@@ -54,14 +54,7 @@
                                 <v-btn @click="addSet">Add Set</v-btn>
                             </v-container>
                         </v-card>
-                        <v-card class="difficultyCard" align="center" outlined>
-                            <h2>Difficulty</h2>
-                            <v-icon :color="stars[0].color" @click="starClick(0)" @mouseover="starHover(true, 0)" @mouseleave="starHover(false, 0)" x-large>{{ stars[0].icon }}</v-icon>
-                            <v-icon :color="stars[1].color" @click="starClick(1)" @mouseover="starHover(true, 1)" @mouseleave="starHover(false, 1)" x-large>{{ stars[1].icon }}</v-icon>
-                            <v-icon :color="stars[2].color" @click="starClick(2)" @mouseover="starHover(true, 2)" @mouseleave="starHover(false, 2)" x-large>{{ stars[2].icon }}</v-icon>
-                            <v-icon :color="stars[3].color" @click="starClick(3)" @mouseover="starHover(true, 3)" @mouseleave="starHover(false, 3)" x-large>{{ stars[3].icon }}</v-icon>
-                            <v-icon :color="stars[4].color" @click="starClick(4)" @mouseover="starHover(true, 4)" @mouseleave="starHover(false, 4)" x-large>{{ stars[4].icon }}</v-icon>
-                        </v-card>
+                        <DifficultySelector class="difficultyCard" @setDifficulty="setDifficulty"></DifficultySelector>
                     </v-col>
                 </v-row>
                 <div class="text-center"><v-btn type="submit" v-bind:loading="isLoading" :disabled="isLoading">Create Exercise</v-btn></div>
@@ -72,12 +65,14 @@
 
 <script>
 import { db, storage } from '../../firebase'
+
 import MarkdownInput from '../../components/MarkdownInput.vue'
+import DifficultySelector from '../../components/DifficultySelector.vue'
 import MuscleGroupSelect from '../../components/MuscleGroupSelect.vue'
 
 export default {
     name: "NewExercise",
-    components: { MarkdownInput, MuscleGroupSelect },
+    components: { MarkdownInput, MuscleGroupSelect, DifficultySelector },
     data() {
         return {
             exerciseForm: {
@@ -99,15 +94,9 @@ export default {
             // Firebase:
             idAttempts: 0,
             imagesUploaded: 0,
+
             // Vuetify:
             model: 0,
-            stars: [
-                {color: "yellow darken-2", icon: "mdi-star", hover: false, clicked: true},
-                {color: "", icon: "mdi-star-outline", hover: false, clicked: false},
-                {color: "", icon: "mdi-star-outline", hover: false, clicked: false},
-                {color: "", icon: "mdi-star-outline", hover: false, clicked: false},
-                {color: "", icon: "mdi-star-outline", hover: false, clicked: false}
-            ],
             measureByOptions: ["Time", "Reps"],
             rules: {
                 required: value => !!value || 'Required.',
@@ -190,39 +179,12 @@ export default {
             this.exerciseForm.description = t;
         },
 
+        setDifficulty(d) {
+            this.exerciseForm.difficulty = d;
+        },
+
         updateMgs (mg) {
             this.exerciseForm.muscleGroups = mg;
-        },
-
-        starHover (hover, star) {
-            if (hover) {
-                for (let i = 0; i <= star; i++) {
-                    this.stars[i].icon = "mdi-star";
-                }
-            } else {
-                for (let i = 0; i <= star; i ++) {
-                    if (!this.stars[i].clicked) {
-                        this.stars[i].icon = "mdi-star-outline";
-                    }
-                }
-            }
-        },
-
-        starClick (star) {
-            for (let i = 0; i <= star; i++) {
-                this.stars[i].icon = "mdi-star";
-                this.stars[i].color = "yellow darken-2"
-                this.stars[i].clicked = true;
-            }
-
-            for (let i = star + 1; i < 5; i ++) {
-                this.stars[i].icon = "mdi-star-outline";
-                this.stars[i].color = "";
-                this.stars[i].clicked = false;
-            }
-
-            this.exerciseForm.difficulty = star + 1;
-            document.activeElement.blur();
         },
 
         addSet () {
