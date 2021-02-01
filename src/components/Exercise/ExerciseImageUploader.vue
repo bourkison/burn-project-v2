@@ -2,7 +2,7 @@
     <v-card outlined>
         <v-container>
             <v-file-input v-if="!initImages" accept="image/png,image/jpg,image/jpeg" class="imageInput" prepend-icon="mdi-camera" chips clear-icon="" multiple label="Add Up to 10 photos and/or a video." v-model="imageFiles" append-icon="mdi-close" @change="handleFileUpload" @click:append="handleFileClose" ></v-file-input>
-            <v-file-input v-else accept="image/png,image/jpg,image/jpeg" class="imageInput" prepend-icon="mdi-camera" chips clear-icon="" multiple label="Add Up to 10 photos and/or a video." v-model="additionalFiles" append-icon="mdi-close" @change="handleFileUpload" @click:append="handleFileClose" ></v-file-input>
+            <v-file-input v-else accept="image/png,image/jpg,image/jpeg" class="imageInput" prepend-icon="mdi-camera" chips clear-icon="" multiple label="Add Up to 10 photos and/or a video." v-model="additionalFiles" append-icon="mdi-close" @change="handleEditFileUpload" @click:append="handleEditFileClose" ></v-file-input>
             <v-row justify="center" align="center" id="sortableContainer">
                 <v-col class="sortableCol" cols="12" md="4" v-for="image in imageObjs" :key="image.id">
                     <v-card outlined>
@@ -76,27 +76,35 @@ export default {
             })
         },
 
-        handleFileUpload: function(e) {
-            // Check if there has actually been a change (and the user hasn't
-            // just opened image uploader and closed.)
-            let change = false;
+        checkIfChange: function(e) {
+            let found = false;
+
             if (this.imageObjs.length === 0) {
-                change = true;
+                return true;
             } else {
-                e.forEach(newInput => {
-                    let found = false;
+                e.forEach(newInput => {        
                     this.imageObjs.forEach(oldInput => {
-                        if (newInput.name == oldInput.file.name) {
-                            found = true
+                        if (oldInput.file) {
+                            if (newInput.name == oldInput.file.name) {
+                                found = true
+                            }
                         }
                     })
-
-                    if (!found) {
-                        change = true;
-                    }
                 })
             }
 
+            if (found) {
+                return false
+            } else {
+                return true;
+            }
+        },
+
+        handleFileUpload: function(e) {
+            // Check if there has actually been a change (and the user hasn't
+            // just opened image uploader and closed.)
+            let change = this.checkIfChange(e);
+            
             // If there's been a change, push new file into imageObjs.
             if (change) {
                 e.forEach(file => {
@@ -113,6 +121,31 @@ export default {
             })
         },
 
+        handleEditFileUpload: function(e) {
+            let change = this.checkIfChange(e);
+
+            console.log(change);
+
+            // If there's been a change, push new file into imageObjs.
+            if (change) {
+                e.forEach(file => {
+                    const i = this.imgIterator;
+                    this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file) });
+                    this.imgIterator ++;
+                })
+            }
+
+            this.additionalFiles = [];
+            this.imageObjs.forEach(img => {
+                if (img.file != null) {
+                    this.additionalFiles.push(img.file)
+                }
+            })
+
+            console.log("Objs:", this.imageObjs);
+            console.log("Additional:", this.additionalFiles);
+        },
+
         deleteImage: function(id) {
             console.log(id);
             let index = this.imageObjs.findIndex(x => x.id === id);
@@ -126,14 +159,16 @@ export default {
             this.imageFiles = [];
         },
 
+        handleEditFileClose: function() {
+            this.imageObjs = [];
+            this.additionalFiles = [];
+        },
+
         changeOrder: function(e) {
             if (e.newIndex !== e.oldIndex) {
                 this.imageFiles.splice(e.newIndex, 0, this.imageFiles.splice(e.oldIndex, 1)[0]);
                 this.imageObjs.splice(e.newIndex, 0, this.imageObjs.splice(e.oldIndex, 1)[0]);
             }
-
-            console.log("change files:", this.imageFiles);
-            console.log("change obj:",this.imageObjs);
         }
     },
 
@@ -159,6 +194,7 @@ export default {
                         this.imageFiles.push(img.imgUrl);
                     })
 
+                    this.imgIterator = this.imageObjs.length;
                     this.isLoading = false;
                 }
             }
