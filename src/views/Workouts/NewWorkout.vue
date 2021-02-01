@@ -16,7 +16,7 @@
                 <v-text-field v-model="workoutForm.name" label="Workout Name" :rules=[rules.required]></v-text-field>
                 <MarkdownInput @update-text="updateDescription"></MarkdownInput>
                 <ExerciseSelector class="exerciseSelector" :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises" @selectedExercisesChange="updateSelectedExercises"></ExerciseSelector>
-                <DifficultySelector @setDifficulty="setDifficulty"></DifficultySelector>
+                <DifficultySelector class="difficultySelector" @setDifficulty="setDifficulty"></DifficultySelector>
                 <div class="text-center submitButton"><v-btn type="submit" :loading="isCreating" :disabled="isCreating">Create Workout</v-btn></div>
             </v-form>
         </v-container>
@@ -91,7 +91,6 @@ export default {
 
         setDifficulty: function(d) {
             this.workoutForm.difficulty = d;
-            console.log(this.workoutForm.difficulty);
         },
 
         generateId(n) {
@@ -157,8 +156,10 @@ export default {
 </script>
 
 <style scoped>
+    .difficultySelector,
     .exerciseSelector {
         margin-top: 20px;
+        padding: 10px;
     }
 
     .submitButton {

@@ -142,7 +142,6 @@ export default {
         },
 
         compiledMarkdown: function(description) {
-            console.log(description);
             return marked(description);
         }
     },

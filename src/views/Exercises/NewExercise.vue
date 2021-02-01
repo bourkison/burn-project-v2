@@ -24,12 +24,7 @@
                     label="Exercise Name"
                     :rules=[rules.required]
                 ></v-text-field>
-                <v-card outlined class="imageUpload">
-                    <v-carousel v-if="imageObjs.length > 0" v-model="model">
-                        <v-carousel-item v-for="img in imageObjs" :key="img.id" :src="img.tempUrl"></v-carousel-item>
-                    </v-carousel>
-                    <v-file-input prepend-icon="mdi-camera" chips clear-icon="" multiple label="Add Up to 10 photos and/or a video." v-model="imageFiles" append-icon="mdi-close" @change="handleFileUpload" @click:append="handleFileClose" ></v-file-input> 
-                </v-card>
+                <ExerciseImageUploader @updateImgFiles="updateImgFiles"></ExerciseImageUploader>
                 <MarkdownInput @update-text="updateDescription"></MarkdownInput>
                 <v-row align="center" justify="center">
                     <v-col cols="12" md="6"><MuscleGroupSelect @mgCH="updateMgs"></MuscleGroupSelect></v-col>
@@ -66,13 +61,14 @@
 <script>
 import { db, storage } from '../../firebase'
 
+import ExerciseImageUploader from '../../components/Exercise/ExerciseImageUploader.vue'
 import MarkdownInput from '../../components/MarkdownInput.vue'
 import DifficultySelector from '../../components/DifficultySelector.vue'
 import MuscleGroupSelect from '../../components/MuscleGroupSelect.vue'
 
 export default {
     name: "NewExercise",
-    components: { MarkdownInput, MuscleGroupSelect, DifficultySelector },
+    components: { ExerciseImageUploader, MarkdownInput, MuscleGroupSelect, DifficultySelector },
     data() {
         return {
             exerciseForm: {
@@ -86,7 +82,6 @@ export default {
             },
             isLoading: false,
             imageFiles: [],
-            imageObjs: [],
             imgIterator: 0,
             setIterator: 0,
             errorMessage: '',
@@ -131,50 +126,6 @@ export default {
             return id;
         },
 
-        handleFileUpload(e) {
-            // Check that there has been a change in this input.
-            let change = false;
-            if (this.imageObjs.length === 0) {
-                change = true;
-            } else {
-                e.forEach(newInput => {
-                    let found = false;
-                    this.imageObjs.forEach (oldInput => {
-                        if (newInput.name == oldInput.file.name) {
-                            found = true;
-                        }
-                    })
-
-                    if (!found) {
-                        change = true;
-                    }
-                })
-            }
-
-            console.log(change);
-
-            // If there's been a change, push new file into imageObjs.
-            if (change) {           
-                e.forEach(file => {
-                    const i = this.imgIterator;
-                    this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file) })
-                    this.imgIterator ++;
-                })
-            }
-
-            // Regardless, reset imageFiles to be equal to the files in imageObjs.
-            this.imageFiles = [];
-            this.imageObjs.forEach(img => {
-                this.imageFiles.push(img.file);
-            })
-        },
-
-        handleFileClose() {
-            this.imageObjs = [];
-            this.imageFiles = [];
-            console.log("Close!");
-        },
-
         updateDescription(t) {
             this.exerciseForm.description = t;
         },
@@ -185,6 +136,10 @@ export default {
 
         updateMgs (mg) {
             this.exerciseForm.muscleGroups = mg;
+        },
+
+        updateImgFiles (arr) {
+            this.imageFiles = arr;
         },
 
         addSet () {
@@ -199,17 +154,24 @@ export default {
                 this.exerciseForm.suggestedSets.splice(index, 1);
             }
             document.activeElement.blur();
+        },
+
+        // This is called in the idAttempts watcher.
+        // This function is run to keep the order of the images.
+        uploadImageFile: function(file, order) {
+            let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
+
+            imageRef.put(file).then(() => {
+                this.exerciseForm.imgPaths.push({ path: imageRef.fullPath, order: order });
+                this.imagesUploaded ++;
+            }).catch(e => {
+                this.errorMessage = "Error uploading images: " + e;
+                console.log(this.errorMessage);
+            })
         }
     },
 
     watch: {
-        imageFiles: function(n, o) {
-            if (n.length === 0) {
-                this.imageObjs = [];
-            } else if (n.length < o.length) {
-                console.log(n, o);
-            }
-        },
         // This watcher tests for uniqueness of exercise id, then starts upload on images.
         // Will call imagesUploaded watcher when completed.
         idAttempts: function() {
@@ -222,17 +184,11 @@ export default {
             db.collection("exercises").doc(this.exerciseForm.id).get().then(idTestDoc => {
                 if (!idTestDoc.exists) {
                     // We upload images first so their references can be added to the Exercise doc.
-                    this.imageObjs.forEach(img => {
-                    let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4))
-
-                    imageRef.put(img.file).then(() => {
-                        this.exerciseForm.imgPaths.push(imageRef.fullPath);
-                        this.imagesUploaded ++;
-                    }).catch(e => {
-                        this.errorMessage = "Error uploading images: " + e;
-                        console.log(this.errorMessage);
+                    let i = 0;
+                    this.imageFiles.forEach(img => {
+                        this.uploadImageFile(img, i);
+                        i ++;
                     })
-                })
                 } else {
                     this.idAttempts ++;
                 }
@@ -241,7 +197,16 @@ export default {
 
         // Once our images have uploaded, we can get started on uploading the exercise doc.
         imagesUploaded: function() {
-            if (this.imagesUploaded >= this.imageObjs.length) {
+            if (this.imagesUploaded >= this.imageFiles.length) {
+                // First we need to order our imgPaths array to be in the correct order.
+                let tempArr = [];
+                for (let i = 0; i < this.exerciseForm.imgPaths.length; i ++) {
+                    let index = this.exerciseForm.imgPaths.findIndex(x => x.order === i);
+                    tempArr.push(this.exerciseForm.imgPaths[index].path);
+                }
+                this.exerciseForm.imgPaths = tempArr;
+
+                // Now we can upload the doc.
                 db.collection("exercises").doc(this.exerciseForm.id).set(this.exerciseForm).then(() => {
                     let exercisePayload = { createdAt: this.exerciseForm.createdAt, isFollow: false, createdBy: this.exerciseForm.createdBy }                    
                     // Doc now created, lets push the exercise ID to the user doc.
