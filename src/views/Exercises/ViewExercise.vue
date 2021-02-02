@@ -26,7 +26,7 @@
             </v-card>
             <v-card outlined>
                 <v-carousel v-if="exerciseData.imgPaths.length > 0" v-model="model">
-                    <v-carousel-item v-for="img in imgUrls" :key="img.id" :src="img.imgUrl"></v-carousel-item>
+                    <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.id" @click.stop="popUpImage(img.imgUrl)" :src="img.imgUrl"></v-carousel-item>
                 </v-carousel>
                 <v-container>
                         <v-sheet align="center">
@@ -72,6 +72,18 @@
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
         </v-container>
+
+        <!-- Image Dialog -->
+        <v-dialog v-model="viewingImageDialogue" max-height="900" max-width="600">
+            <v-card class="imageDialogueCard">
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-icon @click="viewingImageDialogue = false">mdi-close</v-icon>
+                </v-card-actions>
+                <v-card-text class="imageDialougeText"><img :src="imageDialogueUrl"/></v-card-text>
+            </v-card>
+        </v-dialog>
+        <!-- End Image Dialog -->
     </v-sheet>
 </template>
 
@@ -100,7 +112,9 @@ export default {
             // Vuetify:
             model: 0,
             starsAmount: 0,
-            isDeletingDialogue: false
+            isDeletingDialogue: false,
+            viewingImageDialogue: false,
+            imageDialogueUrl: ''
         }
     },
     created: function() {
@@ -175,6 +189,11 @@ export default {
                 this.exerciseData.likeCount --;
             }
             this.isLiked = s;
+        },
+
+        popUpImage: function(url) {
+            this.viewingImageDialogue = true;
+            this.imageDialogueUrl = url;
         }
     },
 
@@ -212,5 +231,23 @@ export default {
 
     .muscleGroupCont {
         box-shadow: none !important;
+    }
+
+    .carouselImage:hover {
+        cursor: pointer;
+    }
+
+    .imageDialogueCard {
+        max-height: 600px;
+        max-width: 900px;
+    }
+
+    .imageDialogueCard img {
+        width: 100%;
+        height: auto !important;
+    }
+
+    .imageDialogueCard .imageDialougeText {
+        padding: 0;
     }
 </style>

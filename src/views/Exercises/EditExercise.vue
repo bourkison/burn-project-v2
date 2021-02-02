@@ -64,6 +64,7 @@ export default {
 
             imageObjs: [],
             additionalFiles: [],
+            imagesToDelete: [],
 
             // Firebase:
             downloadImageCounter: 0,
@@ -116,6 +117,14 @@ export default {
         updateExercise: function() {
             this.isUpdating = true;
 
+            if (this.imagesToDelete.length > 0) {
+                this.imagesToDelete.forEach(path => {
+                    storage.ref(path).delete().catch(e => {
+                        console.log("Error deleting image at path", e);
+                    });
+                })
+            }
+
             let i = 0;
             // First step, check for additional images, then upload them.
             this.imageObjs.forEach(imageObj => {
@@ -162,8 +171,9 @@ export default {
             this.newExerciseData.muscleGroups = mg;
         },
 
-        editImgFiles: function(arr) {
+        editImgFiles: function(arr, del) {
             this.imageObjs = arr;
+            this.imagesToDelete = del;
         },
 
         generateId(n) {

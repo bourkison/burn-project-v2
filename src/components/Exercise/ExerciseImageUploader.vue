@@ -45,7 +45,8 @@ export default {
 
             // Vuetify:
             imageFiles: [],
-            additionalFiles: []
+            additionalFiles: [],
+            deletedFiles: []
         }
     },
 
@@ -143,9 +144,26 @@ export default {
 
         deleteImage: function(id) {
             let index = this.imageObjs.findIndex(x => x.id === id);
-            
-            this.imageObjs.splice(index, 1);
-            this.imageFiles.splice(index, 1);
+
+            if (!this.$props.initImages) {
+                this.imageObjs.splice(index, 1);
+                this.imageFiles.splice(index, 1);
+            } else if (this.imageObjs[index].file) {
+                // If we are editing but this is an additional file upload.
+
+                // TODO: we're fiding additionalFiles index based off file name.
+                // This is prone to bugs (i.e. if user uploads 2 images with same file name). 
+                let additionalIndex = this.additionalFiles.findIndex(x => x.name === this.imageObjs[index].file.name)
+
+                this.imageObjs.splice(index, 1);
+                this.additionalFiles.splice(additionalIndex, 1);
+            } else {
+                // User is trying to delete something they have already uploaded.
+                if (confirm("You are about to delete an image that you have already uploaded. Are you sure?")) {
+                    this.deletedFiles.push(this.imageObjs[index].path);
+                    this.imageObjs.splice(index, 1);
+                }
+            }
         },
 
         handleFileClose: function() {
@@ -177,7 +195,7 @@ export default {
             if (!this.$props.initImages) {
                 this.$emit("updateImgFiles", this.imageFiles);
             } else {
-                this.$emit("editImgFiles", this.imageObjs);
+                this.$emit("editImgFiles", this.imageObjs, this.deletedFiles);
             }
         },
 

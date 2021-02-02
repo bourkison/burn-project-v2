@@ -1,7 +1,7 @@
 <template>
     <v-card v-if="!isLoading" class="exerciseMin" outlined>
         <v-carousel v-model="model">
-            <v-carousel-item v-for="img in imgUrls" :key="img.order" :src="img.imgUrl"></v-carousel-item>
+            <v-carousel-item class="carouselImage" @click.stop="popUpImage(img.imgUrl)" v-for="img in imgUrls" :key="img.order" :src="img.imgUrl"></v-carousel-item>
         </v-carousel>
         <v-container>
             <v-sheet align="center">
@@ -25,9 +25,21 @@
                         :followableComponent="true" 
                         @likeToggle="likeToggle"
                     ></CommentSection>
-                    </div>
+                </div>
             </v-sheet>
         </v-container>
+
+        <!-- Image Dialog -->
+        <v-dialog v-model="viewingImageDialogue" max-height="900" max-width="600">
+            <v-card class="imageDialogueCard">
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-icon @click="viewingImageDialogue = false">mdi-close</v-icon>
+                </v-card-actions>
+                <v-card-text class="imageDialougeText"><img :src="imageDialogueUrl"/></v-card-text>
+            </v-card>
+        </v-dialog>
+        <!-- End Image Dialog -->
     </v-card>
     <v-card v-else min-height="500" class="exerciseMin" outlined>
         <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
@@ -62,7 +74,9 @@ export default {
 
             // Vuetify:
             model: 0,
-            descriptionExpanded: false
+            descriptionExpanded: false,
+            viewingImageDialogue: false,
+            imageDialogueUrl: ''
         }
     },
     
@@ -123,6 +137,11 @@ export default {
             }
 
             this.isLiked = s; 
+        },
+
+        popUpImage: function(url) {
+            this.viewingImageDialogue = true;
+            this.imageDialogueUrl = url;
         }
     },
 
@@ -160,5 +179,23 @@ export default {
     .mdOutput {
         max-height: 120px;
         overflow: hidden;
+    }
+
+    .carouselImage:hover {
+        cursor: pointer;
+    }
+
+    .imageDialogueCard {
+        max-height: 600px;
+        max-width: 900px;
+    }
+
+    .imageDialogueCard img {
+        width: 100%;
+        height: auto !important;
+    }
+
+    .imageDialogueCard .imageDialougeText {
+        padding: 0;
     }
 </style>
