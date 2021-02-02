@@ -10,6 +10,7 @@
   "dependencies": {
     "@vue/cli-service-global": "^4.5.11",
     "core-js": "^3.6.5",
+    "cropperjs": "^1.5.9",
     "firebase": "^8.2.4",
     "lodash": "^4.17.20",
     "marked": "^1.2.7",

@@ -8,6 +8,7 @@
                     <v-card outlined>
                         <img :src="image.tempUrl"/>
                         <div align="center" style="padding: 10px;">
+                            <v-icon @click.stop="editImageToggle(image.tempUrl)">mdi-image-edit-outline</v-icon>
                             <v-icon @click="deleteImage(image.id)">mdi-delete-outline</v-icon>
                         </div>
                     </v-card>
@@ -15,7 +16,9 @@
                 <v-col v-if="isLoading">
                     <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
                 </v-col>
+                <ImageEditorDialogue :inputUrl="inputCropperImgSrc"></ImageEditorDialogue>
             </v-row>
+
         </v-container>
     </v-card>
 </template>
@@ -24,8 +27,11 @@
 import { storage } from '../../firebase'
 import Sortable from 'sortablejs'
 
+import ImageEditorDialogue from '../ImageEditorDialogue.vue'
+
 export default {
     name: 'ExerciseImageUploader',
+    components: { ImageEditorDialogue },
     data() {
         return {
             isLoading: false,
@@ -46,7 +52,11 @@ export default {
             // Vuetify:
             imageFiles: [],
             additionalFiles: [],
-            deletedFiles: []
+            deletedFiles: [],
+            editingImageDialogue: false,
+
+            // CropperJs
+            inputCropperImgSrc: '',
         }
     },
 
@@ -166,6 +176,11 @@ export default {
             }
         },
 
+        editImageToggle: function(url) {
+            this.editingImageDialogue = true;
+            this.inputCropperImgSrc = url;
+        },
+
         handleFileClose: function() {
             this.imageObjs = [];
             this.imageFiles = [];
@@ -231,5 +246,9 @@ export default {
 
     .sortableCol img:hover {
         cursor: pointer;
+    }
+
+    .editImageContainer {
+        padding: 0;
     }
 </style>

@@ -1,6 +1,6 @@
 <template>
     <v-card v-if="!isLoading" class="exerciseMin" outlined>
-        <v-carousel v-model="model">
+        <v-carousel height="auto" v-model="model">
             <v-carousel-item class="carouselImage" @click.stop="popUpImage(img.imgUrl)" v-for="img in imgUrls" :key="img.order" :src="img.imgUrl"></v-carousel-item>
         </v-carousel>
         <v-container>
