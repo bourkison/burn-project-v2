@@ -29,26 +29,7 @@
                 <v-row align="center" justify="center">
                     <v-col cols="12" md="6"><MuscleGroupSelect @mgCH="updateMgs"></MuscleGroupSelect></v-col>
                     <v-col cols="12" md="6">
-                        <v-card align="center" outlined>
-                            <v-container class="setsAdder">
-                                <h2>Suggested Sets</h2>
-                                <v-row v-for="set in exerciseForm.suggestedSets" :key="set.id" align="center" justify="center">
-                                    <v-col cols="12" md="6">
-                                        <v-select :items="measureByOptions" v-model="set.measureBy"></v-select>
-                                    </v-col>
-
-                                    <v-col cols="12" md="5">
-                                        <v-text-field v-if="set.measureBy == 'Time'" label="Suggested Time (secs)" :rules=[rules.isNumber] v-model="set.measureAmount"></v-text-field>
-                                        <v-text-field v-if="set.measureBy == 'Reps'" label="Suggested Reps"  :rules=[rules.isNumber] v-model="set.measureAmount"></v-text-field>
-                                    </v-col>
-
-                                    <v-col cols="12" md="1">
-                                        <v-icon @click="deleteSet(set.id)" color="error">mdi-close</v-icon>
-                                    </v-col>
-                                </v-row>
-                                <v-btn @click="addSet">Add Set</v-btn>
-                            </v-container>
-                        </v-card>
+                        <SuggestedSetsSelector @updateSets="updateSets"></SuggestedSetsSelector>
                         <DifficultySelector class="difficultyCard" @setDifficulty="setDifficulty"></DifficultySelector>
                     </v-col>
                 </v-row>
@@ -65,10 +46,11 @@ import ExerciseImageUploader from '../../components/Exercise/ExerciseImageUpload
 import MarkdownInput from '../../components/MarkdownInput.vue'
 import DifficultySelector from '../../components/DifficultySelector.vue'
 import MuscleGroupSelect from '../../components/MuscleGroupSelect.vue'
+import SuggestedSetsSelector from '../../components/Exercise/SuggestedSetsSelector.vue'
 
 export default {
     name: "NewExercise",
-    components: { ExerciseImageUploader, MarkdownInput, MuscleGroupSelect, DifficultySelector },
+    components: { ExerciseImageUploader, MarkdownInput, MuscleGroupSelect, DifficultySelector, SuggestedSetsSelector },
     data() {
         return {
             exerciseForm: {
@@ -92,7 +74,6 @@ export default {
 
             // Vuetify:
             model: 0,
-            measureByOptions: ["Time", "Reps"],
             rules: {
                 required: value => !!value || 'Required.',
                 isNumber: value => !isNaN(value) || 'Must be a number'
@@ -138,26 +119,16 @@ export default {
             this.exerciseForm.muscleGroups = mg;
         },
 
+        updateSets (sets) {
+            this.exerciseForm.suggestedSets = sets;
+        },
+
         updateImgFiles (arr) {
             this.imageFiles = [];
             arr.forEach(img => {
                 this.imageFiles.push(img.file);
             })
             // this.imageFiles = arr;
-        },
-
-        addSet () {
-            this.setIterator ++;
-            const i = this.setIterator;
-            this.exerciseForm.suggestedSets.push({ id: i, measureBy: this.exerciseForm.suggestedSets[this.exerciseForm.suggestedSets.length - 1].measureBy});
-        },
-
-        deleteSet (i) {
-            if (this.exerciseForm.suggestedSets.length > 1) {
-                let index = this.exerciseForm.suggestedSets.findIndex(x => x.id === i)
-                this.exerciseForm.suggestedSets.splice(index, 1);
-            }
-            document.activeElement.blur();
         },
 
         // This is called in the idAttempts watcher.

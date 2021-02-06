@@ -107,50 +107,7 @@ export default {
             })
         },
 
-        // checkIfChange: function(e) {
-        //     let found = false;
-
-        //     if (this.imageObjs.length === 0) {
-        //         return true;
-        //     } else {
-        //         e.forEach(newInput => {        
-        //             this.imageObjs.forEach(oldInput => {
-        //                 if (oldInput.file) {
-        //                     if (newInput.name == oldInput.file.name) {
-        //                         found = true
-        //                     }
-        //                 }
-        //             })
-        //         })
-        //     }
-
-        //     if (found) {
-        //         return false
-        //     } else {
-        //         return true;
-        //     }
-        // },
-
         handleFileUpload: function(e) {
-            // // Check if there has actually been a change (and the user hasn't
-            // just opened image uploader and closed.)
-            // let change = this.checkIfChange(e);
-            
-            // // If there's been a change, push new file into imageObjs.
-            // if (change) {
-            //     e.forEach(file => {
-            //         const i = this.imgIterator;
-            //         this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file), path: null });
-            //         this.imgIterator ++;
-            //     })
-            // }
-
-            // // Regardless, reset imageFiles to be equal to the files in imageObjs
-            // this.imageFiles = [];
-            // this.imageObjs.forEach(img => {
-            //     this.imageFiles.push(img.file);
-            // })
-
             this.imageFiles = e;
             // this.imagesToEdit.push({ id: this.imageEditIncrementor, url: URL.createObjectURL(e), dialogueOpen: true });
             this.imagesToEdit[this.imageEditIncrementor].url = URL.createObjectURL(e);
@@ -160,23 +117,6 @@ export default {
         },
 
         handleEditFileUpload: function(e) {
-            // let change = this.checkIfChange(e);
-
-            // // If there's been a change, push new file into imageObjs.
-            // if (change) {
-            //     e.forEach(file => {
-            //         const i = this.imgIterator;
-            //         this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file), path: null });
-            //         this.imgIterator ++;
-            //     })
-            // }
-
-            // this.imageObjs.forEach(img => {
-            //     if (img.file != null) {
-            //         this.additionalFiles.push(img.file)
-            //     }
-            // })
-
             this.additionalFiles = e;
             this.imagesToEdit[this.imageEditIncrementor - this.downloadedImageCounter].url = URL.createObjectURL(e);
             this.imagesToEdit[this.imageEditIncrementor - this.downloadedImageCounter].dialogueOpen = true;
@@ -189,7 +129,6 @@ export default {
 
             if (!this.$props.initImages) {
                 this.imageObjs.splice(index, 1);
-                // this.imageFiles.splice(index, 1);
             } else if (this.imageObjs[index].file) {
                 // If we are editing but this is an additional file upload.
 
@@ -228,7 +167,6 @@ export default {
 
         changeOrder: function(e) {
             if (e.newIndex !== e.oldIndex) {
-                // this.imageFiles.splice(e.newIndex, 0, this.imageFiles.splice(e.oldIndex, 1)[0]);
                 this.imageObjs.splice(e.newIndex, 0, this.imageObjs.splice(e.oldIndex, 1)[0]);
                 console.log(this.imageObjs);
             }
@@ -297,6 +235,14 @@ export default {
     .imageInput {
         padding: 5px;
         margin-top: 0;
+    }
+
+    .imageInput:hover {
+        cursor: pointer !important;
+    }
+
+    .imageInput label:hover {
+        cursor: pointer;
     }
 
     .sortableCol img {

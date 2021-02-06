@@ -1,7 +1,9 @@
 <template>
     <v-card v-if="!isLoading" class="exerciseMin" outlined>
         <v-carousel height="auto" v-model="model">
-            <v-carousel-item class="carouselImage" @click.stop="popUpImage(img.imgUrl)" v-for="img in imgUrls" :key="img.order" :src="img.imgUrl"></v-carousel-item>
+            <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.order">
+                <v-img :src="img.imgUrl" eager/>
+            </v-carousel-item>
         </v-carousel>
         <v-container>
             <v-sheet align="center">
@@ -28,18 +30,6 @@
                 </div>
             </v-sheet>
         </v-container>
-
-        <!-- Image Dialog -->
-        <v-dialog v-model="viewingImageDialogue" :max-height="dialogueMaxHeight" :max-width="dialogueMaxWidth">
-            <v-card class="imageDialogueCard">
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-icon @click="viewingImageDialogue = false">mdi-close</v-icon>
-                </v-card-actions>
-                <v-card-text class="imageDialougeText"><img :src="imageDialogueUrl"/></v-card-text>
-            </v-card>
-        </v-dialog>
-        <!-- End Image Dialog -->
     </v-card>
     <v-card v-else min-height="500" class="exerciseMin" outlined>
         <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
@@ -74,11 +64,7 @@ export default {
 
             // Vuetify:
             model: 0,
-            descriptionExpanded: false,
-            viewingImageDialogue: false,
-            imageDialogueUrl: '',
-            dialogueMaxHeight: 0,
-            dialogueMaxWidth: 0
+            descriptionExpanded: false
         }
     },
     
@@ -140,28 +126,6 @@ export default {
 
             this.isLiked = s; 
         },
-
-        popUpImage: function(url) {
-            console.log(window.innerHeight);
-            console.log(window.innerWidth);
-
-            const imgTag = document.querySelector(".imageDialogueText");
-
-            this.dialogueMaxHeight = window.innerHeight - 300;
-            this.dialogueMaxWidth = window.innerWidth - 300;
-
-
-            if (imgTag.clientHeight > imgTag.clientWidth) {
-                imgTag.style.maxHeight = "100%";
-                imgTag.style.width = "auto";
-            } else {
-                imgTag.style.maxWidth = "100%";
-                imgTag.style.height = "auto";
-            }
-
-            this.viewingImageDialogue = true;
-            this.imageDialogueUrl = url;
-        }
     },
 
     watch: {

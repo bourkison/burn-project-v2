@@ -2,7 +2,7 @@
     <v-card outlined>
         <v-container v-if="!isLoading">
             <v-row>
-                <v-col cols="12" md="6" sm="12">
+                <v-col cols="12" md="12" sm="12">
                     <h4>Exercises</h4>
                     <v-list flat>
                         <v-list-group v-if="createdExercisesData.length > 0" sub-group no-action>
@@ -39,7 +39,7 @@
                     </v-list>
                 </v-col>
 
-                <v-col cols="12" md="6" sm="12">
+                <v-col cols="12" md="12" sm="12">
                     <h4>Selected Exercises</h4>
                     <v-expansion-panels id="selectedContainer">
                         <v-expansion-panel v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
