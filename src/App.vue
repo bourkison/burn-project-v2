@@ -46,7 +46,7 @@
             <v-dialog
               v-model="signUpDialog"
               persistent
-              max-width="600px"
+              max-width="600"
               v-if="!$store.state.userProfile.loggedIn"
             >
               <template v-slot:activator="{ on, attrs }">

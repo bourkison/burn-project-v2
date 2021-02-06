@@ -19,7 +19,6 @@ import ViewWorkouts from '../views/Workouts/ViewWorkouts.vue'
 import UserProfile from '../views/Users/UserProfile.vue'
 import Profile from '../views/Users/Profile.vue'
 
-
 Vue.use(VueRouter)
 
 const routes = [
@@ -47,7 +46,15 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import(/*webpackChunkName: "signup" */ '../views/Login.vue')
+    component: () => import(/*webpackChunkName: "login" */ '../views/Login.vue')
+  },
+  {
+    path: '/burn',
+    name: 'Burn',
+    meta: {
+      requiresAuth: true
+    },
+    component: () => import(/*webpackChunkName: "burn" */ '../views/Burn.vue')
   },
   {
     path: '/profile',

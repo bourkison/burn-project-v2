@@ -51,7 +51,7 @@
                             </v-expansion-panel-header>
                             <v-expansion-panel-content>
                                 <v-sheet class="mdOutput" v-html="compiledMarkdown(selectedExercise.description)"></v-sheet>
-                                <SuggestedSetsSelector :id="selectedExercise.id" :initSuggestedSets="selectedExercise.suggestedSets" @updateSets="updateSets"></SuggestedSetsSelector>
+                                <v-card align="center"><SuggestedSetsSelector :id="selectedExercise.id" :initSuggestedSets="selectedExercise.suggestedSets" @updateSets="updateSets"></SuggestedSetsSelector></v-card>
                             </v-expansion-panel-content>    
                         </v-expansion-panel>
                     </v-expansion-panels>   

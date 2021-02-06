@@ -22,6 +22,9 @@
                     <ExerciseExpandable v-for="exercise in workoutData.exercises" :key="exercise.id" :exercise="exercise"></ExerciseExpandable>
                 </v-expansion-panels>
             </v-card>
+            <div align="center" style="margin-top:25px;">
+                <v-btn color="success" @click="startWorkout"><v-icon>mdi-plus</v-icon>Start Workout</v-btn>
+            </div>
             <v-card style="margin-top: 10px;">
                 <CommentSection
                     :workout-id="this.$route.params.workoutid"
@@ -47,6 +50,7 @@ import * as marked from 'marked'
 
 import CommentSection from '../Comments/CommentSection.vue'
 import ExerciseExpandable from '../../components/Exercise/ExerciseExpandable.vue'
+// import SuggestedSetsSelector from '../../components/Exercise/SuggestedSetsSelector.vue'
 
 export default {
     name: 'ViewWorkout',
@@ -100,6 +104,10 @@ export default {
             }
 
             this.isLiked = s;
+        },
+
+        startWorkout: function() {
+            this.$router.push({ path: '/burn', query: { w: this.$route.params.workoutid } });
         }
     }
 }
