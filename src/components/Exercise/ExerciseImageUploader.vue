@@ -181,7 +181,7 @@ export default {
 
             if (!this.$props.initImages) {
                 this.imageObjs.splice(index, 1);
-                this.imageFiles.splice(index, 1);
+                // this.imageFiles.splice(index, 1);
             } else if (this.imageObjs[index].file) {
                 // If we are editing but this is an additional file upload.
 
@@ -217,13 +217,14 @@ export default {
 
         changeOrder: function(e) {
             if (e.newIndex !== e.oldIndex) {
-                this.imageFiles.splice(e.newIndex, 0, this.imageFiles.splice(e.oldIndex, 1)[0]);
+                // this.imageFiles.splice(e.newIndex, 0, this.imageFiles.splice(e.oldIndex, 1)[0]);
                 this.imageObjs.splice(e.newIndex, 0, this.imageObjs.splice(e.oldIndex, 1)[0]);
+                console.log(this.imageObjs);
             }
         },
 
         outputEdit: function(s) {
-            console.log(s);
+            // console.log(s);
             this.editingImageDialogue = false;
             this.imagesToEdit[this.imageEditIncrementor].dialogueOpen = false;
             this.imageObjs.push({ id: this.imageEditIncrementor, file: s, tempUrl: s, path: null })
@@ -241,7 +242,7 @@ export default {
             }
 
             if (!this.$props.initImages) {
-                this.$emit("updateImgFiles", this.imageFiles);
+                this.$emit("updateImgFiles", this.imageObjs);
             } else {
                 console.log(this.imageObjs);
                 this.$emit("editImgFiles", this.imageObjs, this.deletedFiles);

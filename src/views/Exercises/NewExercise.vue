@@ -139,7 +139,11 @@ export default {
         },
 
         updateImgFiles (arr) {
-            this.imageFiles = arr;
+            this.imageFiles = [];
+            arr.forEach(img => {
+                this.imageFiles.push(img.file);
+            })
+            // this.imageFiles = arr;
         },
 
         addSet () {
@@ -161,7 +165,7 @@ export default {
         uploadImageFile: function(file, order) {
             let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
 
-            imageRef.put(file).then(() => {
+            imageRef.putString(file, 'data_url').then(() => {
                 this.exerciseForm.imgPaths.push({ path: imageRef.fullPath, order: order });
                 this.imagesUploaded ++;
             }).catch(e => {

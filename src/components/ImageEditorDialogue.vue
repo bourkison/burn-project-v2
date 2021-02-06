@@ -40,7 +40,7 @@ export default {
         this.imgCont = document.querySelector('.imgContainer');
         this.imgPreview = document.querySelector('.imgPreview');
 
-        console.log("mounted", this.$props.imgUrl);
+        // console.log("mounted", this.$props.imgUrl);
 
         if (this.$props.imgUrl) {
             console.log("Here we launch Cropper.");
@@ -58,7 +58,7 @@ export default {
                 this.cropper = new Cropper(this.imgEl, {
                     scalable: false,
                     viewMode: 3,
-                    aspectRatio: 16/9,
+                    aspectRatio: 1,
                     crop: (() => {
                         const canvas = this.cropper.getCroppedCanvas();
                         this.destination = canvas.toDataURL();
@@ -66,9 +66,7 @@ export default {
                     })
                 })
             }, 1000)
-        } else {
-            console.log("EMIT");
-            
+        } else {            
             // this.$destroy();
             // this.$el.parentNode.removeChild(this.$el);
         }
@@ -82,12 +80,12 @@ export default {
 
     destroyed: function() {
         // this.$emit("outputEdit", this.destination);
-        console.log("Destroy 2")
+        // console.log("Destroy 2")
     },
 
     watch: {
-        imgUrl: function(n, o) {
-            console.log("ImgURL watch", n, o);
+        imgUrl: function() {
+            // console.log("ImgURL watch", n, o);
             // if (n) {
             //     console.log("Here we launch Cropper.", n, o);
             //     this.isLoading = true;
