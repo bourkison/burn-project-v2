@@ -51,11 +51,13 @@ export default {
             console.log("Here we launch Cropper.");
             this.isLoading = true;
 
+            // Timeout is set to give image a chance to load before setting cropper.
             setTimeout(() => {
                 this.isLoading = false;
                 let ratio = (this.imgEl.clientWidth / this.imgEl.clientHeight);
                 console.log(ratio);
 
+                // Set image container to have a max height of 500px.
                 this.imgCont.style.height = "500px";
                 this.imgCont.style.width = 500 * ratio + "px";
                 this.imgEl.style.visibility = "visible";
@@ -67,13 +69,9 @@ export default {
                     crop: (() => {
                         const canvas = this.cropper.getCroppedCanvas();
                         this.destination = canvas.toDataURL();
-                        // console.log(this.destination);
                     })
                 })
-            }, 1000)
-        } else {            
-            // this.$destroy();
-            // this.$el.parentNode.removeChild(this.$el);
+            }, 500)
         }
     },
 
@@ -81,48 +79,6 @@ export default {
         addImage: function() {
             this.$emit("outputEdit", this.destination, this.$props.imgId);
         }
-    },
-
-    destroyed: function() {
-        // this.$emit("outputEdit", this.destination);
-        // console.log("Destroy 2")
-    },
-
-    watch: {
-        imgUrl: function() {
-            // console.log("ImgURL watch", n, o);
-            // if (n) {
-            //     console.log("Here we launch Cropper.", n, o);
-            //     this.isLoading = true;
-
-            //     setTimeout(() => {
-            //         this.isLoading = false;
-            //         let ratio = (this.imgEl.clientWidth / this.imgEl.clientHeight);
-            //         console.log(ratio);
-
-            //         this.imgCont.style.height = "500px";
-            //         this.imgCont.style.width = 500 * ratio + "px";
-            //         this.imgEl.style.visibility = "visible";
-
-            //         this.cropper = new Cropper(this.imgEl, {
-            //             scalable: false,
-            //             viewMode: 3,
-            //             aspectRatio: 16/9,
-            //             crop: (() => {
-            //                 const canvas = this.cropper.getCroppedCanvas();
-            //                 this.destination = canvas.toDataURL();
-            //                 // console.log(this.destination);
-            //             })
-            //         })
-            //     }, 1000)
-            // } else {
-            //     console.log("EMIT");
-                
-            //     // this.$destroy();
-            //     // this.$el.parentNode.removeChild(this.$el);
-            // }
-        }
     }
-
 }
 </script>

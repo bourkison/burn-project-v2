@@ -141,7 +141,7 @@ export default {
         uploadImage: function(file, order) {
             let imageRef = storage.ref("exercises/" + this.$route.params.exerciseid + "/images/" + Number(new Date()) + "-" + this.generateId(4));
 
-            imageRef.put(file).then(() => {
+            imageRef.putString(file, 'data_url').then(() => {
                 this.imageObjs[order].path = imageRef.fullPath;
                 this.imageChecker ++;
             })

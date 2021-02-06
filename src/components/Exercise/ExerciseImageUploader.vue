@@ -8,7 +8,7 @@
                     <v-card outlined>
                         <img :src="image.tempUrl"/>
                         <div align="center" style="padding: 10px;">
-                            <v-icon @click.stop="editImageToggle(image.id)">mdi-image-edit-outline</v-icon>
+                            <v-icon v-if="!image.path" @click.stop="editImageToggle(image.id)">mdi-image-edit-outline</v-icon>
                             <v-icon @click="deleteImage(image.id)">mdi-delete-outline</v-icon>
                         </div>
                     </v-card>
@@ -92,7 +92,10 @@ export default {
             this.$props.initImages.forEach(img => {
                 this.downloadImage(img, i);
                 i ++;
+                this.imageEditIncrementor ++;
             })
+
+            this.imagesToEdit[0].id = this.imageEditIncrementor;
         }
     },
 
@@ -157,23 +160,28 @@ export default {
         },
 
         handleEditFileUpload: function(e) {
-            let change = this.checkIfChange(e);
+            // let change = this.checkIfChange(e);
 
-            // If there's been a change, push new file into imageObjs.
-            if (change) {
-                e.forEach(file => {
-                    const i = this.imgIterator;
-                    this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file), path: null });
-                    this.imgIterator ++;
-                })
-            }
+            // // If there's been a change, push new file into imageObjs.
+            // if (change) {
+            //     e.forEach(file => {
+            //         const i = this.imgIterator;
+            //         this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file), path: null });
+            //         this.imgIterator ++;
+            //     })
+            // }
 
-            this.additionalFiles = [];
-            this.imageObjs.forEach(img => {
-                if (img.file != null) {
-                    this.additionalFiles.push(img.file)
-                }
-            })
+            // this.imageObjs.forEach(img => {
+            //     if (img.file != null) {
+            //         this.additionalFiles.push(img.file)
+            //     }
+            // })
+
+            this.additionalFiles = e;
+            this.imagesToEdit[this.imageEditIncrementor - this.downloadedImageCounter].url = URL.createObjectURL(e);
+            this.imagesToEdit[this.imageEditIncrementor - this.downloadedImageCounter].dialogueOpen = true;
+            this.editingImageDialogue = true;
+            
         },
 
         deleteImage: function(id) {
@@ -232,7 +240,7 @@ export default {
             // console.log(s);
             console.log(id);
             this.editingImageDialogue = false;
-            this.imagesToEdit[id].dialogueOpen = false;
+            this.imagesToEdit[id - this.downloadedImageCounter].dialogueOpen = false;
 
             if (id != this.imageEditIncrementor) {
                 // If this is the case, then we are editing an already added image.
