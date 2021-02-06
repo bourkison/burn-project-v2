@@ -1,8 +1,8 @@
 <template>
     <v-card outlined>
         <v-container>
-            <v-file-input v-if="!initImages" accept="image/png,image/jpg,image/jpeg" class="imageInput" prepend-icon="mdi-camera" chips clear-icon="" multiple label="Add Up to 10 photos and/or a video." v-model="imageFiles" append-icon="mdi-close" @change="handleFileUpload" @click:append="handleFileClose" ></v-file-input>
-            <v-file-input v-else accept="image/png,image/jpg,image/jpeg" class="imageInput" prepend-icon="mdi-camera" chips clear-icon="" multiple label="Add Up to 10 photos and/or a video." v-model="additionalFiles" append-icon="mdi-close" @change="handleEditFileUpload" @click:append="handleEditFileClose" ></v-file-input>
+            <v-file-input v-if="!initImages" accept="image/png,image/jpg,image/jpeg" class="imageInput" prepend-icon="mdi-camera" clear-icon="" label="Add Up to 10 photos and/or a video." v-model="imageFiles" append-icon="mdi-close" @change="handleFileUpload" @click:append="handleFileClose" ></v-file-input>
+            <v-file-input v-else accept="image/png,image/jpg,image/jpeg" class="imageInput" prepend-icon="mdi-camera" clear-icon="" label="Add Up to 10 photos and/or a video." v-model="additionalFiles" append-icon="mdi-close" @change="handleEditFileUpload" @click:append="handleEditFileClose" ></v-file-input>
             <v-row justify="center" align="center" id="sortableContainer">
                 <v-col class="sortableCol" cols="12" md="4" v-for="image in imageObjs" :key="image.id">
                     <v-card outlined>
@@ -16,10 +16,22 @@
                 <v-col v-if="isLoading">
                     <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
                 </v-col>
-                <ImageEditorDialogue :inputUrl="inputCropperImgSrc"></ImageEditorDialogue>
+                
             </v-row>
-
         </v-container>
+
+        <v-dialog max-height="600" max-width="900" v-model="editingImageDialogue" persistent eager>
+            <v-card v-for="img in imagesToEdit" :key="img.id">
+            <div v-if="img.dialogueOpen">
+              <v-card-title>
+                Edit Image
+              </v-card-title>
+              <v-card-text ref="dialogueContainer">
+                <ImageEditorDialogue :imgUrl="img.url" @outputEdit="outputEdit"></ImageEditorDialogue>
+              </v-card-text>
+            </div>
+          </v-card>
+        </v-dialog>
     </v-card>
 </template>
 
@@ -55,8 +67,9 @@ export default {
             deletedFiles: [],
             editingImageDialogue: false,
 
-            // CropperJs
-            inputCropperImgSrc: '',
+            // Cropper:
+            imagesToEdit: [],
+            imageEditIncrementor: 0,
         }
     },
 
@@ -65,6 +78,10 @@ export default {
             type: Array,
             required: false
         }
+    },
+
+    created: function() {
+        this.imagesToEdit.push({ id: this.imageEditIncrementor, url: null, dialogueOpen: false });
     },
 
     mounted: function() {
@@ -87,49 +104,56 @@ export default {
             })
         },
 
-        checkIfChange: function(e) {
-            let found = false;
+        // checkIfChange: function(e) {
+        //     let found = false;
 
-            if (this.imageObjs.length === 0) {
-                return true;
-            } else {
-                e.forEach(newInput => {        
-                    this.imageObjs.forEach(oldInput => {
-                        if (oldInput.file) {
-                            if (newInput.name == oldInput.file.name) {
-                                found = true
-                            }
-                        }
-                    })
-                })
-            }
+        //     if (this.imageObjs.length === 0) {
+        //         return true;
+        //     } else {
+        //         e.forEach(newInput => {        
+        //             this.imageObjs.forEach(oldInput => {
+        //                 if (oldInput.file) {
+        //                     if (newInput.name == oldInput.file.name) {
+        //                         found = true
+        //                     }
+        //                 }
+        //             })
+        //         })
+        //     }
 
-            if (found) {
-                return false
-            } else {
-                return true;
-            }
-        },
+        //     if (found) {
+        //         return false
+        //     } else {
+        //         return true;
+        //     }
+        // },
 
         handleFileUpload: function(e) {
-            // Check if there has actually been a change (and the user hasn't
+            // // Check if there has actually been a change (and the user hasn't
             // just opened image uploader and closed.)
-            let change = this.checkIfChange(e);
+            // let change = this.checkIfChange(e);
             
-            // If there's been a change, push new file into imageObjs.
-            if (change) {
-                e.forEach(file => {
-                    const i = this.imgIterator;
-                    this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file), path: null });
-                    this.imgIterator ++;
-                })
-            }
+            // // If there's been a change, push new file into imageObjs.
+            // if (change) {
+            //     e.forEach(file => {
+            //         const i = this.imgIterator;
+            //         this.imageObjs.push({ id: i, file: file, tempUrl: URL.createObjectURL(file), path: null });
+            //         this.imgIterator ++;
+            //     })
+            // }
 
-            // Regardless, reset imageFiles to be equal to the files in imageObjs
-            this.imageFiles = [];
-            this.imageObjs.forEach(img => {
-                this.imageFiles.push(img.file);
-            })
+            // // Regardless, reset imageFiles to be equal to the files in imageObjs
+            // this.imageFiles = [];
+            // this.imageObjs.forEach(img => {
+            //     this.imageFiles.push(img.file);
+            // })
+
+            this.imageFiles = e;
+            // this.imagesToEdit.push({ id: this.imageEditIncrementor, url: URL.createObjectURL(e), dialogueOpen: true });
+            this.imagesToEdit[this.imageEditIncrementor].url = URL.createObjectURL(e);
+            this.imagesToEdit[this.imageEditIncrementor].dialogueOpen = true;
+            this.editingImageDialogue = true;
+            console.log(this.imagesToEdit);
         },
 
         handleEditFileUpload: function(e) {
@@ -196,6 +220,15 @@ export default {
                 this.imageFiles.splice(e.newIndex, 0, this.imageFiles.splice(e.oldIndex, 1)[0]);
                 this.imageObjs.splice(e.newIndex, 0, this.imageObjs.splice(e.oldIndex, 1)[0]);
             }
+        },
+
+        outputEdit: function(s) {
+            console.log(s);
+            this.editingImageDialogue = false;
+            this.imagesToEdit[this.imageEditIncrementor].dialogueOpen = false;
+            this.imageObjs.push({ id: this.imageEditIncrementor, file: s, tempUrl: s, path: null })
+            this.imageEditIncrementor ++;
+            this.imagesToEdit.push({ id: this.imageEditIncrementor, url: null, dialogueOpen: false });
         }
     },
 
@@ -210,6 +243,7 @@ export default {
             if (!this.$props.initImages) {
                 this.$emit("updateImgFiles", this.imageFiles);
             } else {
+                console.log(this.imageObjs);
                 this.$emit("editImgFiles", this.imageObjs, this.deletedFiles);
             }
         },

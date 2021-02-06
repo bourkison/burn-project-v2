@@ -1,18 +1,12 @@
 <template>
-    <v-container>
-        <v-expansion-panels>
-            <v-expansion-panel>
-                <v-expansion-panel-header>Edit Image</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                    <div class="img-container">
-                        <img ref="image" :src="inputUrl" crossorigin>
-                    </div>
-                    <div><img :src="destination" class="img-preview"></div>
-                    <v-btn @click="setThisFuckingCropper">SET</v-btn>
-                </v-expansion-panel-content>
-            </v-expansion-panel>
-        </v-expansion-panels>
-    </v-container>
+    <div align="center">
+        <div align="center" v-if="isLoading"><v-progress-circular indeterminate centered></v-progress-circular></div>
+        <div class="imgContainer"><img id="cropperImg" style="visibility:hidden;" :src="imgUrl" /></div>
+        <img class="imgPreview" :src="destination" />
+        <div>
+            <v-btn @click="addImage">Add Image</v-btn>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -20,60 +14,112 @@ import Cropper from 'cropperjs'
 
 export default {
     name: 'ImageEditorDialogue',
+
     props: {
-        inputUrl: {
-            type: String,
-            required: true
+        imgUrl: {
+            required: true,
+            type: String
         }
     },
 
-    data() {
+    data: function() {
         return {
+            imgCont: null,
+            imgEl: null,
+            imgPreview: null,
+
+            destination: null,
             cropper: {},
-            destination: {},
-            image: {}
+
+            isLoading: false
         }
     },
 
     mounted: function() {
-        setTimeout(this.setImage(), 10000);
+        this.imgEl = document.querySelector("#cropperImg");
+        this.imgCont = document.querySelector('.imgContainer');
+        this.imgPreview = document.querySelector('.imgPreview');
+
+        console.log("mounted", this.$props.imgUrl);
+
+        if (this.$props.imgUrl) {
+            console.log("Here we launch Cropper.");
+            this.isLoading = true;
+
+            setTimeout(() => {
+                this.isLoading = false;
+                let ratio = (this.imgEl.clientWidth / this.imgEl.clientHeight);
+                console.log(ratio);
+
+                this.imgCont.style.height = "500px";
+                this.imgCont.style.width = 500 * ratio + "px";
+                this.imgEl.style.visibility = "visible";
+
+                this.cropper = new Cropper(this.imgEl, {
+                    scalable: false,
+                    viewMode: 3,
+                    aspectRatio: 16/9,
+                    crop: (() => {
+                        const canvas = this.cropper.getCroppedCanvas();
+                        this.destination = canvas.toDataURL();
+                        // console.log(this.destination);
+                    })
+                })
+            }, 1000)
+        } else {
+            console.log("EMIT");
+            
+            // this.$destroy();
+            // this.$el.parentNode.removeChild(this.$el);
+        }
     },
 
     methods: {
-        setImage: function() {
-        },
-
-        setThisFuckingCropper: function() {
-            this.image = this.$refs.image;
-
-            this.cropper = new Cropper(this.image, {
-                scalable: false,
-                aspectRatio: 16/9,
-                viewMode: 3,
-                crop: () => {
-                    const canvas = this.cropper.getCroppedCanvas();
-                    this.destination = canvas.toDataURL("image/png");
-                }
-            });
+        addImage: function() {
+            this.$emit("outputEdit", this.destination);
         }
     },
+
+    destroyed: function() {
+        // this.$emit("outputEdit", this.destination);
+        console.log("Destroy 2")
+    },
+
+    watch: {
+        imgUrl: function(n, o) {
+            console.log("ImgURL watch", n, o);
+            // if (n) {
+            //     console.log("Here we launch Cropper.", n, o);
+            //     this.isLoading = true;
+
+            //     setTimeout(() => {
+            //         this.isLoading = false;
+            //         let ratio = (this.imgEl.clientWidth / this.imgEl.clientHeight);
+            //         console.log(ratio);
+
+            //         this.imgCont.style.height = "500px";
+            //         this.imgCont.style.width = 500 * ratio + "px";
+            //         this.imgEl.style.visibility = "visible";
+
+            //         this.cropper = new Cropper(this.imgEl, {
+            //             scalable: false,
+            //             viewMode: 3,
+            //             aspectRatio: 16/9,
+            //             crop: (() => {
+            //                 const canvas = this.cropper.getCroppedCanvas();
+            //                 this.destination = canvas.toDataURL();
+            //                 // console.log(this.destination);
+            //             })
+            //         })
+            //     }, 1000)
+            // } else {
+            //     console.log("EMIT");
+                
+            //     // this.$destroy();
+            //     // this.$el.parentNode.removeChild(this.$el);
+            // }
+        }
+    }
+
 }
 </script>
-
-<style scoped>
-    .img-container {
-        width: 100%;
-        height: auto;
-    }
-
-    .img-container img {
-        width: 100%;
-        height: auto;
-    }
-
-    .img-preview {
-        width: 200px;
-        height: calc(200px * (1 / (16 / 9)));
-        margin-left: 10px;
-    }
-</style>

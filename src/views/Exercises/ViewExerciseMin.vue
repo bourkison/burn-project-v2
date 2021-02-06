@@ -30,7 +30,7 @@
         </v-container>
 
         <!-- Image Dialog -->
-        <v-dialog v-model="viewingImageDialogue" max-height="900" max-width="600">
+        <v-dialog v-model="viewingImageDialogue" :max-height="dialogueMaxHeight" :max-width="dialogueMaxWidth">
             <v-card class="imageDialogueCard">
                 <v-card-actions>
                     <v-spacer></v-spacer>
@@ -76,7 +76,9 @@ export default {
             model: 0,
             descriptionExpanded: false,
             viewingImageDialogue: false,
-            imageDialogueUrl: ''
+            imageDialogueUrl: '',
+            dialogueMaxHeight: 0,
+            dialogueMaxWidth: 0
         }
     },
     
@@ -140,6 +142,23 @@ export default {
         },
 
         popUpImage: function(url) {
+            console.log(window.innerHeight);
+            console.log(window.innerWidth);
+
+            const imgTag = document.querySelector(".imageDialogueText");
+
+            this.dialogueMaxHeight = window.innerHeight - 300;
+            this.dialogueMaxWidth = window.innerWidth - 300;
+
+
+            if (imgTag.clientHeight > imgTag.clientWidth) {
+                imgTag.style.maxHeight = "100%";
+                imgTag.style.width = "auto";
+            } else {
+                imgTag.style.maxWidth = "100%";
+                imgTag.style.height = "auto";
+            }
+
             this.viewingImageDialogue = true;
             this.imageDialogueUrl = url;
         }
