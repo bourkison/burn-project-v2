@@ -30,7 +30,7 @@
                     <v-col cols="12" md="6"><MuscleGroupSelect @mgCH="updateMgs"></MuscleGroupSelect></v-col>
                     <v-col cols="12" md="6">
                         <SuggestedSetsSelector @updateSets="updateSets"></SuggestedSetsSelector>
-                        <DifficultySelector class="difficultyCard" @setDifficulty="setDifficulty"></DifficultySelector>
+                        <v-card align="center" outlined><DifficultySelector class="difficultyCard" @setDifficulty="setDifficulty"></DifficultySelector></v-card>
                     </v-col>
                 </v-row>
                 <div class="text-center"><v-btn type="submit" v-bind:loading="isLoading" :disabled="isLoading">Create Exercise</v-btn></div>

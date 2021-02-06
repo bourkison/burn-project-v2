@@ -3,7 +3,7 @@
         <v-container v-if="!isLoading">
             <v-row>
                 <v-col cols="12" md="12" sm="12">
-                    <h4>Exercises</h4>
+                    <h3>Exercises</h3>
                     <v-list flat>
                         <v-list-group v-if="createdExercisesData.length > 0" sub-group no-action>
                             <template v-slot:activator>
@@ -40,17 +40,18 @@
                 </v-col>
 
                 <v-col cols="12" md="12" sm="12">
-                    <h4>Selected Exercises</h4>
+                    <h3>Selected Exercises</h3>
                     <v-expansion-panels id="selectedContainer">
                         <v-expansion-panel v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
                             <v-expansion-panel-header>
-                                <span>{{ selectedExercise.name }}</span>
+                                <span><h4>{{ selectedExercise.name }}</h4></span>
                                 <span class="sortableHandle" style="text-align:right;">
                                     <v-icon>mdi-drag-horizontal-variant</v-icon>
                                 </span>
                             </v-expansion-panel-header>
                             <v-expansion-panel-content>
                                 <v-sheet class="mdOutput" v-html="compiledMarkdown(selectedExercise.description)"></v-sheet>
+                                <SuggestedSetsSelector :id="selectedExercise.id" :initSuggestedSets="selectedExercise.suggestedSets" @updateSets="updateSets"></SuggestedSetsSelector>
                             </v-expansion-panel-content>    
                         </v-expansion-panel>
                     </v-expansion-panels>   
@@ -68,8 +69,11 @@ import { db } from '../../firebase'
 import Sortable from 'sortablejs'
 import * as marked from 'marked'
 
+import SuggestedSetsSelector from './SuggestedSetsSelector.vue'
+
 export default {
     name: 'ExerciseSelector',
+    components: { SuggestedSetsSelector },
     props: {
         createdExercises: {
             type: Array,
@@ -143,6 +147,11 @@ export default {
 
         compiledMarkdown: function(description) {
             return marked(description);
+        },
+
+        updateSets: function(sets, id) {
+            let index = this.selectedExercisesData.findIndex(x => x.id === id);
+            this.selectedExercisesData[index].suggestedSets = sets;
         }
     },
 
