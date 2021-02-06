@@ -19,6 +19,11 @@ export default {
         imgUrl: {
             required: true,
             type: String
+        },
+
+        imgId: {
+            required: true,
+            type: Number
         }
     },
 
@@ -74,7 +79,7 @@ export default {
 
     methods: {
         addImage: function() {
-            this.$emit("outputEdit", this.destination);
+            this.$emit("outputEdit", this.destination, this.$props.imgId);
         }
     },
 

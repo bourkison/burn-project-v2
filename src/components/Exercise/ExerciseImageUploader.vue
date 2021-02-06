@@ -8,7 +8,7 @@
                     <v-card outlined>
                         <img :src="image.tempUrl"/>
                         <div align="center" style="padding: 10px;">
-                            <v-icon @click.stop="editImageToggle(image.tempUrl)">mdi-image-edit-outline</v-icon>
+                            <v-icon @click.stop="editImageToggle(image.id)">mdi-image-edit-outline</v-icon>
                             <v-icon @click="deleteImage(image.id)">mdi-delete-outline</v-icon>
                         </div>
                     </v-card>
@@ -27,7 +27,7 @@
                 Edit Image
               </v-card-title>
               <v-card-text ref="dialogueContainer">
-                <ImageEditorDialogue :imgUrl="img.url" @outputEdit="outputEdit"></ImageEditorDialogue>
+                <ImageEditorDialogue :imgUrl="img.url" :imgId="img.id" @outputEdit="outputEdit"></ImageEditorDialogue>
               </v-card-text>
             </div>
           </v-card>
@@ -177,7 +177,7 @@ export default {
         },
 
         deleteImage: function(id) {
-            let index = this.imageObjs.findIndex(x => x.id === id);
+            let index = this.imageObjs.findIndex(x => x.id === id);            
 
             if (!this.$props.initImages) {
                 this.imageObjs.splice(index, 1);
@@ -200,9 +200,12 @@ export default {
             }
         },
 
-        editImageToggle: function(url) {
+        editImageToggle: function(id) {
+            let imageEditIndex = this.imagesToEdit.findIndex(x => x.id === id);
+
             this.editingImageDialogue = true;
-            this.inputCropperImgSrc = url;
+            this.imagesToEdit[imageEditIndex].dialogueOpen = true;
+            console.log(imageEditIndex);
         },
 
         handleFileClose: function() {
@@ -223,13 +226,27 @@ export default {
             }
         },
 
-        outputEdit: function(s) {
+        // outputEdit is function emitted in ImageEditorDialogue.vue
+        // when image added.
+        outputEdit: function(s, id) {
             // console.log(s);
+            console.log(id);
             this.editingImageDialogue = false;
-            this.imagesToEdit[this.imageEditIncrementor].dialogueOpen = false;
-            this.imageObjs.push({ id: this.imageEditIncrementor, file: s, tempUrl: s, path: null })
-            this.imageEditIncrementor ++;
-            this.imagesToEdit.push({ id: this.imageEditIncrementor, url: null, dialogueOpen: false });
+            this.imagesToEdit[id].dialogueOpen = false;
+
+            if (id != this.imageEditIncrementor) {
+                // If this is the case, then we are editing an already added image.
+                let imageObjsIndex = this.imageObjs.findIndex(x => x.id === id);
+                this.imageObjs[imageObjsIndex] = { id: id, file: s, tempUrl: s, path: null }
+            } else {
+                // Else we are adding a new one.
+                this.imageObjs.push({ id: id, file: s, tempUrl: s, path: null })
+                this.imageEditIncrementor ++;
+                this.imagesToEdit.push({ id: this.imageEditIncrementor, url: null, dialogueOpen: false });
+            }
+            
+            this.imageFiles = [];
+            document.activeElement.blur();
         }
     },
 
