@@ -5,20 +5,27 @@
                 <h1>{{ newWorkoutData.name }}</h1>
                 <v-text-field v-model="newWorkoutData.name" :rules=[rules.required] label="Workout Name"></v-text-field>
                 <MarkdownInput :starting-text="oldWorkoutData.description" @update-text="updateDescription"></MarkdownInput>
-                <ExerciseSelector :initExercises="oldWorkoutData.exercises" :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises" @selectedExercisesChange="updateSelectedExercises"></ExerciseSelector>
+                <ExerciseSelector class="exerciseSelector" :initExercises="oldWorkoutData.exercises" :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises" @selectedExercisesChange="updateSelectedExercises"></ExerciseSelector>
+                <DifficultySelector class="difficultySelector" :initialDifficulty="oldWorkoutData.difficulty" @setDifficulty="setDifficulty"></DifficultySelector>
+                <div class="text-center submitButton"><v-btn type="submit" :loading="isUpdating" :disabled="isUpdating">Update Workout</v-btn></div>
             </v-form>
+        </v-container>
+        <v-container v-else>
+            <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
         </v-container>
     </v-sheet>
 </template>
 
 <script>
 import { db } from '../../firebase'
+
 import MarkdownInput from '../../components/MarkdownInput.vue'
 import ExerciseSelector from '../../components/Exercise/ExerciseSelector.vue'
+import DifficultySelector from '../../components/DifficultySelector.vue'
 
 export default {
     name: 'EditWorkout',
-    components: { MarkdownInput, ExerciseSelector },
+    components: { MarkdownInput, ExerciseSelector, DifficultySelector },
     data() {
         return {
             isLoading: true,
@@ -78,13 +85,41 @@ export default {
             })
         },
 
+        updateWorkout: function() {
+            this.isUpdating = true;
+
+            db.collection("workouts").doc(this.$route.params.workoutid).update(this.newWorkoutData).then(() => {
+                this.isUpdating = false;
+                this.$router.push("/workouts/" + this.$route.params.workoutid);
+            }).catch(e => {
+                console.log("Error updating workout", e);
+                this.isUpdating = false;
+            })
+        },
+
         updateDescription: function(s) {
             this.newWorkoutData.description = s;
         },
 
         updateSelectedExercises: function(s) {
             this.newWorkoutData.exercises = s;
+        },
+        
+        setDifficulty: function(d) {
+            this.newWorkoutData.difficulty = d;
         }
     }
 }
 </script>
+
+<style scoped>
+    .exerciseSelector,
+    .difficultySelector {
+        margin-top: 20px;
+        padding: 10px;
+    }
+
+    .submitButton {
+        margin-top: 10px;
+    }
+</style>

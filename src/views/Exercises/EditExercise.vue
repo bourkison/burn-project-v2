@@ -127,6 +127,7 @@ export default {
 
             let i = 0;
             // First step, check for additional images, then upload them.
+            // i is used to keep order.
             this.imageObjs.forEach(imageObj => {
                 if (imageObj.file) {
                     this.uploadImage(imageObj.file, i);
@@ -212,7 +213,7 @@ export default {
                     this.isUpdating = false;
                     this.$router.push("/exercises/" + this.$route.params.exerciseid);
                 }).catch(e => {
-                    console.log("Error updating exexrcise", e);
+                    console.log("Error updating exercise", e);
                     this.isUpdating = false;
                 });
             }

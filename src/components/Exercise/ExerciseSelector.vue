@@ -177,12 +177,9 @@ export default {
             } else if (this.selectedExercisesData.length === 0) {
                 this.sortable = null;
             }
-
-            console.log("sel created", n, o);
         },
 
         selectedFollowedExercises: function(n, o) {
-            console.log("sel followed", n, o)
             if (n.length > o.length) {
                 const id = n[n.length - 1];
                 this.selectedExercisesData.push(this.followedExercisesData.find(o => o.id === id))
@@ -201,7 +198,7 @@ export default {
         downloadedExercises: function() {
             if (this.downloadedExercises == this.createdExercises.length + this.followedExercises.length) {
                 
-                // Push init exercises into selected exercises.
+                // Push init exercises into relevant selectedExercises and selectedExercisesData.
                 if (this.$props.initExercises) {
                     this.$props.initExercises.forEach(initEx => {
                         let index;
@@ -212,16 +209,12 @@ export default {
                             this.selectedCreatedExercises.push(initEx.id);
                             this.selectedExercisesData.push(this.createdExercisesData.find(o => o.id === initEx.id))
 
-                            console.log("created ex");
                         } else {
                             index = this.followedExercisesData.findIndex(o => o.id === initEx.id);
-
                             
                             if (index >= 0) {
                                 this.selectedFollowedExercises.push(initEx.id);
                                 this.selectedExercisesData.push(this.followedExercisesData.find(o => o.id === initEx.id))
-                                
-                                console.log("followed ex")
                             }
                         }
                     })
@@ -233,7 +226,7 @@ export default {
 
         isLoading: function(n, o) {
             if (!n && o && this.$props.initExercises) {
-                // this.sortable = new Sortable(this.$refs.selectedContainer, this.sortableOptions);
+                // This interval is set as #selectedContainer isn't rendered yet when this is called.                
                 let waitInterval = setInterval(() => {
                     if (this.$refs.selectedContainer) {
                         this.sortable = new Sortable(document.getElementById("selectedContainer"), this.sortableOptions);
