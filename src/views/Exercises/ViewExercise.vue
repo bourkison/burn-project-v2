@@ -26,7 +26,9 @@
             </v-card>
             <v-card outlined>
                 <v-carousel v-if="exerciseData.imgPaths.length > 0" v-model="model">
-                    <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.id" @click.stop="popUpImage(img.imgUrl)" :src="img.imgUrl"></v-carousel-item>
+                    <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.id" @click.stop="popUpImage(img.imgUrl)" eager>
+                        <v-img :src="img.imgUrl" eager/>
+                    </v-carousel-item>
                 </v-carousel>
                 <v-container>
                         <v-sheet align="center">

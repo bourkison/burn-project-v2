@@ -1,7 +1,7 @@
 <template>
     <v-card v-if="!isLoading" class="exerciseMin" outlined>
         <v-carousel height="auto" v-model="model">
-            <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.order">
+            <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.order" eager>
                 <v-img :src="img.imgUrl" eager/>
             </v-carousel-item>
         </v-carousel>
