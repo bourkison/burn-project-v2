@@ -41,7 +41,7 @@
 
                 <v-col cols="12" md="12" sm="12">
                     <h3>Selected Exercises</h3>
-                    <v-expansion-panels id="selectedContainer">
+                    <v-expansion-panels ref="selectedContainer" id="selectedContainer">
                         <v-expansion-panel v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
                             <v-expansion-panel-header>
                                 <span><h4>{{ selectedExercise.name }}</h4></span>
@@ -82,6 +82,10 @@ export default {
         followedExercises: {
             type: Array,
             required: false
+        },
+        initExercises: {
+            type: Array,
+            required: false
         }
     },
     data() {
@@ -108,7 +112,7 @@ export default {
         }
     },
 
-    created: function() {
+    mounted: function() {
         // Retrieve created exercises data.
         this.$props.createdExercises.forEach(exerciseId => {
             db.collection("exercises").doc(exerciseId).get().then(exerciseDoc => {
@@ -128,13 +132,12 @@ export default {
                 let d = exerciseDoc.data();
                 d.id = exerciseId;
 
-                this.downloadedExercises ++;
                 this.followedExercisesData.push(d);
+                this.downloadedExercises ++;
             }).catch(e => {
                 console.log("Error downloading followed exercise data", e, exerciseId);
             })
         })
-
     },
 
     methods: {
@@ -164,7 +167,7 @@ export default {
             if (n.length > o.length) {
                 const id = n[n.length - 1];
                 this.selectedExercisesData.push(this.createdExercisesData.find(o => o.id === id))
-            } else {
+            } else if (n.length < o.length) {
                 const id = o.filter(x => !n.includes(x))[0];
                 this.selectedExercisesData = this.selectedExercisesData.filter(o => o.id !== id);
             }
@@ -174,13 +177,16 @@ export default {
             } else if (this.selectedExercisesData.length === 0) {
                 this.sortable = null;
             }
+
+            console.log("sel created", n, o);
         },
 
         selectedFollowedExercises: function(n, o) {
+            console.log("sel followed", n, o)
             if (n.length > o.length) {
                 const id = n[n.length - 1];
                 this.selectedExercisesData.push(this.followedExercisesData.find(o => o.id === id))
-            } else {
+            } else if (n.length < o.length) {
                 const id = o.filter(x => !n.includes(x))[0];
                 this.selectedExercisesData = this.selectedExercisesData.filter(o => o.id !== id);
             }
@@ -194,8 +200,49 @@ export default {
 
         downloadedExercises: function() {
             if (this.downloadedExercises == this.createdExercises.length + this.followedExercises.length) {
+                
+                // Push init exercises into selected exercises.
+                if (this.$props.initExercises) {
+                    this.$props.initExercises.forEach(initEx => {
+                        let index;
+
+                        index = this.createdExercisesData.findIndex(o => o.id === initEx.id);
+
+                        if (index >= 0) {
+                            this.selectedCreatedExercises.push(initEx.id);
+                            this.selectedExercisesData.push(this.createdExercisesData.find(o => o.id === initEx.id))
+
+                            console.log("created ex");
+                        } else {
+                            index = this.followedExercisesData.findIndex(o => o.id === initEx.id);
+
+                            
+                            if (index >= 0) {
+                                this.selectedFollowedExercises.push(initEx.id);
+                                this.selectedExercisesData.push(this.followedExercisesData.find(o => o.id === initEx.id))
+                                
+                                console.log("followed ex")
+                            }
+                        }
+                    })
+                }
+                
                 this.isLoading = false;
             }
+        },
+
+        isLoading: function(n, o) {
+            if (!n && o && this.$props.initExercises) {
+                // this.sortable = new Sortable(this.$refs.selectedContainer, this.sortableOptions);
+                let waitInterval = setInterval(() => {
+                    if (this.$refs.selectedContainer) {
+                        this.sortable = new Sortable(document.getElementById("selectedContainer"), this.sortableOptions);
+                        clearInterval(waitInterval);
+                    }
+                }, 250);
+            }
+
+            
         },
 
         selectedExercisesData: function() {

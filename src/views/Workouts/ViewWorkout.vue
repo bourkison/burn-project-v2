@@ -8,7 +8,19 @@
                         <router-link :to="'/profile/' + workoutData.createdBy.username">{{ workoutData.createdBy.username }}</router-link>
                     </v-col>
                     <v-col cols="12" sm="6">
-
+                        <div align="right">
+                            <v-icon v-for="star in workoutData.difficulty" color="yellow darken-2" :key="star">mdi-star</v-icon>    
+                            <v-menu :offset-y="true">
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-icon v-bind="attrs" v-on="on">mdi-dots-vertical</v-icon>
+                                </template>
+                                <v-list>
+                                    <v-list-item @click="editWorkout" v-if="workoutData.createdBy.id == $store.state.userProfile.data.uid" selectable>Edit</v-list-item>
+                                    <!-- <v-list-item @click.stop="isDeletingDialogue = true" v-if="exerciseData.createdBy.id == $store.state.userProfile.data.uid" color="error" selectable>Delete</v-list-item> -->
+                                    <v-list-item @click="reportWorkout" color="error" selectable>Report</v-list-item>
+                                </v-list>
+                            </v-menu>
+                        </div>
                     </v-col>
                 </v-row>
             </v-card>
@@ -108,6 +120,14 @@ export default {
 
         startWorkout: function() {
             this.$router.push({ path: '/burn', query: { w: this.$route.params.workoutid } });
+        },
+
+        editWorkout: function() {
+            this.$router.push("/workouts/" + this.$route.params.workoutid + "/edit");
+        },
+
+        reportWorkout: function() {
+            console.log("Report");
         }
     }
 }
