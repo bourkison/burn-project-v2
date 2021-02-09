@@ -83,7 +83,6 @@ export default {
 
                     if (this.$route.query.w && this.$route.query.w === workoutDoc.id) {
                         this.workoutData = workoutDoc.data();
-                        console.log("Workout set");
                     }
 
                     this.downloadedWorkouts ++;
@@ -94,7 +93,6 @@ export default {
 
     methods: {
         startWorkout: function() {
-            console.log("START");
             this.startWorkoutDialogue = false;
             this.workoutCommenced = true;
         }

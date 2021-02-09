@@ -5,7 +5,7 @@
                 <v-row class="headerRow" align="center" justify="center">
                     <v-col cols="12" sm="6">
                         <h2 align="left">{{ workoutData.name }}</h2>
-                        <router-link :to="'/profile' + workoutData.createdBy.username">{{ workoutData.createdBy.username }}</router-link>
+                        <router-link :to="'/profile/' + workoutData.createdBy.username">{{ workoutData.createdBy.username }}</router-link>
                     </v-col>
                     <v-col cols="12" sm="6">
 

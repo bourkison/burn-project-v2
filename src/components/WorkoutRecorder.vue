@@ -22,7 +22,7 @@
                         <v-text-field :rules=[rules.isNumber] v-model="set.kg" label="kg"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="4">
-                        <v-text-field :rules=[rules.isNumber] v-model="set.reps" label="Reps"></v-text-field>
+                        <v-text-field :rules=[rules.isNumber] v-model="set.reps" :label="set.measureBy"></v-text-field>
                     </v-col>
                     <v-spacer/>
                     <v-col cols="12" sm="1">
@@ -65,7 +65,7 @@ export default {
             let temp = [];
 
             e.suggestedSets.forEach(set => {
-                let data = { reps: set.measureAmount, kg: null }
+                let data = { reps: set.measureAmount, measureBy: set.measureBy, kg: null }
                 temp.push(data);
             })
 
@@ -74,7 +74,6 @@ export default {
         })
 
         this.startTime = new Date().getTime();
-        console.log(this.startTime);
 
         // Set an interval to run every second.
         this.interval = setInterval(() => {

@@ -12,7 +12,7 @@
             <v-col cols="12" sm="10">
                 <router-link :to="profilePath">{{ comment.createdBy.username }}</router-link>
                 <p>{{ comment.content }}</p>
-                <span v-if="comment.likeCount > 0">{{ comment.likeCount }} <span v-if="likeCount > 1">likes</span><span v-else>like</span></span>
+                <span v-if="comment.likeCount > 0">{{ comment.likeCount }} <span v-if="comment.likeCount > 1">likes</span><span v-else>like</span></span>
             </v-col>
             <v-col cols="12" sm="1">
                 <v-icon :color="likeIconColor" @click="handleLike">{{ likeIcon }}</v-icon>
@@ -100,7 +100,7 @@ export default {
                     // Now delete like in the user document.
                     db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(this.isLiked).delete().then(() => {
                         this.isLiked = '';
-                        this.commentCount.likeCount --;
+                        this.comment.likeCount --;
                     }).catch(e => {
                         this.errorMessage = "Error deleting like. Error deleting in user document: " + e;
                         console.log(this.errorMessage);
