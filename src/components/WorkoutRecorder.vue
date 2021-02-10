@@ -13,16 +13,47 @@
                 <v-list-item-title>{{ exercise.name }}</v-list-item-title>
             </template>
 
+            <!-- <v-list-item>
+                <v-row align="center" justify="center">
+                    <v-col cols="12" sm="1">
+                        <span><b>Sets</b></span>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                        <span><b>Kgs</b></span>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                        <span><b>{{ exercise.sets[0].measureBy }}</b></span>
+                    </v-col>
+                    <v-spacer/>
+                </v-row>    
+            </v-list-item> -->
+
             <v-list-item v-for="(set, index) in exercise.sets" :key="index">
                 <v-row align="center" justify="center">
                     <v-col cols="12" sm="1">
                         <span><b>{{ index + 1 }}</b></span>
                     </v-col>
                     <v-col cols="12" sm="4">
+                        <div align="center"><em>{{ set.kg }} x {{ set.reps }}</em></div>
+                    </v-col>
+                    <v-col cols="12" sm="3">
                         <v-text-field :rules=[rules.isNumber] v-model="set.kg" label="kg"></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="4">
-                        <v-text-field :rules=[rules.isNumber] v-model="set.reps" :label="set.measureBy"></v-text-field>
+                    <v-col cols="12" sm="3">
+                        <div v-if="set.measureBy === 'Reps'">
+                            <v-text-field :rules=[rules.isNumber] v-model="set.reps" :label="set.measureBy"></v-text-field>
+                        </div>
+                        <div v-else>
+                            <v-row justify="center" align="center">
+                                <v-col cols="12" sm="9">
+                                    <v-text-field :rules=[rules.isNumber] v-model="set.reps" :label="set.reps ? '' : set.measureBy"></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="3" style="padding:0;">
+                                    <v-icon v-if="!set.timer.interval" @click="startSetTimer(set)" small>mdi-clock-outline</v-icon>
+                                    <v-icon v-else @click="stopSetTimer(set)" small>mdi-stop</v-icon>
+                                </v-col>
+                            </v-row>
+                        </div>
                     </v-col>
                     <v-spacer/>
                     <v-col cols="12" sm="1">
@@ -66,6 +97,10 @@ export default {
 
             e.suggestedSets.forEach(set => {
                 let data = { reps: set.measureAmount, measureBy: set.measureBy, kg: null }
+
+                if (data.measureBy === "Time") {
+                    data.timer = { interval: null, startTimer: 0 }
+                }
                 temp.push(data);
             })
 
@@ -95,6 +130,23 @@ export default {
             } else {
                 this.timeString = hours + ":" + minutes + ":" + seconds;
             }
+        },
+
+        startSetTimer: function(set) {
+            set.timer.startTimer = new Date().getTime();
+            set.reps = 0;
+
+            set.timer.interval = setInterval(() => {
+                let now = new Date().getTime();
+                let distance = now - set.timer.startTimer;
+                set.reps = Math.floor((distance % (1000 * 60)) / 1000);
+            }, 1000)
+        },
+
+        stopSetTimer: function(set) {
+            clearInterval(set.timer.interval);
+            set.timer.interval = null;
+            console.log(set);
         }
     }
 }

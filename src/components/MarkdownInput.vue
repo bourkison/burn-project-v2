@@ -24,8 +24,7 @@
                     <v-textarea 
                         placeholder="Enter text here. View formatted text on the eyeball tab. For more information on formatting, press the information tab. TIP: New paragraphs require 2 'enters'." 
                         ref="textArea"
-                        full-width 
-                        auto-grow 
+                        full-width
                         @keyup="handleType"
                         @mouseup="setCaretPos"
                         @input="emitInput"

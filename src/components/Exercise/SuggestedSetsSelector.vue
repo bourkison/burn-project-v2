@@ -2,16 +2,16 @@
     <v-container class="setsAdder">
         <h2>Suggested Sets</h2>
         <v-row v-for="set in suggestedSets" :key="set.id" align="center" justify="center">
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="6" sm="12">
                 <v-select :items="measureByOptions" v-model="set.measureBy"></v-select>
             </v-col>
 
-            <v-col cols="12" md="5">
+            <v-col cols="12" md="5" sm="10">
                 <v-text-field v-if="set.measureBy == 'Time'" label="Time (secs)" :rules=[rules.isNumber] v-model="set.measureAmount"></v-text-field>
                 <v-text-field v-if="set.measureBy == 'Reps'" label="Reps"  :rules=[rules.isNumber] v-model="set.measureAmount"></v-text-field>
             </v-col>
 
-            <v-col cols="12" md="1" style="padding:0;">
+            <v-col cols="12" md="1" sm="2" style="padding:0;">
                 <v-icon @click="deleteSet(set.id)" color="error" small>mdi-close</v-icon>
             </v-col>
         </v-row>
