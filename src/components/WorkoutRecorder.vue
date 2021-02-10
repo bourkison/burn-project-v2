@@ -44,15 +44,9 @@
                             <v-text-field :rules=[rules.isNumber] v-model="set.reps" :label="set.measureBy"></v-text-field>
                         </div>
                         <div v-else>
-                            <v-row justify="center" align="center">
-                                <v-col cols="12" sm="9">
-                                    <v-text-field :rules=[rules.isNumber] v-model="set.reps" :label="set.reps ? '' : set.measureBy"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="3" style="padding:0;">
-                                    <v-icon v-if="!set.timer.interval" @click="startSetTimer(set)" small>mdi-clock-outline</v-icon>
-                                    <v-icon v-else @click="stopSetTimer(set)" small>mdi-stop</v-icon>
-                                </v-col>
-                            </v-row>
+                            <v-text-field :rules=[rules.isNumber] v-model="set.reps" :label="set.measureBy">
+                                <v-icon slot="append-outer" @click="toggleTimer(set)">{{ set.timer.interval ? 'mdi-stop' : 'mdi-clock-outline' }}</v-icon>
+                            </v-text-field>
                         </div>
                     </v-col>
                     <v-spacer/>
@@ -61,6 +55,15 @@
                     </v-col>
                     <v-spacer/>
                 </v-row>
+            </v-list-item>
+
+            <v-list-item>
+                <!-- Add Set -->
+                <v-spacer/>
+                <v-col cols="12" sm="3">
+                    <v-btn @click="addSet(exercise.sets)" small>Add Set</v-btn>
+                </v-col>
+                <v-spacer/>
             </v-list-item>
         </v-list-group>
     </v-container>
@@ -132,21 +135,29 @@ export default {
             }
         },
 
-        startSetTimer: function(set) {
-            set.timer.startTimer = new Date().getTime();
-            set.reps = 0;
+        toggleTimer: function(set) {
+            if (!set.timer.interval) {
+                set.timer.startTimer = new Date().getTime();
+                set.reps = 0;
 
-            set.timer.interval = setInterval(() => {
-                let now = new Date().getTime();
-                let distance = now - set.timer.startTimer;
-                set.reps = Math.floor((distance % (1000 * 60)) / 1000);
-            }, 1000)
+                set.timer.interval = setInterval(() => {
+                    let now = new Date().getTime();
+                    let distance = now - set.timer.startTimer;
+                    set.reps = Math.floor((distance % (1000 * 60)) / 1000);
+                }, 1000)
+            } else {
+                clearInterval(set.timer.interval);
+                set.timer.interval = null;
+            }
         },
 
-        stopSetTimer: function(set) {
-            clearInterval(set.timer.interval);
-            set.timer.interval = null;
-            console.log(set);
+        addSet: function(sets) {
+            const id = sets[sets.length - 1].id + 1;
+            let newSet = sets[sets.length - 1];
+            newSet.id = id;
+
+            // Hack so that the new sets have no reference to each other.
+            sets.push(JSON.parse(JSON.stringify(newSet)));
         }
     }
 }

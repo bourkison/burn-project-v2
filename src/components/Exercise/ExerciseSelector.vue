@@ -42,16 +42,19 @@
                 <v-col cols="12" md="12" sm="12">
                     <h3>Selected Exercises</h3>
                     <v-expansion-panels ref="selectedContainer" id="selectedContainer">
-                        <v-expansion-panel v-for="selectedExercise in selectedExercisesData" :key="selectedExercise.id">
+                        <v-expansion-panel v-for="(selectedExercise, index) in selectedExercisesData" :key="selectedExercise.id">
                             <v-expansion-panel-header>
                                 <span><h4>{{ selectedExercise.name }}</h4></span>
-                                <span class="sortableHandle" style="text-align:right;">
-                                    <v-icon>mdi-drag-horizontal-variant</v-icon>
+                                <span style="text-align:right;">
+                                    <span class="sortableHandle">
+                                        <v-icon>mdi-drag-horizontal-variant</v-icon>
+                                    </span>
                                 </span>
                             </v-expansion-panel-header>
                             <v-expansion-panel-content>
+                                <div align="right"><v-icon @click="removeSet(index)">mdi-close</v-icon></div>
                                 <v-sheet class="mdOutput" v-html="compiledMarkdown(selectedExercise.description)"></v-sheet>
-                                <v-card align="center"><SuggestedSetsSelector :id="selectedExercise.id" :initSuggestedSets="selectedExercise.suggestedSets" @updateSets="updateSets"></SuggestedSetsSelector></v-card>
+                                <v-card align="center"><SuggestedSetsSelector class="suggestedSets" :id="selectedExercise.id" :initSuggestedSets="selectedExercise.suggestedSets" @updateSets="updateSets"></SuggestedSetsSelector></v-card>
                             </v-expansion-panel-content>    
                         </v-expansion-panel>
                     </v-expansion-panels>   
@@ -155,6 +158,11 @@ export default {
         updateSets: function(sets, id) {
             let index = this.selectedExercisesData.findIndex(x => x.id === id);
             this.selectedExercisesData[index].suggestedSets = sets;
+        },
+
+        removeSet: function(index) {
+            // this.selectedExercisesData.splice(index, 1);
+            console.log(index);
         }
     },
 
@@ -270,6 +278,10 @@ export default {
 
     .mdOutput {
         font-size: 10px;
+    }
+
+    .suggestedSets {
+        box-shadow: unset;
     }
 
 </style>
