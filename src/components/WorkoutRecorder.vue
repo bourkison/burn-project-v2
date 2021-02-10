@@ -172,33 +172,40 @@ export default {
             // Hack so that the new sets have no reference to each other.
             sets.push(JSON.parse(JSON.stringify(newSet)));
 
-            sets[sets.length - 1].timer = { interval: null, startTimer: 0 }
+            if (newSet.measureBy === "Time") {
+                sets[sets.length - 1].timer = { interval: null, startTimer: 0 }
+            }
         },
 
         finishWorkout: function() {
             console.log(this.exercises);
             this.exercises.forEach(exercise => {
-                if (exercise.sets[0].measureBy === "Time") {
-                    exercise.sets.forEach(set => {
+                exercise.sets.forEach(set => {
+                    if (set.measureBy === "Time") {
                         if (set.timer.interval) {
+                            // If active interval (i.e. timing for this set).
                             clearInterval(set.timer.interval);
                             set.timer.interval = null;
                         }
 
                         delete set.timer;
-                    })
-                }
+                    }
+
+                    if (set.kg === null) {
+                        set.kg = 0;
+                    }
+                })
             })
 
-            let payload = { exercises: this.exercises, createdAt: new Date() }
+            let payload = { exercises: this.exercises, createdAt: new Date(), workoutId: this.$props.workout.id }
 
             db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").add(payload).then(() => {
                 console.log("Created");
-                this.$router.push("/burn");
-                this.$router.go();
+                this.$router.push("/");
+                // this.$router.go();
+            }).catch(e => {
+                console.log("Error saving this workout!", e);
             })
-
-            console.log("final", this.exercises);
         }
     }
 }
