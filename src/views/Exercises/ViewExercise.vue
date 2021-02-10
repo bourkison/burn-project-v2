@@ -25,7 +25,7 @@
                 </v-row>
             </v-card>
             <v-card outlined>
-                <v-carousel v-if="exerciseData.imgPaths.length > 0" v-model="model">
+                <v-carousel v-if="exerciseData.imgPaths.length > 0" v-model="model" show-arrows-on-hover hide-delimiter-background>
                     <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.id" @click.stop="popUpImage(img.imgUrl)" eager>
                         <v-img :src="img.imgUrl" eager/>
                     </v-carousel-item>
@@ -57,14 +57,15 @@
                 v-if="exerciseData.createdBy.id == $store.state.userProfile.data.uid"
                 v-model="isDeletingDialogue"
                 width="500"
+                persistent
             >
                 <v-card>
                     <v-card-title>Delete?</v-card-title>
                     <v-card-text>Are you sure you want to delete? You can not un-delete.</v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn text @click="isDeletingDialogue = false">Cancel</v-btn>
-                        <v-btn text color="error" @click="deleteExercise" :loading="isLoading">Delete</v-btn>
+                        <v-btn text @click="isDeletingDialogue = false" v-if="!isDeleting">Cancel</v-btn>
+                        <v-btn text color="error" @click="deleteExercise" :loading="isDeleting">Delete</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -103,6 +104,7 @@ export default {
         return {
             exerciseExists: false,
             isLoading: true,
+            isDeleting: false,
             exerciseData: {},
             imgUrls: [],
             isLiked: '',
@@ -165,17 +167,17 @@ export default {
         deleteExercise: function() {
             // As deleting an exercise would be too resource intensive, we must call a Firebase Function.
             // This deletes this document, all subcollections underneath, as well as the documents for all follows that follow this.
-            this.isLoading = true;
-            let deleteFunction = functions.httpsCallable("deleteExercise");
+            this.isDeleting = true;
+            let deleteFunction = functions.httpsCallable("deleteCollection");
             let path = "exercises/" + this.$route.params.exerciseid;
 
             deleteFunction({ path: path }).then(result => {
-                console.log("Success" + result);
-                this.isLoading = false;
+                console.log("Success", result);
+                this.isDeleting = false;
                 this.isDeletingDialogue = false;
                 this.$router.push("/exercises");
             }).catch(e => {
-                console.log("Failure" + e);
+                console.log("Failure", e);
             })
 
         },

@@ -53,15 +53,30 @@ export default {
     created: function() {
         db.collection("workouts").doc(this.$props.userWorkoutData.id).get().then(workoutDoc => {
             this.workoutData = workoutDoc.data();
-            this.isLoading = false;
+
+            // Check if the user has liked.
+            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$props.userWorkoutData.id).get().then(likeSnapshot => {
+                likeSnapshot.forEach(like => {
+                    if (like.exists) {
+                        this.isLiked = like.id;
+                    }
+                })
+                this.isLoading = false;
+            })
         }).catch(e => {
             console.log("Error downloading workout", e);
         })
     },
 
     methods: {
-        likeToggle: function() {
-            console.log("Liked");
+        likeToggle: function(s) {
+            if (s) {
+                this.workoutData.likeCount ++;
+            } else {
+                this.workoutData.likeCount --;
+            }
+
+            this.isLiked = s;
         }
     }
 }

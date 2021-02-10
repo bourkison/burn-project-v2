@@ -141,15 +141,17 @@ export default {
         }
 
         // Check if followed or not.
-        this.isFollowable = this.$props.followableComponent;
-        if (this.isFollowable) {
+        if (this.$props.followableComponent) {
             db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.docId).get().then(docRef => {
                 if (docRef.exists) {
                     if (!docRef.data().isFollow) {
                         this.isFollowable = false;
+                    } else {
+                        this.isFollowable = true;
                     }
                     this.isFollowed = docRef.id; // Collection document ID.
                 } else {
+                    this.isFollowable = true;
                     this.isFollowed = '';
                 }
             }).catch(e => {

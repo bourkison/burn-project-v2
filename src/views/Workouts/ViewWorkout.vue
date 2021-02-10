@@ -16,7 +16,7 @@
                                 </template>
                                 <v-list>
                                     <v-list-item @click="editWorkout" v-if="workoutData.createdBy.id == $store.state.userProfile.data.uid" selectable>Edit</v-list-item>
-                                    <!-- <v-list-item @click.stop="isDeletingDialogue = true" v-if="exerciseData.createdBy.id == $store.state.userProfile.data.uid" color="error" selectable>Delete</v-list-item> -->
+                                    <v-list-item @click.stop="isDeletingDialogue = true" v-if="workoutData.createdBy.id == $store.state.userProfile.data.uid" color="error" selectable>Delete</v-list-item>
                                     <v-list-item @click="reportWorkout" color="error" selectable>Report</v-list-item>
                                 </v-list>
                             </v-menu>
@@ -49,6 +49,25 @@
                     @likeToggle="likeToggle"
                 ></CommentSection>
             </v-card>
+
+            <!-- Delete Confirm Dialog -->
+            <v-dialog
+                v-if="workoutData.createdBy.id == $store.state.userProfile.data.uid"
+                v-model="isDeletingDialogue"
+                width="500"
+                persistent
+            >
+                <v-card>
+                    <v-card-title>Delete?</v-card-title>
+                    <v-card-text>Are you sure you want to delete? You can not un-delete.</v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn text @click="isDeletingDialogue = false" v-if="!isDeleting">Cancel</v-btn>
+                        <v-btn text color="error" @click="deleteWorkout" :loading="isDeleting">Delete</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <!-- End Delete Dialogue -->
         </v-container>
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
@@ -57,7 +76,7 @@
 </template>
 
 <script>
-import { db } from '../../firebase'
+import { db, functions } from '../../firebase'
 import * as marked from 'marked'
 
 import CommentSection from '../Comments/CommentSection.vue'
@@ -70,8 +89,12 @@ export default {
     data() {
         return {
             isLoading: true,
+            isDeleting: false,
             workoutData: {},
-            isLiked: ''
+            isLiked: '',
+
+            // Vuetify:
+            isDeletingDialogue: false,
         }
     },
 
@@ -124,6 +147,21 @@ export default {
 
         editWorkout: function() {
             this.$router.push("/workouts/" + this.$route.params.workoutid + "/edit");
+        },
+
+        deleteWorkout: function() {
+            this.isDeleting = true;
+            let deleteFunction = functions.httpsCallable("deleteCollection");
+            let path = "workouts/" + this.$route.params.workoutid;
+
+            deleteFunction({ path: path }).then(result => {
+                console.log("Success:", result);
+                this.isDeleting = false;
+                this.isDeletingDialogue = false;
+                this.$router.push("/workouts");
+            }).catch(e => {
+                console.log("Failure", e)
+            })
         },
 
         reportWorkout: function() {
