@@ -62,6 +62,7 @@
                     <!-- Add Set -->
                     <v-spacer/>
                     <v-col align="center" cols="12" sm="6">
+                        <v-btn style="margin-right:5px;" @click="removeSet(exercise.sets)" small>Remove Set</v-btn>
                         <v-btn @click="addSet(exercise)" small>Add Set</v-btn>
                     </v-col>
                     <v-spacer/>
@@ -247,19 +248,27 @@ export default {
 
             // Hack so that the new sets have no reference to each other.
             let d = JSON.parse(JSON.stringify(newSet));
-            let p = JSON.parse(JSON.stringify(newSet));
 
             d.id = id;
             d.completed = false;
             sets.push(d);
 
-            p.kg = 0;
-            p.measureAmount = 0;
-            this.previousExercises[previousExercisesIndex].sets.push(p);
-            console.log("P", p, previousExercisesIndex, this.previousExercises);
+            if (sets.length - 1 >= this.previousExercises[previousExercisesIndex].sets.length) {
+                let p = JSON.parse(JSON.stringify(newSet));
+                p.kg = 0;
+                p.measureAmount = 0;
+                this.previousExercises[previousExercisesIndex].sets.push(p);
+            }
 
             if (newSet.measureBy === "Time") {
                 sets[sets.length - 1].timer = { interval: null, startTimer: 0 }
+            }
+        },
+
+        removeSet: function(sets) {
+            if (sets.length > 1) {
+                sets.pop();
+                console.log(this.previousExercises[0].sets.length);
             }
         },
 
