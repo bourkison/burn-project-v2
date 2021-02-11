@@ -30,16 +30,18 @@
                 <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" label="Search Workout"></v-text-field>
                 <div v-if="userRecentWorkouts.length > 0">
                     <h2>Recent Workouts</h2>
-                    <v-container v-for="recentWorkout in userRecentWorkouts" :key="'recent_' + recentWorkout.name">
-                        <v-row justify="center" align="center" @click="startDialogue(recentWorkout, 'recentWorkout')" class="rowHover">
-                            <v-col cols="12" sm="9">
-                                <div>{{ recentWorkout.name }}<br><span class="recentWorkoutTime"><em>{{ recentWorkout.createdAtText }}</em></span></div>
-                            </v-col>
-                            <v-col cols="12" sm="3">
-                                <div align="right"><v-icon>mdi-chevron-right</v-icon></div>
-                            </v-col>
-                        </v-row>
-                    </v-container>
+                    <div class="recentWorkouts">
+                        <v-container v-for="recentWorkout in userRecentWorkouts" :key="'recent_' + recentWorkout.name">
+                            <v-row justify="center" align="center" @click="startDialogue(recentWorkout, 'recentWorkout')" class="rowHover">
+                                <v-col cols="12" sm="9">
+                                    <div>{{ recentWorkout.name }}<br><span class="recentWorkoutTime"><em>{{ recentWorkout.createdAtText }}</em></span></div>
+                                </v-col>
+                                <v-col cols="12" sm="3">
+                                    <div align="right"><v-icon>mdi-chevron-right</v-icon></div>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </div>
                 </div>
                 <div v-if="userWorkouts.length > 0">
                     <h2>Workouts</h2>
@@ -68,7 +70,7 @@
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
         </v-container>
 
-        <v-dialog v-if="workoutData.data" v-model="startWorkoutDialogue" max-width="600">
+        <v-dialog v-if="workoutData.data && !workoutCommenced" v-model="startWorkoutDialogue" max-width="600">
             <v-card>
                 <v-container>
                     <v-list-item v-for="exercise in workoutData.data.exercises" :key="exercise.id">

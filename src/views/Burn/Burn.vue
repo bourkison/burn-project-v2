@@ -36,7 +36,7 @@
                     </v-card>
                 </v-sheet>
             </v-col>
-            <v-col cols="12" sm="6">
+            <v-col cols="12" sm="6" lg="5" xl="4">
                 <router-view></router-view>
             </v-col>
             <v-col cols="12" sm="3" xl="2">

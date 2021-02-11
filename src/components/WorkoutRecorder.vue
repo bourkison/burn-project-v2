@@ -10,7 +10,7 @@
         </v-row>
 
         <div id="sortableContainer">
-            <v-list-group :value="true" active-class="activeListGroup" v-for="exercise in exercises" :key="exercise.id">
+            <v-list-group :value="true" active-class="activeListGroup" v-for="(exercise, exerciseIndex) in exercises" :key="exercise.id">
                 <template v-slot:activator>
                     <v-list-item-title><span style="margin-right: 5px;"><v-icon class="sortableHandle">mdi-drag-horizontal-variant</v-icon></span><span style="vertical-align:middle;">{{ exercise.name }}</span></v-list-item-title>
                 </template>
@@ -29,13 +29,13 @@
                     <v-spacer/>
                 </v-list-item>
                 
-                <v-list-item v-for="(set, index) in exercise.sets" :key="index">
+                <v-list-item v-for="(set, setIndex) in exercise.sets" :key="setIndex">
                     <v-row align="center" justify="center">
                         <v-col cols="12" sm="1">
-                            <span><b>{{ index + 1 }}</b></span>
+                            <span><b>{{ setIndex + 1 }}</b></span>
                         </v-col>
                         <v-col cols="12" sm="4">
-                            <div align="center"><em>{{ set.kg }} x {{ set.measureAmount }}</em></div>
+                            <div align="center"><em>{{ previousExercises[exerciseIndex].sets[setIndex].kg }} kg x {{ previousExercises[exerciseIndex].sets[setIndex].measureAmount }}</em></div>
                         </v-col>
                         <v-col cols="12" sm="3">
                             <v-text-field :rules=[rules.isNumber] v-model="set.kg" label="kg"></v-text-field>
@@ -77,8 +77,11 @@
             <v-spacer/>
         </v-row>
 
-        <v-dialog v-model="finishingDialogue" max-width="600">
+        <v-dialog v-model="finishingDialogue" persistent max-width="600">
             <v-card>
+                <v-card-title>
+                    Congratulations!
+                </v-card-title>
                 <div>
                     <v-container>
                         <v-form @submit.prevent="uploadWorkout">
@@ -92,7 +95,7 @@
             <v-card-actions>
                 <v-spacer/>
                 <v-btn color="error" text @click="cancelUpload">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="uploadWorkout">Finish</v-btn>
+                <v-btn color="blue darken-1" text :loading="isUploading" @click="uploadWorkout">Finish</v-btn>
             </v-card-actions>
         </v-dialog>
     </v-container>
@@ -119,6 +122,7 @@ export default {
             startTime: 0,
             interval: null,
             timeString: '00:00',
+            previousExercises: [],
 
             // Sortable:
             sortable: null,
@@ -130,6 +134,7 @@ export default {
 
             // Vuetify:
             isFinishing: false,
+            isUploading: false,
             finishingDialogue: false,
             isNew: true,
             rules: {
@@ -171,7 +176,9 @@ export default {
                 })
             }
 
-            this.exercises.push({ id: e.id, sets: temp, name: e.name });
+            const d = { id: e.id, sets: temp, name: e.name }
+            this.exercises.push(d);
+            this.previousExercises.push(JSON.parse(JSON.stringify(d)));
         })
 
         this.startTime = new Date().getTime();
@@ -235,6 +242,8 @@ export default {
         },
 
         finishWorkout: function() {
+            this.isFinishing = true;
+
             // First see if the user has done this workout before.
             db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").where("id", "==", this.workout.id).get().then(workoutSnapshot => {
                 if (workoutSnapshot.size > 0) {
@@ -253,7 +262,7 @@ export default {
         },
 
         uploadWorkout: function() {
-            this.isFinishing = true;
+            this.isUploading = true;
 
             this.exercises.forEach(exercise => {
                 exercise.sets.forEach(set => {
