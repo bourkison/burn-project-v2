@@ -1,40 +1,41 @@
 <template>
-    <v-container class="mainCont" fluid>
-        <v-row>
-            <v-spacer></v-spacer>
-            <v-col cols="12" sm="3" xl="2"></v-col>
-            <v-col cols="12" sm="6">
-                <v-sheet class="mainSheet" rounded="lg">
-                    <v-container v-if="!isLoading">
-                        <div v-if="!workoutCommenced">
-                            <h1>Recent Workouts</h1>
-                            <v-list-item v-for="recentWorkout in userRecentWorkouts" :key="recentWorkout.id">
-                                <v-list-item-content>
-                                    <v-list-item-title>{{ recentWorkout.workoutName }}</v-list-item-title>
-                                    <v-list-item-content><em>Completed on: {{ recentWorkout.createdAt }}</em></v-list-item-content>
-                                </v-list-item-content>
-                            </v-list-item>
-                            <h1>Workouts</h1>
-                            <v-list-item v-for="workout in userWorkouts" :key="workout.id">
-                                <v-list-item-content>
-                                    <v-list-item-title>{{ workout.name }}</v-list-item-title>
-                                </v-list-item-content>
-                            </v-list-item>
-                        </div>
-                        <div v-else>
-                            <v-card outlined rounded="lg">
-                                <WorkoutRecorder :workout="workoutData"></WorkoutRecorder>
-                            </v-card>
-                        </div>
-                    </v-container>
-                    <v-container v-else>
-                        <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
-                    </v-container>
-                </v-sheet>
-            </v-col>
-            <v-col cols="12" sm="3" xl="2"></v-col>
-            <v-spacer></v-spacer>
-        </v-row>
+    <v-sheet rounded="lg">
+        <v-container v-if="!isLoading">
+            <div v-if="!workoutCommenced">
+                <h1 align="center">Burn</h1>
+                <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" label="Search Workout"></v-text-field>
+                <h2>Recent Workouts</h2>
+                <v-container v-for="recentWorkout in userRecentWorkouts" :key="'recent_' + recentWorkout.workoutId">
+                    <v-row justify="center" align="center" @click="startDialogue(recentWorkout)" class="rowHover">
+                        <v-col cols="12" sm="9">
+                            <div>{{ recentWorkout.workoutName }}<br><span class="recentWorkoutTime"><em>{{ recentWorkout.createdAt }}</em></span></div>
+                        </v-col>
+                        <v-col cols="12" sm="3">
+                            <div align="right"><v-icon>mdi-chevron-right</v-icon></div>
+                        </v-col>
+                    </v-row>
+                </v-container>
+                <h2>Workouts</h2>
+                <v-container v-for="workout in userWorkouts" :key="workout.id">
+                    <v-row justify="center" align="center" @click="startDialogue(recentWorkout)" class="rowHover">
+                        <v-col cols="12" sm="9">
+                            <div>{{ workout.name }}</div>
+                        </v-col>
+                        <v-col cols="12" sm="3">
+                            <div align="right"><v-icon>mdi-chevron-right</v-icon></div>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </div>
+            <div v-else>
+                <v-card outlined rounded="lg">
+                    <WorkoutRecorder :workout="workoutData"></WorkoutRecorder>
+                </v-card>
+            </div>
+        </v-container>
+        <v-container v-else>
+            <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
+        </v-container>
 
         <v-dialog v-if="workoutData" v-model="startWorkoutDialogue" max-width="600">
             <v-card>
@@ -52,19 +53,19 @@
                 <v-btn color="blue darken-1" text @click="startWorkout">Start</v-btn>
             </v-card-actions>
         </v-dialog>
-    </v-container>
+    </v-sheet>
 </template>
 
 <script>
-import { db } from '../firebase'
+import { db } from '../../firebase'
 
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-import WorkoutRecorder from '../components/WorkoutRecorder.vue'
+import WorkoutRecorder from '../../components/WorkoutRecorder.vue'
 
 export default {
-    name: 'Burn',
+    name: 'BurnHome',
     components: { WorkoutRecorder },
     data() {
         return {
@@ -75,6 +76,9 @@ export default {
             userWorkouts: [],
             userRecentWorkouts: [],
             workoutCommenced: false,
+
+            // Search
+            searchText: '',
 
             // Firebase:
             downloadedWorkouts: 0,
@@ -111,16 +115,17 @@ export default {
             let uniqueIds = [];
             recentWorkoutsSnapshot.forEach(recentWorkout => {
                 let data = recentWorkout.data();
-                if (!uniqueIds.includes(data.id)) {
+                if (!uniqueIds.includes(data.workoutId)) {
                     data.createdAt = dayjs(dayjs.unix(data.createdAt.seconds)).fromNow();
                     this.userRecentWorkouts.push(data);
-                    uniqueIds.push(data.id);
+                    uniqueIds.push(data.workoutId);
                     console.log(data.createdAt);
                 }
             })
 
             this.isLoadingRecentWorkouts = false;
             console.log(this.userRecentWorkouts);
+            console.log(uniqueIds);
         })
     },
 
@@ -128,6 +133,11 @@ export default {
         startWorkout: function() {
             this.startWorkoutDialogue = false;
             this.workoutCommenced = true;
+        },
+
+        startDialogue: function(w) {
+            this.workoutData = w;
+            this.startWorkoutDialogue =  true;
         }
     },
 
@@ -167,3 +177,13 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+    .recentWorkoutTime {
+        font-size: 12px;
+    }
+
+    .rowHover:hover {
+        cursor: pointer;
+    }
+</style>

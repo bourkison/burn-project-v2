@@ -17,6 +17,10 @@ import EditWorkout from '../views/Workouts/EditWorkout.vue'
 import ViewWorkout from '../views/Workouts/ViewWorkout.vue'
 import ViewWorkouts from '../views/Workouts/ViewWorkouts.vue'
 
+import Burn from '../views/Burn/Burn.vue'
+import BurnHome from '../views/Burn/BurnHome.vue'
+import RecentBurn from '../views/Burn/RecentBurn.vue'
+
 import UserProfile from '../views/Users/UserProfile.vue'
 import Profile from '../views/Users/Profile.vue'
 
@@ -48,14 +52,6 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: () => import(/*webpackChunkName: "login" */ '../views/Login.vue')
-  },
-  {
-    path: '/burn',
-    name: 'Burn',
-    meta: {
-      requiresAuth: true
-    },
-    component: () => import(/*webpackChunkName: "burn" */ '../views/Burn.vue')
   },
   {
     path: '/profile',
@@ -129,6 +125,26 @@ const routes = [
         path: '/workouts',
         name: 'View Workouts',
         component: ViewWorkouts
+      }
+    ]
+  },
+  {
+    path: '/burn',
+    name: 'Burn',
+    component: Burn,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path: '/burn',
+        name: 'Burn Home',
+        component: BurnHome
+      },
+      {
+        path: '/burn/recent',
+        name: 'RecentBurn.vue',
+        component: RecentBurn
       }
     ]
   }
