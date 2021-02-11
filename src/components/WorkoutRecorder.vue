@@ -35,17 +35,17 @@
                             <span><b>{{ index + 1 }}</b></span>
                         </v-col>
                         <v-col cols="12" sm="4">
-                            <div align="center"><em>{{ set.kg }} x {{ set.measoureAmount }}</em></div>
+                            <div align="center"><em>{{ set.kg }} x {{ set.measureAmount }}</em></div>
                         </v-col>
                         <v-col cols="12" sm="3">
                             <v-text-field :rules=[rules.isNumber] v-model="set.kg" label="kg"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="3">
-                            <div v-if="set.measureBy === 'measoureAmount'">
-                                <v-text-field :rules=[rules.isNumber] v-model="set.measoureAmount" :label="set.measureBy"></v-text-field>
+                            <div v-if="set.measureBy === 'measureAmount'">
+                                <v-text-field :rules=[rules.isNumber] v-model="set.measureAmount" :label="set.measureBy"></v-text-field>
                             </div>
                             <div v-else>
-                                <v-text-field :rules=[rules.isNumber] v-model="set.measoureAmount" :label="set.measureBy">
+                                <v-text-field :rules=[rules.isNumber] v-model="set.measureAmount" :label="set.measureBy">
                                     <v-icon v-if="set.timer" slot="append" @click="toggleTimer(set)">{{ set.timer.interval ? 'mdi-stop' : 'mdi-clock-outline' }}</v-icon>
                                 </v-text-field>
                             </div>
@@ -76,6 +76,25 @@
             </v-col>
             <v-spacer/>
         </v-row>
+
+        <v-dialog v-model="finishingDialogue" max-width="600">
+            <v-card>
+                <div>
+                    <v-container>
+                        <v-form @submit.prevent="uploadWorkout">
+                            <p>Would you like to save this Burn under a new name?</p> 
+                            <p><em>(Names must be unique to appear seperately in New Burn)</em></p>
+                            <v-text-field label="Burn Name" v-model="workout.name" clearable></v-text-field>
+                        </v-form>
+                    </v-container>
+                </div>
+            </v-card>
+            <v-card-actions>
+                <v-spacer/>
+                <v-btn color="error" text @click="cancelUpload">Cancel</v-btn>
+                <v-btn color="blue darken-1" text @click="uploadWorkout">Finish</v-btn>
+            </v-card-actions>
+        </v-dialog>
     </v-container>
 </template>
 
@@ -95,11 +114,11 @@ export default {
     data() {
         return {
             workout: {},
+            origWorkoutName: '',
             exercises: [],
             startTime: 0,
             interval: null,
             timeString: '00:00',
-            isFinishing: false,
 
             // Sortable:
             sortable: null,
@@ -110,6 +129,9 @@ export default {
             },
 
             // Vuetify:
+            isFinishing: false,
+            finishingDialogue: false,
+            isNew: true,
             rules: {
                 isNumber: value => !isNaN(value) || 'Must be a number'
             }
@@ -119,13 +141,15 @@ export default {
     mounted: function() {
         this.workout = this.$props.workoutObj.data
 
+        this.origWorkoutName = this.$props.workoutObj.type === "workout" ? this.workout.name : this.workout.workoutName;
+
         this.workout.exercises.forEach(e => {
             let temp = [];
             let incrementor = 0;
-            // Normalise the 2 different data sets (from recentWorkouts and workouts)
+            // Here we format the sets array of objects to be correct.
             if (this.$props.workoutObj.type === "workout") {
                 e.suggestedSets.forEach(set => {
-                    let data = { measoureAmount: set.measureAmount, measureBy: set.measureBy, kg: null, id: incrementor, completed: false }
+                    let data = { measureAmount: set.measureAmount, measureBy: set.measureBy, kg: null, id: incrementor, completed: false }
 
                     if (data.measureBy === "Time") {
                         data.timer = { interval: null, startTimer: 0 }
@@ -179,12 +203,12 @@ export default {
         toggleTimer: function(set) {
             if (!set.timer.interval) {
                 set.timer.startTimer = new Date().getTime();
-                set.measoureAmount = 0;
+                set.measureAmount = 0;
 
                 set.timer.interval = setInterval(() => {
                     let now = new Date().getTime();
                     let distance = now - set.timer.startTimer;
-                    set.measoureAmount = Math.floor((distance % (1000 * 60)) / 1000);
+                    set.measureAmount = Math.floor((distance % (1000 * 60)) / 1000);
                 }, 1000)
             } else {
                 if (set.timer) {
@@ -211,7 +235,26 @@ export default {
         },
 
         finishWorkout: function() {
-            console.log(this.exercises);
+            // First see if the user has done this workout before.
+            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").where("id", "==", this.workout.id).get().then(workoutSnapshot => {
+                if (workoutSnapshot.size > 0) {
+                    // If so, user has done this before.
+                    // TODO: Check for differences between this workout and previous.
+                    // and only prompt for change if this is new.
+                    this.isNew = false;
+                } else {
+                    // Else this is new.
+                    this.isNew = true;
+                }
+
+                console.log(this.isNew);
+                this.finishingDialogue = true;
+            })
+        },
+
+        uploadWorkout: function() {
+            this.isFinishing = true;
+
             this.exercises.forEach(exercise => {
                 exercise.sets.forEach(set => {
                     if (set.measureBy === "Time") {
@@ -225,22 +268,30 @@ export default {
                     }
 
                     delete set.id;
+                    delete set.completed;
 
                     if (set.kg === null) {
                         set.kg = 0;
                     }
+
+                    set.kg = Number(set.kg);
+                    set.measureAmount = Number(set.measureAmount);
                 })
             })
 
-            let payload = { exercises: this.exercises, createdAt: new Date(), id: this.workout.id, name: this.workout.name }
-
+            let payload = { exercises: this.exercises, createdAt: new Date(), id: this.workout.id, name: this.workout.name, workoutName: this.origWorkoutName }
+            console.log("PL", payload);
             db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").add(payload).then(() => {
                 console.log("Created");
-                this.$router.push("/");
-                // this.$router.go();
+                this.$router.push("/burn/recent");
             }).catch(e => {
                 console.log("Error saving this workout!", e);
             })
+        },
+
+        cancelUpload: function() {
+            this.finishingDialogue = false;
+            this.isFinishing = false;
         },
 
         changeOrder: function(event) {

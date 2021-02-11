@@ -1,3 +1,27 @@
+<!--
+    recentWorkout:
+    {
+        name: string,
+        id: string, // Workout ID,
+        workoutName: string, // Workout name
+        exercises: array of objects
+    }
+
+    exercises: 
+    {
+        name: string, // Exercise name
+        id: string, // Exercise ID
+        sets: array of objects
+    },
+
+    sets: 
+    {
+        kg: integer,
+        measureAmount: integer,
+        measureBy: string // Either Reps or Time
+    }
+-->
+
 <template>
     <v-sheet rounded="lg">
         <v-container v-if="!isLoading">
@@ -6,7 +30,7 @@
                 <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" label="Search Workout"></v-text-field>
                 <div v-if="userRecentWorkouts.length > 0">
                     <h2>Recent Workouts</h2>
-                    <v-container v-for="recentWorkout in userRecentWorkouts" :key="'recent_' + recentWorkout.id">
+                    <v-container v-for="recentWorkout in userRecentWorkouts" :key="'recent_' + recentWorkout.name">
                         <v-row justify="center" align="center" @click="startDialogue(recentWorkout, 'recentWorkout')" class="rowHover">
                             <v-col cols="12" sm="9">
                                 <div>{{ recentWorkout.name }}<br><span class="recentWorkoutTime"><em>{{ recentWorkout.createdAtText }}</em></span></div>
@@ -122,13 +146,13 @@ export default {
         // Download recent workouts.
         db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").orderBy("createdAt", "desc").get().then(recentWorkoutsSnapshot => {
             // Only push most recent of each workout.
-            let uniqueIds = [];
+            let uniqueNames = [];
             recentWorkoutsSnapshot.forEach(recentWorkout => {
                 let data = recentWorkout.data();
-                if (!uniqueIds.includes(data.workoutId)) {
+                if (!uniqueNames.includes(data.name)) {
                     data.createdAtText = dayjs(dayjs.unix(data.createdAt.seconds)).fromNow();
                     this.userRecentWorkouts.push(data);
-                    uniqueIds.push(data.workoutId);
+                    uniqueNames.push(data.name);
                     console.log(data.createdAt);
                 }
             })
