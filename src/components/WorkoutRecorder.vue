@@ -83,7 +83,7 @@ import { db } from '../firebase'
 export default {
     name: 'WorkoutRecorder',
     props: {
-        workout: {
+        workoutObj: {
             type: Object,
             required: true
         }
@@ -91,6 +91,7 @@ export default {
 
     data() {
         return {
+            workout: {},
             exercises: [],
             startTime: 0,
             interval: null,
@@ -105,19 +106,35 @@ export default {
     },
 
     mounted: function() {
-        this.$props.workout.exercises.forEach(e => {
+        this.workout = this.$props.workoutObj.data
+
+        this.workout.exercises.forEach(e => {
             let temp = [];
             let incrementor = 0;
+            // Normalise the 2 different data sets (from recentWorkouts and workouts)
+            if (this.$props.workoutObj.type === "workout") {
+                e.suggestedSets.forEach(set => {
+                    let data = { measoureAmount: set.measureAmount, measureBy: set.measureBy, kg: null, id: incrementor, completed: false }
 
-            e.suggestedSets.forEach(set => {
-                let data = { measoureAmount: set.measureAmount, measureBy: set.measureBy, kg: null, id: incrementor, completed: false }
+                    if (data.measureBy === "Time") {
+                        data.timer = { interval: null, startTimer: 0 }
+                    }
+                    temp.push(data);
+                    incrementor ++;
+                })
+            } else {
+                e.sets.forEach(set => {
+                    set.completed = false;
+                    set.id = incrementor;
 
-                if (data.measureBy === "Time") {
-                    data.timer = { interval: null, startTimer: 0 }
-                }
-                temp.push(data);
-                incrementor ++;
-            })
+                    if (set.measureBy === "Time") {
+                        set.timer = { interval: null, startTimer: 0 }
+                    }
+
+                    temp.push(set);
+                    incrementor ++;
+                })
+            }
 
             this.exercises.push({ id: e.id, sets: temp, name: e.name });
         })
@@ -198,8 +215,8 @@ export default {
                     }
                 })
             })
-
-            let payload = { exercises: this.exercises, createdAt: new Date(), workoutId: this.$props.workout.id, workoutName: this.$props.workout.name }
+            
+            let payload = { exercises: this.exercises, createdAt: new Date(), id: this.workout.id, name: this.workout.name }
 
             db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").add(payload).then(() => {
                 console.log("Created");

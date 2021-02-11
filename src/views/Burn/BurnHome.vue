@@ -6,9 +6,9 @@
                 <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" label="Search Workout"></v-text-field>
                 <h2>Recent Workouts</h2>
                 <v-container v-for="recentWorkout in userRecentWorkouts" :key="'recent_' + recentWorkout.workoutId">
-                    <v-row justify="center" align="center" @click="startDialogue(recentWorkout)" class="rowHover">
+                    <v-row justify="center" align="center" @click="startDialogue(recentWorkout, 'recentWorkout')" class="rowHover">
                         <v-col cols="12" sm="9">
-                            <div>{{ recentWorkout.workoutName }}<br><span class="recentWorkoutTime"><em>{{ recentWorkout.createdAt }}</em></span></div>
+                            <div>{{ recentWorkout.workoutName }}<br><span class="recentWorkoutTime"><em>{{ recentWorkout.createdAtText }}</em></span></div>
                         </v-col>
                         <v-col cols="12" sm="3">
                             <div align="right"><v-icon>mdi-chevron-right</v-icon></div>
@@ -17,7 +17,7 @@
                 </v-container>
                 <h2>Workouts</h2>
                 <v-container v-for="workout in userWorkouts" :key="workout.id">
-                    <v-row justify="center" align="center" @click="startDialogue(recentWorkout)" class="rowHover">
+                    <v-row justify="center" align="center" @click="startDialogue(workout, 'workout')" class="rowHover">
                         <v-col cols="12" sm="9">
                             <div>{{ workout.name }}</div>
                         </v-col>
@@ -29,7 +29,7 @@
             </div>
             <div v-else>
                 <v-card outlined rounded="lg">
-                    <WorkoutRecorder :workout="workoutData"></WorkoutRecorder>
+                    <WorkoutRecorder :workoutObj="workoutData"></WorkoutRecorder>
                 </v-card>
             </div>
         </v-container>
@@ -37,10 +37,10 @@
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
         </v-container>
 
-        <v-dialog v-if="workoutData" v-model="startWorkoutDialogue" max-width="600">
+        <v-dialog v-if="workoutData.data" v-model="startWorkoutDialogue" max-width="600">
             <v-card>
                 <v-container>
-                    <v-list-item v-for="exercise in workoutData.exercises" :key="exercise.id">
+                    <v-list-item v-for="exercise in workoutData.data.exercises" :key="exercise.id">
                         <v-list-item-content>
                             <v-list-item-title>{{ exercise.name }}</v-list-item-title>
                         </v-list-item-content>
@@ -101,7 +101,7 @@ export default {
 
                     // Check if this is our route query workout. If so put in workoutData to avoid loading twice.
                     if (this.$route.query.w && this.$route.query.w === workoutDoc.id) {
-                        this.workoutData = workoutDoc.data();
+                        this.workoutData = {type: 'workout', data: workoutDoc.data()};
                     }
 
                     this.downloadedWorkouts ++;
@@ -116,7 +116,7 @@ export default {
             recentWorkoutsSnapshot.forEach(recentWorkout => {
                 let data = recentWorkout.data();
                 if (!uniqueIds.includes(data.workoutId)) {
-                    data.createdAt = dayjs(dayjs.unix(data.createdAt.seconds)).fromNow();
+                    data.createdAtText = dayjs(dayjs.unix(data.createdAt.seconds)).fromNow();
                     this.userRecentWorkouts.push(data);
                     uniqueIds.push(data.workoutId);
                     console.log(data.createdAt);
@@ -125,7 +125,7 @@ export default {
 
             this.isLoadingRecentWorkouts = false;
             console.log(this.userRecentWorkouts);
-            console.log(uniqueIds);
+            console.log("w", this.workoutData);
         })
     },
 
@@ -135,8 +135,8 @@ export default {
             this.workoutCommenced = true;
         },
 
-        startDialogue: function(w) {
-            this.workoutData = w;
+        startDialogue: function(w, t) {
+            this.workoutData = {type: t, data: w};
             this.startWorkoutDialogue =  true;
         }
     },
@@ -151,7 +151,7 @@ export default {
                     } else {
                         db.collection("workouts").doc(this.$route.query.w).get().then(workoutDoc => {
                             if (workoutDoc.exists) {
-                                this.workoutData = workoutDoc.data();
+                                this.workoutData = {type: 'workout', data: workoutDoc.data()};
                                 this.isLoadingWorkouts = false;
                                 this.startWorkoutDialogue = true;
                             }
