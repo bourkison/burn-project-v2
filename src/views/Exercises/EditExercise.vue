@@ -207,6 +207,7 @@ export default {
                 // Next, remove ID from the suggested sets.
                 this.newExerciseData.suggestedSets.forEach(s => {
                     delete s.id;
+                    s.measureAmount = Number(s.measureAmount);
                 })
 
                 db.collection("exercises").doc(this.$route.params.exerciseid).update(this.newExerciseData).then(() => {

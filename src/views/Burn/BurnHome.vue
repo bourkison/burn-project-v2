@@ -3,7 +3,8 @@
     {
         name: string,
         id: string, // Workout ID,
-        workoutName: string, // Workout name
+        workoutName: string, // Workout name,
+        duration: integer,
         exercises: array of objects
     }
 
@@ -12,7 +13,7 @@
         name: string, // Exercise name
         id: string, // Exercise ID
         sets: array of objects
-    },
+    }
 
     sets: 
     {
@@ -27,7 +28,7 @@
         <v-container v-if="!isLoading">
             <div v-if="!workoutCommenced">
                 <h1 align="center">Burn</h1>
-                <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" label="Search Workout"></v-text-field>
+                <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" label="Search for a workout..."></v-text-field>
                 <div v-if="userRecentWorkouts.length > 0">
                     <h2>Recent Workouts</h2>
                     <div class="recentWorkouts">
@@ -62,7 +63,7 @@
             </div>
             <div v-else>
                 <v-card outlined rounded="lg">
-                    <WorkoutRecorder :workoutObj="workoutData"></WorkoutRecorder>
+                    <WorkoutRecorder :workoutObj="workoutData" @cancelWorkout="cancelWorkout"></WorkoutRecorder>
                 </v-card>
             </div>
         </v-container>
@@ -79,12 +80,12 @@
                         </v-list-item-content>
                     </v-list-item>
                 </v-container>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="error" text @click="startWorkoutDialogue = false">Close</v-btn>
+                    <v-btn color="blue darken-1" text @click="startWorkout">Start</v-btn>
+                </v-card-actions>
             </v-card>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="error" text @click="startWorkoutDialogue = false">Close</v-btn>
-                <v-btn color="blue darken-1" text @click="startWorkout">Start</v-btn>
-            </v-card-actions>
         </v-dialog>
     </v-sheet>
 </template>
@@ -146,7 +147,7 @@ export default {
         })
 
         // Download recent workouts.
-        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").orderBy("createdAt", "desc").get().then(recentWorkoutsSnapshot => {
+        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").orderBy("createdAt", "desc").limit(10).get().then(recentWorkoutsSnapshot => {
             // Only push most recent of each workout.
             let uniqueNames = [];
             recentWorkoutsSnapshot.forEach(recentWorkout => {
@@ -155,13 +156,10 @@ export default {
                     data.createdAtText = dayjs(dayjs.unix(data.createdAt.seconds)).fromNow();
                     this.userRecentWorkouts.push(data);
                     uniqueNames.push(data.name);
-                    console.log(data.createdAt);
                 }
             })
 
             this.isLoadingRecentWorkouts = false;
-            console.log(this.userRecentWorkouts);
-            console.log("w", this.workoutData);
         })
     },
 
@@ -174,6 +172,10 @@ export default {
         startDialogue: function(w, t) {
             this.workoutData = {type: t, data: w};
             this.startWorkoutDialogue =  true;
+        },
+
+        cancelWorkout: function() {
+            this.workoutCommenced = false;
         }
     },
 

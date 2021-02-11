@@ -62,7 +62,7 @@
                     <!-- Add Set -->
                     <v-spacer/>
                     <v-col align="center" cols="12" sm="6">
-                        <v-btn @click="addSet(exercise.sets)" small>Add Set</v-btn>
+                        <v-btn @click="addSet(exercise)" small>Add Set</v-btn>
                     </v-col>
                     <v-spacer/>
                 </v-list-item>
@@ -71,17 +71,16 @@
 
         <v-row>
             <v-spacer/>
-            <v-col cols="12" sm="6" align="center">
-                <v-btn @click="finishWorkout" color="success" style="margin:10px;" :loading="isFinishing">Finish</v-btn>
+            <v-col cols="12" sm="6" align="center" style="margin:10px;">
+                <v-btn @click.stop="cancellingDialogue = true" style="margin-right: 5px;">Cancel</v-btn>
+                <v-btn @click="finishWorkout" color="success" :loading="isFinishing">Finish</v-btn>
             </v-col>
             <v-spacer/>
         </v-row>
 
         <v-dialog v-model="finishingDialogue" persistent max-width="600">
             <v-card>
-                <v-card-title>
-                    Congratulations!
-                </v-card-title>
+                <v-card-title>Congratulations!</v-card-title>
                 <div>
                     <v-container>
                         <v-form @submit.prevent="uploadWorkout">
@@ -91,12 +90,26 @@
                         </v-form>
                     </v-container>
                 </div>
+                <v-card-actions>
+                    <v-spacer/>
+                    <v-btn color="error" text @click="cancelUpload">Cancel</v-btn>
+                    <v-btn color="blue darken-1" text :loading="isUploading" @click="uploadWorkout">Finish</v-btn>
+                </v-card-actions>
             </v-card>
-            <v-card-actions>
-                <v-spacer/>
-                <v-btn color="error" text @click="cancelUpload">Cancel</v-btn>
-                <v-btn color="blue darken-1" text :loading="isUploading" @click="uploadWorkout">Finish</v-btn>
-            </v-card-actions>
+        </v-dialog>
+
+        <v-dialog v-model="cancellingDialogue" persistent max-width="600">
+            <v-card>
+                <v-card-title>Cancel Workout</v-card-title>
+                <v-container>
+                    Are you sure you want to cancel workout? All progress will be lost!
+                </v-container>
+                <v-card-actions>
+                    <v-spacer/>
+                    <v-btn text @click="cancellingDialogue = false">No, Go Back</v-btn>
+                    <v-btn text color="error" @click="cancelWorkout">Yes, I'm Sure</v-btn>
+                </v-card-actions>
+            </v-card>
         </v-dialog>
     </v-container>
 </template>
@@ -120,6 +133,7 @@ export default {
             origWorkoutName: '',
             exercises: [],
             startTime: 0,
+            finishTime: 0,
             interval: null,
             timeString: '00:00',
             previousExercises: [],
@@ -136,6 +150,7 @@ export default {
             isFinishing: false,
             isUploading: false,
             finishingDialogue: false,
+            cancellingDialogue: false,
             isNew: true,
             rules: {
                 isNumber: value => !isNaN(value) || 'Must be a number'
@@ -145,7 +160,6 @@ export default {
 
     mounted: function() {
         this.workout = this.$props.workoutObj.data
-
         this.origWorkoutName = this.$props.workoutObj.type === "workout" ? this.workout.name : this.workout.workoutName;
 
         this.workout.exercises.forEach(e => {
@@ -225,16 +239,24 @@ export default {
             }
         },
 
-        addSet: function(sets) {
+        addSet: function(exercise) {
+            let sets = exercise.sets;
+            const previousExercisesIndex = this.previousExercises.findIndex(x => x.id === exercise.id);
             const id = sets[sets.length - 1].id + 1;
             let newSet = sets[sets.length - 1];
 
             // Hack so that the new sets have no reference to each other.
             let d = JSON.parse(JSON.stringify(newSet));
+            let p = JSON.parse(JSON.stringify(newSet));
+
             d.id = id;
             d.completed = false;
-
             sets.push(d);
+
+            p.kg = 0;
+            p.measureAmount = 0;
+            this.previousExercises[previousExercisesIndex].sets.push(p);
+            console.log("P", p, previousExercisesIndex, this.previousExercises);
 
             if (newSet.measureBy === "Time") {
                 sets[sets.length - 1].timer = { interval: null, startTimer: 0 }
@@ -243,6 +265,7 @@ export default {
 
         finishWorkout: function() {
             this.isFinishing = true;
+            this.finishTime = new Date().getTime();
 
             // First see if the user has done this workout before.
             db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").where("id", "==", this.workout.id).get().then(workoutSnapshot => {
@@ -288,7 +311,7 @@ export default {
                 })
             })
 
-            let payload = { exercises: this.exercises, createdAt: new Date(), id: this.workout.id, name: this.workout.name, workoutName: this.origWorkoutName }
+            let payload = { exercises: this.exercises, createdAt: new Date(), id: this.workout.id, name: this.workout.name, workoutName: this.origWorkoutName, duration: this.finishTime - this.startTime }
             console.log("PL", payload);
             db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").add(payload).then(() => {
                 console.log("Created");
@@ -296,6 +319,10 @@ export default {
             }).catch(e => {
                 console.log("Error saving this workout!", e);
             })
+        },
+
+        cancelWorkout: function() {
+            this.$emit("cancelWorkout");
         },
 
         cancelUpload: function() {
@@ -306,7 +333,7 @@ export default {
         changeOrder: function(event) {
             if (event.newIndex !== event.oldIndex) {
                 this.exercises.splice(event.newIndex, 0, this.exercises.splice(event.oldIndex, 1)[0]);
-                console.log(this.exercises);
+                this.previousExercises.splice(event.newIndex, 0, this.previousExercises.splice(event.oldIndex, 1)[0]);
             }
         }
     }

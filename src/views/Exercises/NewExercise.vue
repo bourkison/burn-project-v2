@@ -91,6 +91,7 @@ export default {
             
             this.exerciseForm.suggestedSets.forEach (s => {
                 delete s.id;
+                s.measureAmount = Number(s.measureAmount);
             })
 
             // Setting this to 1 will call our watcher, which will begin the upload process.
