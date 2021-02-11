@@ -4,28 +4,35 @@
             <div v-if="!workoutCommenced">
                 <h1 align="center">Burn</h1>
                 <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" label="Search Workout"></v-text-field>
-                <h2>Recent Workouts</h2>
-                <v-container v-for="recentWorkout in userRecentWorkouts" :key="'recent_' + recentWorkout.workoutId">
-                    <v-row justify="center" align="center" @click="startDialogue(recentWorkout, 'recentWorkout')" class="rowHover">
-                        <v-col cols="12" sm="9">
-                            <div>{{ recentWorkout.workoutName }}<br><span class="recentWorkoutTime"><em>{{ recentWorkout.createdAtText }}</em></span></div>
-                        </v-col>
-                        <v-col cols="12" sm="3">
-                            <div align="right"><v-icon>mdi-chevron-right</v-icon></div>
-                        </v-col>
-                    </v-row>
-                </v-container>
-                <h2>Workouts</h2>
-                <v-container v-for="workout in userWorkouts" :key="workout.id">
-                    <v-row justify="center" align="center" @click="startDialogue(workout, 'workout')" class="rowHover">
-                        <v-col cols="12" sm="9">
-                            <div>{{ workout.name }}</div>
-                        </v-col>
-                        <v-col cols="12" sm="3">
-                            <div align="right"><v-icon>mdi-chevron-right</v-icon></div>
-                        </v-col>
-                    </v-row>
-                </v-container>
+                <div v-if="userRecentWorkouts.length > 0">
+                    <h2>Recent Workouts</h2>
+                    <v-container v-for="recentWorkout in userRecentWorkouts" :key="'recent_' + recentWorkout.id">
+                        <v-row justify="center" align="center" @click="startDialogue(recentWorkout, 'recentWorkout')" class="rowHover">
+                            <v-col cols="12" sm="9">
+                                <div>{{ recentWorkout.name }}<br><span class="recentWorkoutTime"><em>{{ recentWorkout.createdAtText }}</em></span></div>
+                            </v-col>
+                            <v-col cols="12" sm="3">
+                                <div align="right"><v-icon>mdi-chevron-right</v-icon></div>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </div>
+                <div v-if="userWorkouts.length > 0">
+                    <h2>Workouts</h2>
+                    <v-container v-for="workout in userWorkouts" :key="workout.id">
+                        <v-row justify="center" align="center" @click="startDialogue(workout, 'workout')" class="rowHover">
+                            <v-col cols="12" sm="9">
+                                <div>{{ workout.name }}</div>
+                            </v-col>
+                            <v-col cols="12" sm="3">
+                                <div align="right"><v-icon>mdi-chevron-right</v-icon></div>
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </div>
+                <div v-if="userWorkouts.length === 0 && userRecentWorkouts.length === 0">
+                    <v-container><em>Try following some <router-link to="/workouts">workouts</router-link> first, then come back here!</em></v-container>
+                </div>
             </div>
             <div v-else>
                 <v-card outlined rounded="lg">
@@ -94,6 +101,9 @@ export default {
 
         db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").orderBy("createdAt", "desc").get().then(workoutsSnapshot => {
             this.workoutsToDownload = workoutsSnapshot.size;
+            if (this.workoutsToDownload === 0) {
+                this.isLoading = false;
+            }
 
             workoutsSnapshot.forEach(workout => {
                 db.collection("workouts").doc(workout.id).get().then(workoutDoc => {

@@ -9,63 +9,65 @@
             </v-col>
         </v-row>
 
-        <v-list-group :value="true" active-class="activeListGroup" v-for="exercise in exercises" :key="exercise.id">
-            <template v-slot:activator>
-                <v-list-item-title>{{ exercise.name }}</v-list-item-title>
-            </template>
+        <div id="sortableContainer">
+            <v-list-group :value="true" active-class="activeListGroup" v-for="exercise in exercises" :key="exercise.id">
+                <template v-slot:activator>
+                    <v-list-item-title><span style="margin-right: 5px;"><v-icon class="sortableHandle">mdi-drag-horizontal-variant</v-icon></span><span style="vertical-align:middle;">{{ exercise.name }}</span></v-list-item-title>
+                </template>
 
-            <v-list-item>
-                <v-spacer/>
-                <v-col cols="12" sm="4" align="center">
-                    <span><b>Previous</b></span>
-                </v-col>
-                <v-col cols="12" sm="3" align="center">
-                    <span><b>Kgs</b></span>
-                </v-col>
-                <v-col cols="12" sm="3" align="center">
-                    <span><b>Amount</b></span>
-                </v-col>
-                <v-spacer/>
-            </v-list-item>
-
-            <v-list-item v-for="(set, index) in exercise.sets" :key="index">
-                <v-row align="center" justify="center">
-                    <v-col cols="12" sm="1">
-                        <span><b>{{ index + 1 }}</b></span>
+                <v-list-item>
+                    <v-spacer/>
+                    <v-col cols="12" sm="4" align="center">
+                        <span><b>Previous</b></span>
                     </v-col>
-                    <v-col cols="12" sm="4">
-                        <div align="center"><em>{{ set.kg }} x {{ set.measoureAmount }}</em></div>
+                    <v-col cols="12" sm="3" align="center">
+                        <span><b>Kgs</b></span>
                     </v-col>
-                    <v-col cols="12" sm="3">
-                        <v-text-field :rules=[rules.isNumber] v-model="set.kg" label="kg"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="3">
-                        <div v-if="set.measureBy === 'measoureAmount'">
-                            <v-text-field :rules=[rules.isNumber] v-model="set.measoureAmount" :label="set.measureBy"></v-text-field>
-                        </div>
-                        <div v-else>
-                            <v-text-field :rules=[rules.isNumber] v-model="set.measoureAmount" :label="set.measureBy">
-                                <v-icon v-if="set.timer" slot="append" @click="toggleTimer(set)">{{ set.timer.interval ? 'mdi-stop' : 'mdi-clock-outline' }}</v-icon>
-                            </v-text-field>
-                        </div>
+                    <v-col cols="12" sm="3" align="center">
+                        <span><b>Amount</b></span>
                     </v-col>
                     <v-spacer/>
-                    <v-col cols="12" sm="1">
-                        <v-checkbox v-model="set.completed" color="success" />
+                </v-list-item>
+                
+                <v-list-item v-for="(set, index) in exercise.sets" :key="index">
+                    <v-row align="center" justify="center">
+                        <v-col cols="12" sm="1">
+                            <span><b>{{ index + 1 }}</b></span>
+                        </v-col>
+                        <v-col cols="12" sm="4">
+                            <div align="center"><em>{{ set.kg }} x {{ set.measoureAmount }}</em></div>
+                        </v-col>
+                        <v-col cols="12" sm="3">
+                            <v-text-field :rules=[rules.isNumber] v-model="set.kg" label="kg"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="3">
+                            <div v-if="set.measureBy === 'measoureAmount'">
+                                <v-text-field :rules=[rules.isNumber] v-model="set.measoureAmount" :label="set.measureBy"></v-text-field>
+                            </div>
+                            <div v-else>
+                                <v-text-field :rules=[rules.isNumber] v-model="set.measoureAmount" :label="set.measureBy">
+                                    <v-icon v-if="set.timer" slot="append" @click="toggleTimer(set)">{{ set.timer.interval ? 'mdi-stop' : 'mdi-clock-outline' }}</v-icon>
+                                </v-text-field>
+                            </div>
+                        </v-col>
+                        <v-spacer/>
+                        <v-col cols="12" sm="1">
+                            <v-checkbox v-model="set.completed" color="success" />
+                        </v-col>
+                        <v-spacer/>
+                    </v-row>
+                </v-list-item>
+
+                <v-list-item>
+                    <!-- Add Set -->
+                    <v-spacer/>
+                    <v-col align="center" cols="12" sm="6">
+                        <v-btn @click="addSet(exercise.sets)" small>Add Set</v-btn>
                     </v-col>
                     <v-spacer/>
-                </v-row>
-            </v-list-item>
-
-            <v-list-item>
-                <!-- Add Set -->
-                <v-spacer/>
-                <v-col align="center" cols="12" sm="6">
-                    <v-btn @click="addSet(exercise.sets)" small>Add Set</v-btn>
-                </v-col>
-                <v-spacer/>
-            </v-list-item>
-        </v-list-group>
+                </v-list-item>
+            </v-list-group>
+        </div>
 
         <v-row>
             <v-spacer/>
@@ -79,6 +81,7 @@
 
 <script>
 import { db } from '../firebase'
+import Sortable from 'sortablejs'
 
 export default {
     name: 'WorkoutRecorder',
@@ -97,6 +100,14 @@ export default {
             interval: null,
             timeString: '00:00',
             isFinishing: false,
+
+            // Sortable:
+            sortable: null,
+            sortableOptions: {
+                handle: ".sortableHandle",
+                animation: 300,
+                onEnd: this.changeOrder
+            },
 
             // Vuetify:
             rules: {
@@ -145,6 +156,8 @@ export default {
         this.interval = setInterval(() => {
             this.timerCount();
         }, 1000);
+
+        this.sortable = new Sortable(document.getElementById("sortableContainer"), this.sortableOptions)
     },
 
     methods: {
@@ -184,10 +197,13 @@ export default {
         addSet: function(sets) {
             const id = sets[sets.length - 1].id + 1;
             let newSet = sets[sets.length - 1];
-            newSet.id = id;
 
             // Hack so that the new sets have no reference to each other.
-            sets.push(JSON.parse(JSON.stringify(newSet)));
+            let d = JSON.parse(JSON.stringify(newSet));
+            d.id = id;
+            d.completed = false;
+
+            sets.push(d);
 
             if (newSet.measureBy === "Time") {
                 sets[sets.length - 1].timer = { interval: null, startTimer: 0 }
@@ -215,7 +231,7 @@ export default {
                     }
                 })
             })
-            
+
             let payload = { exercises: this.exercises, createdAt: new Date(), id: this.workout.id, name: this.workout.name }
 
             db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").add(payload).then(() => {
@@ -225,6 +241,13 @@ export default {
             }).catch(e => {
                 console.log("Error saving this workout!", e);
             })
+        },
+
+        changeOrder: function(event) {
+            if (event.newIndex !== event.oldIndex) {
+                this.exercises.splice(event.newIndex, 0, this.exercises.splice(event.oldIndex, 1)[0]);
+                console.log(this.exercises);
+            }
         }
     }
 }
