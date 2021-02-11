@@ -191,13 +191,15 @@ export default {
                         delete set.timer;
                     }
 
+                    delete set.id;
+
                     if (set.kg === null) {
                         set.kg = 0;
                     }
                 })
             })
 
-            let payload = { exercises: this.exercises, createdAt: new Date(), workoutId: this.$props.workout.id }
+            let payload = { exercises: this.exercises, createdAt: new Date(), workoutId: this.$props.workout.id, workoutName: this.$props.workout.name }
 
             db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").add(payload).then(() => {
                 console.log("Created");

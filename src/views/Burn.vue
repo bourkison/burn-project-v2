@@ -7,6 +7,13 @@
                 <v-sheet class="mainSheet" rounded="lg">
                     <v-container v-if="!isLoading">
                         <div v-if="!workoutCommenced">
+                            <h1>Recent Workouts</h1>
+                            <v-list-item v-for="recentWorkout in userRecentWorkouts" :key="recentWorkout.id">
+                                <v-list-item-content>
+                                    <v-list-item-title>{{ recentWorkout.workoutName }}</v-list-item-title>
+                                    <v-list-item-content><em>Completed on: {{ recentWorkout.createdAt }}</em></v-list-item-content>
+                                </v-list-item-content>
+                            </v-list-item>
                             <h1>Workouts</h1>
                             <v-list-item v-for="workout in userWorkouts" :key="workout.id">
                                 <v-list-item-content>
@@ -51,6 +58,9 @@
 <script>
 import { db } from '../firebase'
 
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
 import WorkoutRecorder from '../components/WorkoutRecorder.vue'
 
 export default {
@@ -59,8 +69,11 @@ export default {
     data() {
         return {
             isLoading: true,
+            isLoadingWorkouts: true,
+            isLoadingRecentWorkouts: true,
             workoutData: {},
             userWorkouts: [],
+            userRecentWorkouts: [],
             workoutCommenced: false,
 
             // Firebase:
@@ -73,7 +86,8 @@ export default {
     },
 
     created: function() {
-        // TODO: We're currently downloading the queried workout data twice.
+        dayjs.extend(relativeTime);
+
         db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").orderBy("createdAt", "desc").get().then(workoutsSnapshot => {
             this.workoutsToDownload = workoutsSnapshot.size;
 
@@ -81,6 +95,7 @@ export default {
                 db.collection("workouts").doc(workout.id).get().then(workoutDoc => {
                     this.userWorkouts.push(workoutDoc.data());
 
+                    // Check if this is our route query workout. If so put in workoutData to avoid loading twice.
                     if (this.$route.query.w && this.$route.query.w === workoutDoc.id) {
                         this.workoutData = workoutDoc.data();
                     }
@@ -88,6 +103,24 @@ export default {
                     this.downloadedWorkouts ++;
                 })
             })
+        })
+
+        // Download recent workouts.
+        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").orderBy("createdAt", "desc").get().then(recentWorkoutsSnapshot => {
+            // Only push most recent of each workout.
+            let uniqueIds = [];
+            recentWorkoutsSnapshot.forEach(recentWorkout => {
+                let data = recentWorkout.data();
+                if (!uniqueIds.includes(data.id)) {
+                    data.createdAt = dayjs(dayjs.unix(data.createdAt.seconds)).fromNow();
+                    this.userRecentWorkouts.push(data);
+                    uniqueIds.push(data.id);
+                    console.log(data.createdAt);
+                }
+            })
+
+            this.isLoadingRecentWorkouts = false;
+            console.log(this.userRecentWorkouts);
         })
     },
 
@@ -103,18 +136,32 @@ export default {
             if (this.downloadedWorkouts >= this.workoutsToDownload) {
                 if (this.$route.query.w) {
                     if (this.workoutData) {
-                        this.isLoading = false;
+                        this.isLoadingWorkouts = false;
                         this.startWorkoutDialogue = true;
                     } else {
                         db.collection("workouts").doc(this.$route.query.w).get().then(workoutDoc => {
                             if (workoutDoc.exists) {
                                 this.workoutData = workoutDoc.data();
-                                this.isLoading = false;
+                                this.isLoadingWorkouts = false;
                                 this.startWorkoutDialogue = true;
                             }
                         })
                     }
+                } else {
+                    this.isLoadingWorkouts = false;
                 }
+            }
+        },
+
+        isLoadingWorkouts: function(n) {
+            if (!n && !this.isLoadingRecentWorkouts) {
+                this.isLoading = false;
+            }
+        },
+
+        isLoadingRecentWorkouts: function(n) {
+            if (!n && !this.isLoadingWorkouts) {
+                this.isLoading = false;
             }
         }
     }

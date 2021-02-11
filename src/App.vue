@@ -15,6 +15,7 @@
             <v-tabs centered class="ml-n9">
               <v-tab key="homeTab" to="/">Home</v-tab>
               <v-tab v-if="$store.state.userProfile.loggedIn" to="/exercises">Exercises</v-tab>
+              <v-tab v-if="$store.state.userProfile.loggedIn" to="/burn">Burn</v-tab>
               <v-tab v-if="$store.state.userProfile.loggedIn" to="/workouts">Workouts</v-tab>
               <v-tab v-if="$store.state.userProfile.loggedIn" @click="signOut()">Sign Out</v-tab>
             </v-tabs>
