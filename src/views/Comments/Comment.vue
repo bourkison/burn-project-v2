@@ -53,7 +53,7 @@ export default {
 
     created: function() {
         // Build user profile link.
-        this.profilePath = "/users/" + this.$props.comment.createdBy.id;
+        this.profilePath = "/" + this.$props.comment.createdBy.username;
 
         // Check if the user has liked.
         db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$vnode.key).get().then(likeSnapshot => {

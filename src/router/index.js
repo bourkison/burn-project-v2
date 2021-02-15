@@ -59,11 +59,6 @@ const routes = [
     component: UserProfile
   },
   {
-    path: '/profile/:id',
-    name: 'Profile',
-    component: Profile
-  },
-  {
     path: '/exercises',
     name: 'Exercises',
     component: Exercise,
@@ -147,6 +142,11 @@ const routes = [
         component: RecentBurn
       }
     ]
+  },
+  {
+    path: '/:profileid',
+    name: 'Profile',
+    component: Profile
   }
 ]
 

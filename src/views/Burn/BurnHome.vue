@@ -28,7 +28,7 @@
         <v-container v-if="!isLoading">
             <div v-if="!workoutCommenced">
                 <h1 align="center">Burn</h1>
-                <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" label="Search for a workout..."></v-text-field>
+                <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" label="Search for a workout..." clearable></v-text-field>
                 <div v-if="filteredRecentWorkouts.length > 0">
                     <h2>Recent Workouts</h2>
                     <div class="recentWorkouts">
@@ -158,11 +158,8 @@ export default {
                     uniqueNames.push(data.name);
                 }
 
-                console.log("rw", this.$route.query.rw, "id", recentWorkout.id);
-
                 if (this.$route.query.rw && this.$route.query.rw == recentWorkout.id) {
                     this.workoutData = { type: 'recentWorkout', data: recentWorkout.data() };
-                    console.log("found");
                 }
             })
 
@@ -188,15 +185,23 @@ export default {
 
     computed: {
         filteredRecentWorkouts: function() {
-            return this.userRecentWorkouts.filter(recentWorkout => {
-                return recentWorkout.name.toLowerCase().includes(this.searchText.toLowerCase());
-            })
+            if (this.searchText) {
+                return this.userRecentWorkouts.filter(recentWorkout => {
+                    return recentWorkout.name.toLowerCase().includes(this.searchText.toLowerCase());
+                })
+            } else {
+                return this.userRecentWorkouts;
+            }
         },
 
         filteredUserWorkouts: function() {
-            return this.userWorkouts.filter(workout => {
-                return workout.name.toLowerCase().includes(this.searchText.toLowerCase());
-            })
+            if (this.searchText) {
+                return this.userWorkouts.filter(workout => {
+                    return workout.name.toLowerCase().includes(this.searchText.toLowerCase());
+                })
+            } else {
+                return this.userWorkouts;
+            }
         }
     },
 
