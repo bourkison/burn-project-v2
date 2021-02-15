@@ -37,12 +37,12 @@
                   <v-form @submit.prevent="login">
                     <LogInForm @callLogin="callLogin" :signInForm="signInForm"></LogInForm>
                   </v-form>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="error" text @click="signInDialog = false">Close</v-btn>
+                    <v-btn color="blue darken-1" text @click="login" :loading="isLoading">Log In</v-btn>
+                  </v-card-actions>
                 </v-card>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="error" text @click="signInDialog = false">Close</v-btn>
-                  <v-btn color="blue darken-1" text @click="login" :loading="isLoading">Log In</v-btn>
-                </v-card-actions>
             </v-dialog>
             <v-dialog
               v-model="signUpDialog"
@@ -57,12 +57,12 @@
               </template>
               <v-card>
                 <SignUpForm @callSignUp="callSignUp" :signUpForm="signUpForm"></SignUpForm>
-              </v-card>
-              <v-card-actions>
-                <v-spacer></v-spacer>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
                   <v-btn color="error" text @click="signUpDialog = false">Close</v-btn>
                   <v-btn color="blue darken-1" text @click="signUp" :loading="isLoading">Sign Up</v-btn>
-              </v-card-actions>
+                </v-card-actions>
+              </v-card> 
             </v-dialog>
           </v-col>
         </v-row>

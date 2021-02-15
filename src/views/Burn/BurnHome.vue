@@ -29,10 +29,10 @@
             <div v-if="!workoutCommenced">
                 <h1 align="center">Burn</h1>
                 <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" label="Search for a workout..."></v-text-field>
-                <div v-if="userRecentWorkouts.length > 0">
+                <div v-if="filteredRecentWorkouts.length > 0">
                     <h2>Recent Workouts</h2>
                     <div class="recentWorkouts">
-                        <v-container v-for="recentWorkout in userRecentWorkouts" :key="'recent_' + recentWorkout.name">
+                        <v-container v-for="recentWorkout in filteredRecentWorkouts" :key="'recent_' + recentWorkout.name">
                             <v-row justify="center" align="center" @click="startDialogue(recentWorkout, 'recentWorkout')" class="rowHover">
                                 <v-col cols="12" sm="9">
                                     <div>{{ recentWorkout.name }}<br><span class="recentWorkoutTime"><em>{{ recentWorkout.createdAtText }}</em></span></div>
@@ -44,9 +44,9 @@
                         </v-container>
                     </div>
                 </div>
-                <div v-if="userWorkouts.length > 0">
+                <div v-if="filteredUserWorkouts.length > 0">
                     <h2>Workouts</h2>
-                    <v-container v-for="workout in userWorkouts" :key="workout.id">
+                    <v-container v-for="workout in filteredUserWorkouts" :key="workout.id">
                         <v-row justify="center" align="center" @click="startDialogue(workout, 'workout')" class="rowHover">
                             <v-col cols="12" sm="9">
                                 <div>{{ workout.name }}</div>
@@ -176,6 +176,20 @@ export default {
 
         cancelWorkout: function() {
             this.workoutCommenced = false;
+        }
+    },
+
+    computed: {
+        filteredRecentWorkouts: function() {
+            return this.userRecentWorkouts.filter(recentWorkout => {
+                return recentWorkout.name.toLowerCase().includes(this.searchText.toLowerCase());
+            })
+        },
+
+        filteredUserWorkouts: function() {
+            return this.userWorkouts.filter(workout => {
+                return workout.name.toLowerCase().includes(this.searchText.toLowerCase());
+            })
         }
     },
 
