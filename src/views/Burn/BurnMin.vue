@@ -9,7 +9,7 @@
                     <em>{{ timeString}} | {{ recentWorkout.createdAtText }}</em>
                 </v-col>
             </v-row>
-            <v-expansion-panels>
+            <v-expansion-panels style="margin: 15px 0;">
                 <v-expansion-panel v-for="exercise in recentWorkout.exercises" :key="exercise.id">
                     <v-expansion-panel-header>{{ exercise.name }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
@@ -23,6 +23,8 @@
                     </v-expansion-panel-content>
                 </v-expansion-panel>
             </v-expansion-panels>
+
+            <div align="center"><v-btn color="success" @click="restartWorkout"><v-icon>mdi-plus</v-icon>Do Again</v-btn></div>
         </v-container>
     </v-card>
 </template>
@@ -56,6 +58,12 @@ export default {
             }
         } else {
             this.timeString = "00:00"
+        }
+    },
+
+    methods: {
+        restartWorkout: function() {
+            this.$router.push({ path: '/burn', query: { rw: this.$props.recentWorkout.rId } })
         }
     }
 }

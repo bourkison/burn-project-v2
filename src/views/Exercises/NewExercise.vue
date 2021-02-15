@@ -153,7 +153,11 @@ export default {
         // This watcher tests for uniqueness of exercise id, then starts upload on images.
         // Will call imagesUploaded watcher when completed.
         idAttempts: function() {
-            this.exerciseForm.id = this.exerciseForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase() + "-" + this.generateId(7);
+            let firstHalfId = this.exerciseForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase()
+            if (firstHalfId.length > 0) {
+                firstHalfId += "-";
+            }
+            this.exerciseForm.id = firstHalfId + this.generateId(15 - firstHalfId.length);
             this.exerciseForm.likeCount = 0;
             this.exerciseForm.recentComments = [];
             this.exerciseForm.commentCount = 0;

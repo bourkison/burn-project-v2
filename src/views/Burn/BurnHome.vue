@@ -138,7 +138,7 @@ export default {
 
                     // Check if this is our route query workout. If so put in workoutData to avoid loading twice.
                     if (this.$route.query.w && this.$route.query.w === workoutDoc.id) {
-                        this.workoutData = {type: 'workout', data: workoutDoc.data()};
+                        this.workoutData = { type: 'workout', data: workoutDoc.data() };
                     }
 
                     this.downloadedWorkouts ++;
@@ -156,6 +156,13 @@ export default {
                     data.createdAtText = dayjs(dayjs.unix(data.createdAt.seconds)).fromNow();
                     this.userRecentWorkouts.push(data);
                     uniqueNames.push(data.name);
+                }
+
+                console.log("rw", this.$route.query.rw, "id", recentWorkout.id);
+
+                if (this.$route.query.rw && this.$route.query.rw == recentWorkout.id) {
+                    this.workoutData = { type: 'recentWorkout', data: recentWorkout.data() };
+                    console.log("found");
                 }
             })
 
@@ -196,11 +203,11 @@ export default {
     watch: {
         downloadedWorkouts: function() {
             if (this.downloadedWorkouts >= this.workoutsToDownload) {
-                if (this.$route.query.w) {
+                if (this.$route.query.w || this.$route.query.rw) {
                     if (this.workoutData) {
                         this.isLoadingWorkouts = false;
                         this.startWorkoutDialogue = true;
-                    } else {
+                    } else if (this.$route.query.w) {
                         db.collection("workouts").doc(this.$route.query.w).get().then(workoutDoc => {
                             if (workoutDoc.exists) {
                                 this.workoutData = {type: 'workout', data: workoutDoc.data()};

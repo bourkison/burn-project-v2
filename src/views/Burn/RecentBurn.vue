@@ -1,6 +1,7 @@
 <template>
     <v-sheet rounded="lg">
         <v-container v-if="!isLoading">
+            <h1 align="center">Recent Burns</h1>
             <BurnMin v-for="recentWorkout in recentWorkouts" :recentWorkout="recentWorkout" :key="recentWorkout.rId"></BurnMin>
         </v-container>
         <v-container v-else>

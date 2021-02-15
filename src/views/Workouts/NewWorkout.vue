@@ -123,7 +123,11 @@ export default {
     watch: {
         // Upload begin:
         idAttempts: function() {
-            this.workoutForm.id = this.workoutForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase() + "-" + this.generateId(7);
+            let firstHalfId = this.workoutForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase();
+            if (firstHalfId.length > 0) {
+                firstHalfId += "-";
+            }
+            this.workoutForm.id = firstHalfId + "-" + this.generateId(15 - firstHalfId.length);
             this.workoutForm.likeCount = 0;
             this.workoutForm.recentComments = [];
             this.workoutForm.commentCount = 0;
