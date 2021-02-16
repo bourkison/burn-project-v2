@@ -18,12 +18,13 @@ firebase.analytics();
 const db = firebase.firestore();
 const auth = firebase.auth();
 const storage = firebase.storage();
+const fv = firebase.firestore.FieldValue;
 
 const userCollection = db.collection("users");
 const exerciseCollection = db.collection("exercises");
 
 // Set our functions region.
-var functions= firebase.app().functions("australia-southeast1");
+var functions = firebase.app().functions("australia-southeast1");
 
 // Function waits for login to happen, and is called in guarded routes.
 // Fixes the problem of instantly getting redirected on guarded routes when
@@ -37,4 +38,4 @@ firebase.getCurrentUser = () => {
     })
 };
 
-export { db, auth, userCollection, exerciseCollection, storage, functions }
+export { db, auth, fv, userCollection, exerciseCollection, storage, functions }

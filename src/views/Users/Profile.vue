@@ -1,39 +1,24 @@
 <template>
-    <div>{{ $route.params.profileid }}</div>
+    <v-container class="mainCont" fluid>
+        <v-row>
+            <v-spacer/>
+            <v-col cols="12" sm="3" xl="2">
+                <v-card>
+                    <v-sheet rounded="lg" min-height="268"></v-sheet>
+                </v-card>
+            </v-col>
+            <v-col cols="12" sm="6" lg="5" xl="4">
+                <router-view></router-view>
+            </v-col>
+            <v-col cols="12" sm="3" xl="2">
+                <v-sheet rounded="lg" min-height="268"></v-sheet>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
 
 <script>
-import { db } from '../../firebase'
-
 export default {
-    name: 'Profile',
-    data() {
-        return {
-            isLoading: true,
-            profileData: {}
-        }
-    },
-
-    created: function() {
-        if (this.$route.params.profileid === this.$store.state.userProfile.docData.username) {
-            console.log("My profile");
-            this.isLoading = false;
-            this.profileData = this.$store.state.userProfile.docData;
-        } else {
-            console.log(this.$route.params.profileid);
-            db.collection("users").where("username", "==", this.$route.params.profileid).get().then(querySnapshot => {
-                if (querySnapshot.size > 0) {
-                    querySnapshot.forEach(user => {
-                        this.profileData = user.data();
-                        this.isLoading = false;
-                        console.log(this.profileData);
-                    })
-                } else {
-                    // TODO: DISPLAY 404 NOT FOUND HERE.
-                    console.log (404);
-                }
-            })
-        }
-    }
+    name: 'Profile'
 }
 </script>

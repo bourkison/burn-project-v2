@@ -21,8 +21,8 @@ import Burn from '../views/Burn/Burn.vue'
 import BurnHome from '../views/Burn/BurnHome.vue'
 import RecentBurn from '../views/Burn/RecentBurn.vue'
 
-import UserProfile from '../views/Users/UserProfile.vue'
 import Profile from '../views/Users/Profile.vue'
+import ViewProfile from '../views/Users/ViewProfile.vue'
 
 Vue.use(VueRouter)
 
@@ -52,11 +52,6 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: () => import(/*webpackChunkName: "login" */ '../views/Login.vue')
-  },
-  {
-    path: '/profile',
-    name: 'User Profile',
-    component: UserProfile
   },
   {
     path: '/exercises',
@@ -146,7 +141,14 @@ const routes = [
   {
     path: '/:profileid',
     name: 'Profile',
-    component: Profile
+    component: Profile,
+    children: [
+      {
+        path: '/:profileid',
+        name: 'ViewProfile',
+        component: ViewProfile
+      }
+    ]
   }
 ]
 
