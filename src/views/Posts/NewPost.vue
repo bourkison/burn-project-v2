@@ -163,12 +163,7 @@ export default {
                 db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("posts").doc(this.postForm.id).set(postPayload).then(() => {
                     console.log("POSTED");
                     this.isLoading = false;
-                    this.exerciseForm = { content: '', exerciseId: '', workoutId: '', burnId: '', imgPaths: [] };
-                    this.imageObjs = [];
-                    this.imageFiles = [];
-                    this.imagesToEdit = [];
-                    this.imagesUploaded = 0;
-                    this.imageEditIncrementor = 0;
+                    this.resetVariables();
 
                 }).catch(e => {
                     console.warn("Error updating user:", e);
@@ -176,6 +171,18 @@ export default {
             }).catch(e => {
                 console.warn("Error uploading post:", e);
             })
+        },
+
+        // This is called once post is uploaded and resets all variables.
+        resetVariables: function() {
+            this.postForm = { content: '', exerciseId: '', workoutId: '', burnId: '', imgPaths: [] };
+            this.imageFiles = [];
+            this.imagesToEdit = [];
+            this.imageEditIncrementor = 0;
+            this.imageObjs = [];
+            this.imagesUploaded = 0;
+
+            this.imagesToEdit.push({ id: this.imageEditIncrementor, url: null, dialogueOpen: false });
         }
     },
 

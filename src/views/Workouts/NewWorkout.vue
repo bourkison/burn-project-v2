@@ -138,7 +138,7 @@ export default {
                     // If the ID doesn't exist, first set the workout document in workouts collection.
                     db.collection("workouts").doc(this.workoutForm.id).set(this.workoutForm).then(() => {
                         // Then in users collection
-                        let workoutPayload = { createdAt: this.workoutForm.createdAt, createdBy: this.workoutForm.createdBy, isFollow: false }
+                        let workoutPayload = { createdAt: this.workoutForm.createdAt, isFollow: false }
                         db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").doc(this.workoutForm.id).set(workoutPayload).then(() => {
                             this.isCreating = false;
                             this.$router.push("/workouts/" + this.workoutForm.id);

@@ -190,7 +190,7 @@ export default {
 
                 // Now we can upload the doc.
                 db.collection("exercises").doc(this.exerciseForm.id).set(this.exerciseForm).then(() => {
-                    let exercisePayload = { createdAt: this.exerciseForm.createdAt, isFollow: false, createdBy: this.exerciseForm.createdBy }                    
+                    let exercisePayload = { createdAt: this.exerciseForm.createdAt, isFollow: false }                    
                     // Doc now created, lets push the exercise ID to the user doc.
                     db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").doc(this.exerciseForm.id).set(exercisePayload).then(() => {
                         this.$router.push("/exercises/" + this.exerciseForm.id);
