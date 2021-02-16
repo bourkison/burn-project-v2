@@ -70,7 +70,9 @@ export default {
     beforeRouteUpdate: function(to, from, next) {
         this.isLoading = true;
         this.isLoggedInUser = false;
+        this.isFollowed = false;
         this.profileData = {};
+        this.posts = [];
         next();
         this.downloadUserData();
     },
