@@ -1,6 +1,6 @@
 <template>
     <v-card v-if="!isLoading" class="exerciseMin" outlined>
-        <v-carousel height="auto" v-model="model" show-arrows-on-hover hide-delimiter-background>
+        <v-carousel height="auto" v-model="carouselModel" show-arrows-on-hover hide-delimiter-background>
             <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.order" eager>
                 <v-img :src="img.imgUrl" eager/>
             </v-carousel-item>
@@ -63,7 +63,7 @@ export default {
             downloadedImageCounter: 0,
 
             // Vuetify:
-            model: 0,
+            carouselModel: 0,
             descriptionExpanded: false
         }
     },

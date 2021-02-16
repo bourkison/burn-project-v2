@@ -163,8 +163,8 @@ export default {
                 db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("posts").doc(this.postForm.id).set(postPayload).then(() => {
                     console.log("POSTED");
                     this.isLoading = false;
+                    this.$emit("newPost", this.postForm);
                     this.resetVariables();
-
                 }).catch(e => {
                     console.warn("Error updating user:", e);
                 })

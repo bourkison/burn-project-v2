@@ -26,7 +26,12 @@
             </v-row>
             <v-row v-if="isLoggedInUser">
                 <v-col cols="12" sm="12">
-                    <NewPost></NewPost>
+                    <NewPost @newPost="newPost"></NewPost>
+                </v-col>
+            </v-row>
+            <v-row v-for="postId in posts" :key="postId">
+                <v-col cols="12" sm="12">
+                    <ViewPostMin :postId="postId"></ViewPostMin>
                 </v-col>
             </v-row>
         </v-container>
@@ -40,16 +45,18 @@
 import { db, fv } from '../../firebase'
 
 import NewPost from '../Posts/NewPost.vue'
+import ViewPostMin from '../Posts/ViewPostMin.vue'
 
 export default {
     name: 'ViewProfile',
-    components: { NewPost },
+    components: { NewPost, ViewPostMin },
     data() {
         return {
             isLoading: true,
             isLoggedInUser: false,
             isFollowed: false,
             profileData: {},
+            posts: [],
 
             // Vuetify:
             isFollowing: false,
@@ -72,8 +79,9 @@ export default {
         downloadUserData: function() {
             if (this.$route.params.profileid === this.$store.state.userProfile.docData.username) {
                 this.isLoggedInUser = true;
-                this.isLoading = false;
                 this.profileData = this.$store.state.userProfile.docData;
+                this.profileData.id = this.$store.state.userProfile.data.uid;
+                this.downloadPosts();
             } else {
                 console.log(this.$route.params.profileid);
                 db.collection("users").where("username", "==", this.$route.params.profileid).get().then(querySnapshot => {
@@ -90,9 +98,9 @@ export default {
                                 } else {
                                     this.isFollowed = false;
                                 }
-
-                                this.isLoading = false;
                             })
+
+                            this.downloadPosts();
                         })
                     } else {
                         // TODO: DISPLAY 404 NOT FOUND HERE.
@@ -101,6 +109,16 @@ export default {
                     }
                 })
             }
+        },
+
+        downloadPosts: function() {
+            db.collection("users").doc(this.profileData.id).collection("posts").orderBy("createdAt", "desc").get().then(postsSnapshot => {
+                postsSnapshot.forEach(post => {
+                    this.posts.push(post.id);
+                })
+
+                this.isLoading = false;
+            })
         },
 
         handleFollow: function() {
@@ -169,6 +187,10 @@ export default {
                     this.isFollowing = false;
                 })
             }
+        },
+
+        newPost: function(p) {
+            this.posts.unshift(p.id);
         }
     }
 }
