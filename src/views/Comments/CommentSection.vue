@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { db } from '../../firebase'
+import { db, fv } from '../../firebase'
 import Comment from './Comment.vue'
 
 export default {
@@ -129,6 +129,8 @@ export default {
             this.pageType = "workout";
             this.collectionPathString = "workouts";
             this.docId = this.$props.workoutId;
+        } else {
+            console.warn("NO PATH PASSED THROUGH TO COMMENT SECTION.")
         }
 
         // Check if liked or not.
@@ -193,17 +195,20 @@ export default {
                 // First create the like in the relevant document.
                 let likePayload = { createdBy: {username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid }, createdAt: new Date() }
                 this.collectionPath.doc(this.docId).collection("likes").add(likePayload).then(likeRef => {
-                    // Then create the like in the user document.
-                    likePayload = { type: this.pageType, id: this.docId, createdAt: likePayload.createdAt }
-                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(likeRef.id).set(likePayload).then(() => {
-                        this.$emit("likeToggle", likeRef.id);
+                    // Increment the like counter on this document.
+                    this.collectionPath.doc(this.docId).update({ likeCount: fv.increment(1) }).then(() => {
+                        // Then create the like in the user document.
+                        likePayload = { type: this.pageType, id: this.docId, createdAt: likePayload.createdAt }
+                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(likeRef.id).set(likePayload).then(() => {
+                            this.$emit("likeToggle", likeRef.id);
+                        }).catch(e => {
+                            console.log("Error creating like. Error pushing to user's likes:", e)
+                        })
                     }).catch(e => {
-                        this.errorMessage = "Error creating like. Error pushing to user's likes: " + e;
-                        console.log(this.errorMessage)
+                        console.log("Error creating like. Error incrementing likeCount", e);
                     })
                 }).catch(e => {
-                    this.errorMessage = "Error creating like. Error pushing to documents' likes" + e;
-                    console.log(this.errorMessage);
+                    console.log("Error creating like. Error pushing to documents' likes", e);
                 })
             } else {
                 // Delete like.
@@ -212,13 +217,16 @@ export default {
 
                 // First delete like in the relevant document.
                 this.collectionPath.doc(this.docId).collection("likes").doc(this.$props.isLiked).delete().then(() => {
-                    // Now delete like in the user document.
-                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(this.$props.isLiked).delete().then(() => {
-                        this.$emit("likeToggle", "");
-                    }).catch(e => {
-                        this.errorMessage = "Error unliking. Error deleting from user's likes: " + e;
-                        console.log(this.errorMessage);
-                    });
+                    // Decrement the like counter on this document.
+                    this.collectionPath.doc(this.docId).update({ likeCount: fv.increment(-1) }).then(() => {
+                        // Now delete like in the user document.
+                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(this.$props.isLiked).delete().then(() => {
+                            this.$emit("likeToggle", "");
+                        }).catch(e => {
+                            this.errorMessage = "Error unliking. Error deleting from user's likes: " + e;
+                            console.log(this.errorMessage);
+                        });
+                    })
                 }).catch(e => {
                     this.errorMessage = "Error unliking. Error deleting from document' likes" + e;
                     console.log(this.errorMessage);

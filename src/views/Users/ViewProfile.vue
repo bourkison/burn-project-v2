@@ -71,11 +71,20 @@ export default {
                 db.collection("users").where("username", "==", this.$route.params.profileid).get().then(querySnapshot => {
                     if (querySnapshot.size > 0) {
                         querySnapshot.forEach(user => {
+                            // Check if logged in user has followed.
                             let d = user.data();
                             d.id = user.id;
                             this.profileData = d;
-                            this.isLoading = false;
-                            console.log(this.profileData);
+
+                            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("following").doc(this.profileData.id).get().then(followingDoc => {
+                                if (followingDoc.exists) {
+                                    this.isFollowed = true;
+                                } else {
+                                    this.isFollowed = false;
+                                }
+
+                                this.isLoading = false;
+                            })
                         })
                     } else {
                         // TODO: DISPLAY 404 NOT FOUND HERE.
