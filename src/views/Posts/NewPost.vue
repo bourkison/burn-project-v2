@@ -13,8 +13,13 @@
                     </v-card>
                 </v-col>
             </v-row>
-            <v-textarea label="Add text here..." auto-grow counter></v-textarea>
-            <v-file-input v-model="imageFiles" @change="handleFileUpload" style="display:inline;margin:0;padding:0;" accept="image/png,image/jpg,image/jpeg" hide-input></v-file-input>
+            <v-textarea v-model="postForm.content" label="Add text here..." auto-grow counter></v-textarea>
+            <div>
+                <v-file-input v-model="imageFiles" @change="handleFileUpload" style="display:inline;margin:0;padding:0;" accept="image/png,image/jpg,image/jpeg" prepend-icon="mdi-camera" hide-input></v-file-input>
+                <v-btn icon><v-icon>mdi-weight-lifter</v-icon></v-btn>
+                <v-btn icon><v-icon>mdi-dumbbell</v-icon></v-btn>
+            </div>
+            <div align="right"><v-btn @click="createPost" :loading="isLoading" text>Post</v-btn></div>
         </v-container>
 
         <v-dialog max-height="600" max-width="900" v-model="editingImageDialogue" persistent eager>
@@ -32,6 +37,7 @@
 
 <script>
 import Sortable from 'sortablejs'
+import { db, storage } from '../../firebase'
 
 import ImageEditorDialogue from '../../components/ImageEditorDialogue.vue'
 
@@ -40,6 +46,14 @@ export default {
     components: { ImageEditorDialogue },
     data() {
         return {
+            isLoading: false,
+            postForm: {
+                content: '',
+                exerciseId: '',
+                workoutId: '',
+                burnId: '',
+                imgPaths: []
+            },
             imageFiles: [],
             imagesToEdit: [],
             imageEditIncrementor: 0,
@@ -52,6 +66,10 @@ export default {
                 onEnd: this.changeOrder
             },
 
+            // Firebase:
+            idAttempts: 0,
+            imagesUploaded: 0,
+
             // Vuetify:
             editingImageDialogue: false
         }
@@ -62,6 +80,32 @@ export default {
     },
 
     methods: {
+        createPost: function() {
+            this.isLoading = true;
+            this.postForm.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl };
+            this.postForm.createdAt = new Date();
+            this.postForm.likeCount = 0;
+            this.postForm.recentComments = [];
+            this.postForm.commentCount = 0;
+
+            // Setting this to 1 will call our watcher, which begins our upload process.
+            // We must make an ID rather than generate one in Firebase, so our storage can match.
+            this.idAttempts = 1;
+            // db.collection("posts").add(this.postForm)
+        },
+
+        uploadImageFile: function(file, order) {
+            let imageRef = storage.ref("posts/" + this.postForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
+
+            imageRef.putString(file, 'data_url').then(() => {
+                console.log(this.postForm.imgPaths);
+                this.postForm.imgPaths.push({ path: imageRef.fullPath, order: order });
+                this.imagesUploaded ++;
+            }).catch(e => {
+                console.log("Error uploading images:", e);
+            })
+        },
+
         handleFileUpload: function(e) {
             this.imageFiles = e;
             this.imagesToEdit[this.imageEditIncrementor].url = URL.createObjectURL(e);
@@ -99,6 +143,39 @@ export default {
             if (e.newIndex !== e.oldIndex) {
                 this.imageObjs.splice(e.newIndex, 0, this.imageObjs.splice(e.oldIndex, 1)[0]);
             }
+        },
+
+        generateId(n) {
+            let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+            let id = '';
+            // 7 random characters
+            for (let i = 0; i < n; i++) {
+                id += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+            }
+            return id;
+        },
+
+        createPostDocument: function() {
+            // Now upload the doc.
+            db.collection("posts").doc(this.postForm.id).set(this.postForm).then(() => {
+                let postPayload = { createdAt: this.postForm.createdAt }
+                // Doc created, lets push the ID to the user doc.
+                db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("posts").doc(this.postForm.id).set(postPayload).then(() => {
+                    console.log("POSTED");
+                    this.isLoading = false;
+                    this.exerciseForm = { content: '', exerciseId: '', workoutId: '', burnId: '', imgPaths: [] };
+                    this.imageObjs = [];
+                    this.imageFiles = [];
+                    this.imagesToEdit = [];
+                    this.imagesUploaded = 0;
+                    this.imageEditIncrementor = 0;
+
+                }).catch(e => {
+                    console.warn("Error updating user:", e);
+                })
+            }).catch(e => {
+                console.warn("Error uploading post:", e);
+            })
         }
     },
 
@@ -108,6 +185,43 @@ export default {
                 this.sortable = new Sortable(document.getElementById("sortableContainer"), this.sortableOptions);
             } else {
                 this.sortable = null;
+            }
+        },
+
+        idAttempts: function() {
+            this.postForm.id = this.generateId(16);
+
+            db.collection("posts").doc(this.postForm.id).get().then(idTestDoc => {
+                if (!idTestDoc.exists) {
+                    if (this.imageObjs.length > 0) {
+                        let i = 0;
+                        this.imageObjs.forEach(img => {
+                            this.uploadImageFile(img.file, i);
+                            i ++;
+                        })
+                    } else {
+                        console.log("no images");
+                        this.createPostDocument();
+                    }
+                } else {
+                    // Increment id attempts to start this process again.
+                    this.idAttempts ++;
+                }
+            })
+        },
+
+        imagesUploaded: function() {
+            console.log("test");
+            if (this.imagesUploaded >= this.imageObjs.length && this.isLoading) {
+                // Order imgPaths array based on the order key/val
+                let tempArr = [];
+                for (let i = 0; i < this.postForm.imgPaths.length; i ++) {
+                    let index = this.postForm.imgPaths.findIndex(x => x.order === i);
+                    tempArr.push(this.postForm.imgPaths[index].path);
+                }
+                this.postForm.imgPaths = tempArr;
+
+                this.createPostDocument();
             }
         }
     }

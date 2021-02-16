@@ -88,6 +88,10 @@ export default {
             this.isLoading = true;
             this.exerciseForm.createdBy = {id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl};
             this.exerciseForm.createdAt = new Date();
+            this.exerciseForm.likeCount = 0;
+            this.exerciseForm.recentComments = [];
+            this.exerciseForm.commentCount = 0;
+            this.exerciseForm.followCount = 0;
             
             this.exerciseForm.suggestedSets.forEach (s => {
                 delete s.id;
@@ -158,10 +162,6 @@ export default {
                 firstHalfId += "-";
             }
             this.exerciseForm.id = firstHalfId + this.generateId(15 - firstHalfId.length);
-            this.exerciseForm.likeCount = 0;
-            this.exerciseForm.recentComments = [];
-            this.exerciseForm.commentCount = 0;
-            this.exerciseForm.followCount = 0;
 
             db.collection("exercises").doc(this.exerciseForm.id).get().then(idTestDoc => {
                 if (!idTestDoc.exists) {
