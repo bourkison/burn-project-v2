@@ -11,7 +11,7 @@
 
 <template>
     <v-container class="commentSection">
-        <span>{{ likeCount }} <span v-if="likeCount != 1">likes</span><span v-else>like</span> | {{ commentCounter }} <span v-if="commentCount != 1">comments</span><span v-else>comment</span> | {{ followCounter }} <span v-if="followCounter != 1">follows</span><span v-else>follow</span></span>
+        <span>{{ likeCount }} <span v-if="likeCount != 1">likes</span><span v-else>like</span> | {{ commentCounter }} <span v-if="commentCount != 1">comments</span><span v-else>comment</span> <span v-if="followableComponent">| {{ followCounter }} <span v-if="followCounter != 1">follows</span><span v-else>follow</span></span></span>
         <v-row class="lcsCont">
             <v-col cols="12" sm="6">
                 <v-icon large @click="handleLike" :color="likeIconColor">{{ likeIcon }}</v-icon>
@@ -66,6 +66,10 @@ export default {
             type: String,
             required: false
         },
+        postId: {
+            type: String,
+            required: false
+        },
         isLiked: {
             type: String,
             required: true
@@ -88,7 +92,7 @@ export default {
         },
         followCount: {
             type: Number,
-            required: true
+            required: false
         }
     },
     data() {
@@ -129,6 +133,11 @@ export default {
             this.pageType = "workout";
             this.collectionPathString = "workouts";
             this.docId = this.$props.workoutId;
+        } else if (this.$props.postId) {
+            this.collectionPath = db.collection("posts");
+            this.pageType = "post";
+            this.collectionPathString = "posts";
+            this.docId = this.$props.postId;
         } else {
             console.warn("NO PATH PASSED THROUGH TO COMMENT SECTION.")
         }

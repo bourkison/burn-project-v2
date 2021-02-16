@@ -6,7 +6,20 @@
             </v-carousel-item>
         </v-carousel>
         <v-container>
-            <div>{{ postData.content }}</div>
+            <v-container>
+                <div>{{ postData.content }}</div>
+            </v-container>
+            <div align="left" style="margin: 0 -10px;">
+                <CommentSection
+                    :post-id="postId"
+                    :is-liked="isLiked"
+                    :like-count="postData.likeCount"
+                    :recentComments="postData.recentComments"
+                    :commentCount="postData.commentCount"
+                    :followableComponent="false"
+                    @likeToggle="likeToggle"
+                ></CommentSection>
+            </div>
         </v-container>
     </v-card>
     <v-card v-else outlined min-height="200">
@@ -17,8 +30,11 @@
 <script>
 import { db, storage } from '../../firebase'
 
+import CommentSection from '../Comments/CommentSection.vue'
+
 export default {
     name: 'ViewPostMin',
+    components: { CommentSection },
     props: {
         postId: {
             type: String,
@@ -31,6 +47,7 @@ export default {
             isLoading: true,
             postData: {},
             imgUrls: [],
+            isLiked: '',
 
             // Firebase:
             downloadedImageCounter: 0,
@@ -62,6 +79,16 @@ export default {
                 this.imgUrls.push({ order: order, imgUrl: url });
                 this.downloadedImageCounter ++;
             })
+        },
+
+        likeToggle: function(s) {
+            if (s === '') {
+                this.postData.likeCount --;
+            } else {
+                this.postData.likeCount ++;
+            }
+
+            this.isLiked = s;
         }
     },
 
@@ -69,7 +96,17 @@ export default {
         downloadedImageCounter: function() {
             if (this.downloadedImageCounter >= this.postData.imgPaths.length) {
                 this.imgUrls.sort((a, b) => a.order - b.order);
-                this.isLoading = false;
+
+                // Images are now downloaded. Check if user has liked this post.
+                db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$props.postId).get().then(likeSnapshot => {
+                    likeSnapshot.forEach(like => {
+                        if (like.exists) {
+                            this.isLiked = like.id;
+                        }
+                    })
+
+                    this.isLoading = false;
+                })
             }
         }
     }
