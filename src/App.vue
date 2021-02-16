@@ -29,12 +29,12 @@
                 style="overflow:hidden;"
                 v-if="!$store.state.userProfile.loggedIn"
                 >
-                <template v-slot:activator="{ on, attrs }">
-                    <v-btn dark v-bind="attrs" v-on="on">
-                    Log In
-                    </v-btn>
-                </template>
-                <LogInForm></LogInForm>
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn dark v-bind="attrs" v-on="on">
+                        Log In
+                        </v-btn>
+                    </template>
+                    <LogInForm></LogInForm>
                 </v-dialog>
                 <v-dialog
                     v-model="signUpDialog"
@@ -42,12 +42,12 @@
                     max-width="600"
                     v-if="!$store.state.userProfile.loggedIn"
                 >
-                <template v-slot:activator="{ on, attrs }">
-                    <v-btn dark v-bind="attrs" v-on="on">
-                    Sign Up
-                    </v-btn>
-                </template>
-                <SignUpForm></SignUpForm>
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn dark v-bind="attrs" v-on="on">
+                        Sign Up
+                        </v-btn>
+                    </template>
+                    <SignUpForm></SignUpForm>
                 </v-dialog>
             </v-col>
             </v-row>

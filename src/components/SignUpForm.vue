@@ -183,7 +183,9 @@ export default {
                 dob: this.signUpForm.dob,
                 height: this.signUpForm.height,
                 weight: this.signUpForm.weight,
-                country: this.signUpForm.country
+                country: this.signUpForm.country,
+                followerCount: 0,
+                followingCount: 0
             }
 
 
