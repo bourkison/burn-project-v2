@@ -313,19 +313,22 @@ export default {
 
                 // First add comment to the relevant collection.
                 this.collectionPath.doc(this.docId).collection("comments").add(payload).then(commentRef => {
-                    // Now add comment to the user.
-                    let commentPayload = { type: this.pageType, docId: this.docId, createdAt: new Date() }
-                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("comments").doc(commentRef.id).set(commentPayload).then(() => {
-                        payload.id = commentRef.id;
-                        this.comments.push(payload);
-                        this.commentCounter ++;
+                    // Increment comment count.
+                    this.collectionPath.doc(this.docId).update({ commentCount: fv.increment(1) }).then(() => {
+                        // Now add comment to the user.
+                        let commentPayload = { type: this.pageType, docId: this.docId, createdAt: new Date() }
+                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("comments").doc(commentRef.id).set(commentPayload).then(() => {
+                            payload.id = commentRef.id;
+                            this.comments.push(payload);
+                            this.commentCounter ++;
+                        }).catch(e => {
+                            console.warn("Error adding comment to user:", e);
+                        })
                     }).catch(e => {
-                        this.errorMessage = "Error adding comment to user: " + e;
-                        console.log(this.errorMessage);
+                        console.warn("Error incrementing comment count:", e);
                     })
                 }).catch(e => {
-                    this.errorMessage = "Error adding comment to comments: " + e;
-                    console.log(this.errorMessage);
+                    console.warn("Error adding comment to comments:", e);
                 })
             } else {
                 console.log("Comment can't be blank.");
