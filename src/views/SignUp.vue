@@ -158,7 +158,9 @@ export default {
                 dob: this.signUpForm.dob,
                 height: this.signUpForm.height,
                 weight: this.signUpForm.weight,
-                country: this.signUpForm.country
+                country: this.signUpForm.country,
+                followerCount: 0,
+                followingCount: 0
             }
 
             auth.createUserWithEmailAndPassword(this.signUpForm.email, this.signUpForm.password).then(user => {

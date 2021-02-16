@@ -24,6 +24,11 @@
                     </v-container>
                 </v-col>
             </v-row>
+            <v-row v-if="isLoggedInUser">
+                <v-col cols="12" sm="12">
+                    <NewPost></NewPost>
+                </v-col>
+            </v-row>
         </v-container>
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
@@ -34,8 +39,11 @@
 <script>
 import { db, fv } from '../../firebase'
 
+import NewPost from '../Posts/NewPost.vue'
+
 export default {
     name: 'ViewProfile',
+    components: { NewPost },
     data() {
         return {
             isLoading: true,
