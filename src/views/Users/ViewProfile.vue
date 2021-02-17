@@ -111,6 +111,7 @@ export default {
                     }
                 })
             }
+            
         },
 
         downloadPosts: function() {
@@ -193,6 +194,14 @@ export default {
 
         newPost: function(p) {
             this.posts.unshift(p.id);
+        }
+    },
+
+    watch: {
+        profileData: function() {
+            if (this.profileData) {
+                console.log(JSON.stringify(this.profileData));
+            }
         }
     }
 }
