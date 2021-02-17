@@ -66,8 +66,6 @@ export default {
             this.userResponses = [];
             
             this.userIndex.search(this.searchText).then(responses => {
-                console.log(responses.hits);
-
                 responses.hits.forEach(hit => {
                     this.userResponses.push(hit);
                 })

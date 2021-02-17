@@ -33,50 +33,6 @@
                         <MainSearch></MainSearch>
                     </v-row>
                 </v-container>
-                <!-- <v-row>
-                <v-col cols="12" sm="3">
-                    <MainSearch></MainSearch>
-                </v-col>
-                <v-col cols="12" sm="6">
-                    <v-tabs centered class="ml-n9">
-                    <v-tab key="homeTab" to="/">Home</v-tab>
-                    <v-tab v-if="$store.state.userProfile.loggedIn" to="/exercises">Exercises</v-tab>
-                    <v-tab v-if="$store.state.userProfile.loggedIn" to="/burn">Burn</v-tab>
-                    <v-tab v-if="$store.state.userProfile.loggedIn" to="/workouts">Workouts</v-tab>
-                    <v-tab v-if="$store.state.userProfile.loggedIn" :to="'/' + $store.state.userProfile.docData.username">Profile</v-tab>
-                    <v-tab v-if="$store.state.userProfile.loggedIn" @click="signOut()">Sign Out</v-tab>
-                    </v-tabs>
-                </v-col>
-                <v-col cols="12" sm="3">
-                    <v-dialog
-                    v-model="signInDialog"
-                    persistent
-                    max-width="600px"
-                    style="overflow:hidden;"
-                    v-if="!$store.state.userProfile.loggedIn"
-                    >
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn dark v-bind="attrs" v-on="on">
-                            Log In
-                            </v-btn>
-                        </template>
-                        <LogInForm></LogInForm>
-                    </v-dialog>
-                    <v-dialog
-                        v-model="signUpDialog"
-                        persistent
-                        max-width="600"
-                        v-if="!$store.state.userProfile.loggedIn"
-                    >
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn dark v-bind="attrs" v-on="on">
-                            Sign Up
-                            </v-btn>
-                        </template>
-                        <SignUpForm></SignUpForm>
-                    </v-dialog>
-                </v-col>
-                </v-row> -->
             </v-app-bar>
             <v-main class="lighten-3">
                 <router-view></router-view>

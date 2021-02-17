@@ -1,6 +1,16 @@
 <template>
     <v-card v-if="!isLoading" outlined>
-        <v-carousel height="auto" v-model="carouselModel" show-arrows-on-hover hide-delimiter-background>
+        <v-container>
+            <v-row style="align-items:center">
+                <v-col cols="12" sm="1">
+                    <v-avatar size="32"><v-img :src="postData.createdBy.profilePhoto"></v-img></v-avatar>
+                </v-col>
+                <v-col cols="12" sm="11">
+                    <router-link :to="'/' + postData.createdBy.username"><b>{{ postData.createdBy.username }}</b></router-link>
+                </v-col>
+            </v-row>
+        </v-container>
+        <v-carousel v-if="imgUrls.length > 0" height="auto" v-model="carouselModel" show-arrows-on-hover hide-delimiter-background>
             <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.order" eager>
                 <v-img :src="img.imgUrl" eager/>
             </v-carousel-item>

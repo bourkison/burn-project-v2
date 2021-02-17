@@ -17,7 +17,7 @@
             <div>
                 <v-file-input v-model="imageFiles" @change="handleFileUpload" style="display:inline;margin:0;padding:0;" accept="image/png,image/jpg,image/jpeg" prepend-icon="mdi-camera" hide-input></v-file-input>
                 <v-btn icon><v-icon>mdi-weight-lifter</v-icon></v-btn>
-                <v-btn icon><v-icon>mdi-dumbbell</v-icon></v-btn>
+                <v-btn icon @click.stop="exerciseSearchDialogue = true;"><v-icon>mdi-dumbbell</v-icon></v-btn>
             </div>
             <div align="right"><v-btn @click="createPost" :loading="isLoading" text>Post</v-btn></div>
         </v-container>
@@ -32,18 +32,22 @@
                 </div>
             </v-card>
         </v-dialog>
+        <v-dialog v-model="exerciseSearchDialogue" style="min=height:300px;" max-width="600">
+            <ExerciseSearch></ExerciseSearch>
+        </v-dialog>
     </v-card>
 </template>
 
 <script>
 import Sortable from 'sortablejs'
-import { db, storage } from '../../firebase'
+import { db, storage } from '@/firebase'
 
-import ImageEditorDialogue from '../../components/ImageEditorDialogue.vue'
+import ExerciseSearch from '@/components/Search/ExerciseSearch.vue'
+import ImageEditorDialogue from '@/components/ImageEditorDialogue.vue'
 
 export default {
     name: 'NewPost',
-    components: { ImageEditorDialogue },
+    components: { ExerciseSearch, ImageEditorDialogue },
     data() {
         return {
             isLoading: false,
@@ -71,7 +75,8 @@ export default {
             imagesUploaded: 0,
 
             // Vuetify:
-            editingImageDialogue: false
+            editingImageDialogue: false,
+            exerciseSearchDialogue: false,
         }
     },
 
