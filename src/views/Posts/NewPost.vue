@@ -22,6 +22,10 @@
             </v-row>
             <v-row v-if="selectedWorkout">
                 <v-container>
+                    <div align="right">
+                        <v-spacer/>
+                        <v-btn icon @click="selectedWorkout = null;"><v-icon small color="error">mdi-close</v-icon></v-btn>
+                    </div>
                     <WorkoutExpandable :workout="selectedWorkout"></WorkoutExpandable>
                 </v-container>
             </v-row>
@@ -139,18 +143,6 @@ export default {
             // db.collection("posts").add(this.postForm)
         },
 
-        uploadImageFile: function(file, order) {
-            let imageRef = storage.ref("posts/" + this.postForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
-
-            imageRef.putString(file, 'data_url').then(() => {
-                console.log(this.postForm.imgPaths);
-                this.postForm.imgPaths.push({ path: imageRef.fullPath, order: order });
-                this.imagesUploaded ++;
-            }).catch(e => {
-                console.log("Error uploading images:", e);
-            })
-        },
-
         handleFileUpload: function(e) {
             this.imageFiles = e;
             this.imagesToEdit[this.imageEditIncrementor].url = URL.createObjectURL(e);
@@ -262,10 +254,16 @@ export default {
             db.collection("posts").doc(this.postForm.id).get().then(idTestDoc => {
                 if (!idTestDoc.exists) {
                     if (this.imageObjs.length > 0) {
-                        let i = 0;
+                        let imageUploadPromises = [];
+
                         this.imageObjs.forEach(img => {
-                            this.uploadImageFile(img.file, i);
-                            i ++;
+                            let imageRef = storage.ref("posts/" + this.postForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
+                            imageUploadPromises.push(imageRef.putString(img.file, 'data_url'));
+                            this.postForm.imgPaths.push(imageRef.fullPath);
+                        })
+
+                        Promise.all(imageUploadPromises).then(() => {
+                            this.createPostDocument();
                         })
                     } else {
                         console.log("no images");
@@ -276,21 +274,6 @@ export default {
                     this.idAttempts ++;
                 }
             })
-        },
-
-        imagesUploaded: function() {
-            console.log("test");
-            if (this.imagesUploaded >= this.imageObjs.length && this.isLoading) {
-                // Order imgPaths array based on the order key/val
-                let tempArr = [];
-                for (let i = 0; i < this.postForm.imgPaths.length; i ++) {
-                    let index = this.postForm.imgPaths.findIndex(x => x.order === i);
-                    tempArr.push(this.postForm.imgPaths[index].path);
-                }
-                this.postForm.imgPaths = tempArr;
-
-                this.createPostDocument();
-            }
         }
     }
 }

@@ -18,12 +18,12 @@
             </v-carousel-item>
         </v-carousel>
         <v-container>
-            <v-container v-if="postData.exercise">
+            <v-container style="padding:0 40px;" v-if="postData.exercise">
                 <v-expansion-panels>
                     <ExerciseExpandable :exerciseToDownload="postData.exercise"></ExerciseExpandable>
                 </v-expansion-panels>
             </v-container>
-            <v-container v-if="postData.workout">
+            <v-container style="padding: 0 40px 5px;" v-if="postData.workout">
                 <WorkoutExpandable :workout="postData.workout"></WorkoutExpandable>
             </v-container>
             <v-container>
