@@ -7,6 +7,7 @@
                 </v-col>
                 <v-col cols="12" sm="11">
                     <router-link :to="'/' + postData.createdBy.username"><b>{{ postData.createdBy.username }}</b></router-link>
+                    <span v-if="postData.exercise"> shared an <router-link :to="'/exercises/' + postData.exercise.id">exercise</router-link></span>
                 </v-col>
             </v-row>
         </v-container>

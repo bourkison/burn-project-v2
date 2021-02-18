@@ -20,11 +20,13 @@
                     </v-expansion-panels>
                 </v-container>
             </v-row>
-            <v-textarea v-model="postForm.content" label="Add text here..." auto-grow counter></v-textarea>
+            <div style="margin-top:15px;">
+                <v-textarea v-model="postForm.content" label="Add text here..." auto-grow counter outlined></v-textarea>
+            </div>
             <div>
                 <v-file-input v-model="imageFiles" @change="handleFileUpload" style="display:inline;margin:0;padding:0;" accept="image/png,image/jpg,image/jpeg" prepend-icon="mdi-camera" hide-input></v-file-input>
-                <v-btn icon><v-icon>mdi-weight-lifter</v-icon></v-btn>
                 <v-btn icon @click.stop="exerciseSearchDialogue = true;"><v-icon>mdi-dumbbell</v-icon></v-btn>
+                <v-btn icon @click.stop="workoutSearchDialogue = true;"><v-icon>mdi-weight-lifter</v-icon></v-btn>
             </div>
             <div align="right"><v-btn @click="createPost" :loading="isLoading" text>Post</v-btn></div>
         </v-container>
@@ -39,8 +41,13 @@
                 </div>
             </v-card>
         </v-dialog>
-        <v-dialog v-model="exerciseSearchDialogue" style="min=height:300px;" max-width="600">
+
+        <v-dialog v-model="exerciseSearchDialogue" style="min-height:300px;" max-width="600">
             <ExerciseSearch @selectExercise="addExercise"></ExerciseSearch>
+        </v-dialog>
+
+        <v-dialog v-model="workoutSearchDialogue" style="min-height:300px;" max-width="600">
+            <WorkoutSearch></WorkoutSearch>
         </v-dialog>
     </v-card>
 </template>
@@ -50,12 +57,15 @@ import Sortable from 'sortablejs'
 import { db, storage } from '@/firebase'
 
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable.vue'
-import ExerciseSearch from '@/components/Search/ExerciseSearch.vue'
 import ImageEditorDialogue from '@/components/ImageEditorDialogue.vue'
+
+import ExerciseSearch from '@/components/Search/ExerciseSearch.vue'
+import WorkoutSearch from '@/components/Search/WorkoutSearch.vue'
+
 
 export default {
     name: 'NewPost',
-    components: { ExerciseExpandable, ExerciseSearch, ImageEditorDialogue },
+    components: { ExerciseExpandable, ExerciseSearch, ImageEditorDialogue, WorkoutSearch },
     data() {
         return {
             isLoading: false,
@@ -87,6 +97,7 @@ export default {
             // Vuetify:
             editingImageDialogue: false,
             exerciseSearchDialogue: false,
+            workoutSearchDialogue: false
         }
     },
 

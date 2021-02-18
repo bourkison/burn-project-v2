@@ -113,7 +113,7 @@ export default {
             if (this.downloadedExercises >= this.exercisesToDownload) {
                 let temp = this.unsortedExercises.sort(function(a, b) { return a.order - b.order })
                 temp.forEach(exercise => {
-                    if (exercise.isFollow === true) {
+                    if (exercise.isFollow) {
                         this.followedExercises.push(exercise.data);
                     } else {
                         this.userExercises.push(exercise.data)
@@ -122,8 +122,6 @@ export default {
 
                 this.unsortedExercises = [];
                 this.isLoading = false;
-                console.log("Followed", this.followedExercises);
-                console.log("User", this.userExercises);
             }
         }
     }

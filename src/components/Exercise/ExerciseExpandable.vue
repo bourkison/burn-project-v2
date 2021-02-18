@@ -42,7 +42,6 @@ export default {
                 this.isLoading = false;
             })
         } else if (this.$props.exercise) {
-            console.log("Exercise Expandable", this.$props.exercise);
             this.exerciseData = this.$props.exercise;
             this.isLoading = false;
         }
