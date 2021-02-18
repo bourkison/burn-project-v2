@@ -20,6 +20,11 @@
                     </v-expansion-panels>
                 </v-container>
             </v-row>
+            <v-row v-if="selectedWorkout">
+                <v-container>
+                    <WorkoutExpandable :workout="selectedWorkout"></WorkoutExpandable>
+                </v-container>
+            </v-row>
             <div style="margin-top:15px;">
                 <v-textarea v-model="postForm.content" label="Add text here..." auto-grow counter outlined></v-textarea>
             </div>
@@ -47,7 +52,7 @@
         </v-dialog>
 
         <v-dialog v-model="workoutSearchDialogue" style="min-height:300px;" max-width="600">
-            <WorkoutSearch></WorkoutSearch>
+            <WorkoutSearch @selectWorkout="addWorkout"></WorkoutSearch>
         </v-dialog>
     </v-card>
 </template>
@@ -57,6 +62,7 @@ import Sortable from 'sortablejs'
 import { db, storage } from '@/firebase'
 
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable.vue'
+import WorkoutExpandable from '@/components/Workout/WorkoutExpandable.vue'
 import ImageEditorDialogue from '@/components/ImageEditorDialogue.vue'
 
 import ExerciseSearch from '@/components/Search/ExerciseSearch.vue'
@@ -65,7 +71,7 @@ import WorkoutSearch from '@/components/Search/WorkoutSearch.vue'
 
 export default {
     name: 'NewPost',
-    components: { ExerciseExpandable, ExerciseSearch, ImageEditorDialogue, WorkoutSearch },
+    components: { ExerciseExpandable, ExerciseSearch, ImageEditorDialogue, WorkoutExpandable, WorkoutSearch },
     data() {
         return {
             isLoading: false,
@@ -82,6 +88,7 @@ export default {
             imageObjs: [],
 
             selectedExercise: null,
+            selectedWorkout: null,
 
             // Sortable:
             sortable: null,
@@ -116,6 +123,14 @@ export default {
 
             if (this.selectedExercise) {
                 this.postForm.exercise = { name: this.selectedExercise.name, id: this.selectedExercise.id }
+            } else if (this.selectedWorkout) {
+                let temp = [];
+
+                this.selectedWorkout.exercises.forEach(exercise => {
+                    temp.push({ name: exercise.name, id: exercise.id })
+                })
+
+                this.postForm.workout = { name: this.selectedWorkout.name, exercises: temp, id: this.selectedWorkout.id }
             }
 
             // Setting this to 1 will call our watcher, which begins our upload process.
@@ -219,6 +234,14 @@ export default {
             console.log(exercise);
             this.exerciseSearchDialogue = false;
             this.selectedExercise = exercise;
+        },
+
+        addWorkout: function(workout) {
+            this.workoutSearchDialogue = false;
+            this.selectedWorkout = workout;
+            console.log(this.selectedWorkout);
+
+            this.selectedExercise = null;
         }
     },
 

@@ -89,7 +89,7 @@ export default {
         },
 
         selectWorkout: function(workout) {
-            console.log(workout);
+            this.$emit("selectWorkout", workout);
         }
     },
 
