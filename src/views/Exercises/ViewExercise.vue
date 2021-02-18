@@ -26,8 +26,8 @@
             </v-card>
             <v-card outlined>
                 <v-carousel v-if="exerciseData.imgPaths.length > 0" v-model="model" show-arrows-on-hover hide-delimiter-background>
-                    <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.id" @click.stop="popUpImage(img.imgUrl)" eager>
-                        <v-img :src="img.imgUrl" eager/>
+                    <v-carousel-item class="carouselImage" v-for="(img, index) in imgUrls" :key="index" @click.stop="popUpImage(img)" eager>
+                        <v-img :src="img" eager/>
                     </v-carousel-item>
                 </v-carousel>
                 <v-container>
@@ -135,28 +135,48 @@ export default {
     },
 
     methods: {
+        checkIfLiked: function() {
+            // Check if the user has liked.
+            return db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$route.params.exerciseid).get().then(likeSnapshot => {
+                likeSnapshot.forEach(like => {
+                    if (like.exists) {
+                        this.isLiked = like.id;
+                    }
+                })
+            });
+        },
+
         downloadExercise: function() {
-            db.collection("exercises").doc(this.$route.params.exerciseid).get().then(exerciseDoc => {
+            db.collection("exercises").doc(this.$route.params.exerciseid).get()
+            .then(exerciseDoc => {
                 if (exerciseDoc.exists) {
                     this.exerciseData = exerciseDoc.data();
-                    let i = 0;
-                    this.exerciseData.imgPaths.forEach(img => {
-                        this.downloadImage(img, i)
-                        i ++;
+                    let imageDownloadPromises = [];
+
+                    this.exerciseData.imgPaths.forEach(imgPath => {
+                        imageDownloadPromises.push(storage.ref(imgPath).getDownloadURL());
                     })
+
+                    return Promise.all(imageDownloadPromises);
                 } else {
                     this.exerciseExists = false;
                     this.isLoading = false;
                 }
             })
-        },
-        
-        // Called in downloadExercise function.
-        // This function is run to keep order of the images.
-        downloadImage: function(ref, order) {
-            storage.ref(ref).getDownloadURL().then(url => {
-                this.imgUrls.push({ order: order, imgUrl: url })
-                this.downloadedImageCounter ++;
+            .then(imgUrls => {
+                imgUrls.forEach(url => {
+                    this.imgUrls.push(url);
+                })
+
+                this.exerciseExists = true;
+                this.starsAmount = this.exerciseData.difficulty;
+
+                this.checkIfLiked().then(() => {
+                    this.isLoading = false;
+                })
+            })
+            .catch(e => {
+                console.warn("Error downloading exercise:", e);
             })
         },
 
@@ -198,27 +218,6 @@ export default {
         popUpImage: function(url) {
             this.viewingImageDialogue = true;
             this.imageDialogueUrl = url;
-        }
-    },
-
-    watch: {
-        // Done loading the exeracise.
-        downloadedImageCounter: function() {
-            if (this.downloadedImageCounter >= this.exerciseData.imgPaths.length) {
-                this.imgUrls.sort((a, b) => a.order - b.order);
-
-                this.exerciseExists = true;
-                this.starsAmount = this.exerciseData.difficulty;
-                // Check if the user has liked.
-                db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$route.params.exerciseid).get().then(likeSnapshot => {
-                    likeSnapshot.forEach(like => {
-                        if (like.exists) {
-                            this.isLiked = like.id;
-                        }
-                    })
-                    this.isLoading = false;
-                });
-            }
         }
     }
 }
