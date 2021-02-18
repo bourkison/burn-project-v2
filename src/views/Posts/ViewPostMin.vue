@@ -8,6 +8,7 @@
                 <v-col cols="12" sm="11">
                     <router-link :to="'/' + postData.createdBy.username"><b>{{ postData.createdBy.username }}</b></router-link>
                     <span v-if="postData.exercise"> shared an <router-link :to="'/exercises/' + postData.exercise.id">exercise</router-link></span>
+                    <span v-if="postData.workout"> shared a <router-link :to="'/workouts/' + postData.workout.id">workout</router-link></span>
                 </v-col>
             </v-row>
         </v-container>
@@ -21,6 +22,9 @@
                 <v-expansion-panels>
                     <ExerciseExpandable :exerciseToDownload="postData.exercise"></ExerciseExpandable>
                 </v-expansion-panels>
+            </v-container>
+            <v-container v-if="postData.workout">
+                <WorkoutExpandable :workout="postData.workout"></WorkoutExpandable>
             </v-container>
             <v-container>
                 <div>{{ postData.content }}</div>
@@ -48,10 +52,11 @@ import { db, storage } from '../../firebase'
 
 import CommentSection from '../Comments/CommentSection.vue'
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable'
+import WorkoutExpandable from '@/components/Workout/WorkoutExpandable'
 
 export default {
     name: 'ViewPostMin',
-    components: { CommentSection, ExerciseExpandable },
+    components: { CommentSection, ExerciseExpandable, WorkoutExpandable },
     props: {
         postId: {
             type: String,

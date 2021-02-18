@@ -226,6 +226,8 @@ export default {
             this.imageEditIncrementor = 0;
             this.imageObjs = [];
             this.imagesUploaded = 0;
+            this.selectedExercise = null;
+            this.selectedWorkout = null;
 
             this.imagesToEdit.push({ id: this.imageEditIncrementor, url: null, dialogueOpen: false });
         },
