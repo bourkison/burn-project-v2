@@ -120,7 +120,6 @@ export default {
         },
 
         checkIfLiked: function() {
-            // Images are now downloaded. Check if user has liked this post.
             return db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$props.postId).get().then(likeSnapshot => {
                 likeSnapshot.forEach(like => {
                     if (like.exists) {

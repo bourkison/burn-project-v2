@@ -136,20 +136,6 @@ export default {
                 this.imageFiles.push(img.file);
             })
             // this.imageFiles = arr;
-        },
-
-        // This is called in the idAttempts watcher.
-        // This function is run to keep the order of the images.
-        uploadImageFile: function(file, order) {
-            let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
-
-            imageRef.putString(file, 'data_url').then(() => {
-                this.exerciseForm.imgPaths.push({ path: imageRef.fullPath, order: order });
-                this.imagesUploaded ++;
-            }).catch(e => {
-                this.errorMessage = "Error uploading images: " + e;
-                console.log(this.errorMessage);
-            })
         }
     },
 
@@ -163,31 +149,28 @@ export default {
             }
             this.exerciseForm.id = firstHalfId + this.generateId(15 - firstHalfId.length);
 
-            db.collection("exercises").doc(this.exerciseForm.id).get().then(idTestDoc => {
+            db.collection("exercises").doc(this.exerciseForm.id).get()
+            .then(idTestDoc => {
                 if (!idTestDoc.exists) {
                     // We upload images first so their references can be added to the Exercise doc.
-                    let i = 0;
+                    // let i = 0;
+                    let imageUploadPromises = [];
+
                     this.imageFiles.forEach(img => {
-                        this.uploadImageFile(img, i);
-                        i ++;
+                        // this.uploadImageFile(img, i);
+                        // i ++;
+
+                        let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
+                        imageUploadPromises.push(imageRef.putString(img, 'data_url'));
+                        this.exerciseForm.imgPaths.push(imageRef.fullPath);
                     })
+
+                    return Promise.all(imageUploadPromises)
                 } else {
                     this.idAttempts ++;
                 }
             })
-        },
-
-        // Once our images have uploaded, we can get started on uploading the exercise doc.
-        imagesUploaded: function() {
-            if (this.imagesUploaded >= this.imageFiles.length) {
-                // First we need to order our imgPaths array to be in the correct order.
-                let tempArr = [];
-                for (let i = 0; i < this.exerciseForm.imgPaths.length; i ++) {
-                    let index = this.exerciseForm.imgPaths.findIndex(x => x.order === i);
-                    tempArr.push(this.exerciseForm.imgPaths[index].path);
-                }
-                this.exerciseForm.imgPaths = tempArr;
-
+            .then(() => {
                 // Now we can upload the doc.
                 db.collection("exercises").doc(this.exerciseForm.id).set(this.exerciseForm).then(() => {
                     let exercisePayload = { createdAt: this.exerciseForm.createdAt, isFollow: false }                    
@@ -196,15 +179,17 @@ export default {
                         this.$router.push("/exercises/" + this.exerciseForm.id);
                     }).catch(e => {
                         this.errorMessage = "Error updating user: " + e;
-                        console.log(e);
+                        console.warn(e);
                     })
                 }).catch(e => {
                     this.errorMessage = "Error uploading exercise: " + e;
-                    console.log(e);
+                    console.warn(e);
                 })
-            }
-        }
-
+            })
+            .catch(e => {
+                console.warn(e);
+            })
+        },
     }
 }
 </script>
