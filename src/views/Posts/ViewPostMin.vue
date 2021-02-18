@@ -6,9 +6,16 @@
                     <v-avatar size="32"><v-img :src="postData.createdBy.profilePhoto"></v-img></v-avatar>
                 </v-col>
                 <v-col cols="12" sm="11">
-                    <router-link :to="'/' + postData.createdBy.username"><b>{{ postData.createdBy.username }}</b></router-link>
-                    <span v-if="postData.exercise"> shared an <router-link :to="'/exercises/' + postData.exercise.id">exercise</router-link></span>
-                    <span v-if="postData.workout"> shared a <router-link :to="'/workouts/' + postData.workout.id">workout</router-link></span>
+                    <v-row justify="center" align="center">
+                        <v-col cols="12" sm="9">
+                            <router-link :to="'/' + postData.createdBy.username"><b>{{ postData.createdBy.username }}</b></router-link>
+                            <span v-if="postData.exercise"> shared an <router-link :to="'/exercises/' + postData.exercise.id">exercise</router-link></span>
+                            <span v-if="postData.workout"> shared a <router-link :to="'/workouts/' + postData.workout.id">workout</router-link></span>
+                        </v-col>
+                        <v-col cols="12" sm="3" align="right">
+                            <span style="font-size:12px;"><em>{{ createdAtText }}</em></span>
+                        </v-col>
+                    </v-row>
                 </v-col>
             </v-row>
         </v-container>
@@ -50,6 +57,9 @@
 <script>
 import { db, storage } from '../../firebase'
 
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
 import CommentSection from '../Comments/CommentSection.vue'
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable'
 import WorkoutExpandable from '@/components/Workout/WorkoutExpandable'
@@ -71,12 +81,18 @@ export default {
             imgUrls: [],
             isLiked: '',
 
+            createdAtText: '',
+
             // Firebase:
             downloadedImageCounter: 0,
 
             // Vuetify:
             carouselModel: 0
         }
+    },
+
+    created: function() {
+        dayjs.extend(relativeTime);
     },
 
     mounted: function() {
@@ -95,16 +111,15 @@ export default {
                         this.imgUrls.push(url);
                     })
                     
-                    this.checkIfLiked().then(() => {
-                        this.isLoading = false;
-                    })
+                    return this.checkIfLiked()
                 })
 
             } else {
-                this.checkIfLiked().then(() => {
-                    this.isLoading = false;
-                })
+                return this.checkIfLiked()
             }
+        }).then(() => {
+            this.isLoading = false;
+            this.createdAtText = dayjs(dayjs.unix(this.postData.createdAt.seconds)).fromNow();
         })
     },
 
