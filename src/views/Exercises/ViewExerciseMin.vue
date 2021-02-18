@@ -1,8 +1,8 @@
 <template>
     <v-card v-if="!isLoading" class="exerciseMin" outlined>
         <v-carousel height="auto" v-model="carouselModel" show-arrows-on-hover hide-delimiter-background>
-            <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.order" eager>
-                <v-img :src="img.imgUrl" eager/>
+            <v-carousel-item class="carouselImage" v-for="(img, index) in imgUrls" :key="index" eager>
+                <v-img :src="img" eager/>
             </v-carousel-item>
         </v-carousel>
         <v-container>
@@ -76,22 +76,39 @@ export default {
 
     created: function() {
         // Download Exercise Data
-        db.collection("exercises").doc(this.$props.userExerciseData.id).get().then(exerciseDoc => {
+        db.collection("exercises").doc(this.$props.userExerciseData.id).get()
+        .then(exerciseDoc => {
             this.exerciseData = exerciseDoc.data();
-            let i = 0;
+            let imageDownloadPromises = [];
 
             this.exerciseData.imgPaths.forEach(imgPath => {
-                this.downloadImage(imgPath, i);
-                i ++;
-            })        
+                imageDownloadPromises.push(storage.ref(imgPath).getDownloadURL());
+            })
+            
+            return Promise.all(imageDownloadPromises);
+        })
+        .then(imgUrls => {
+            imgUrls.forEach(url => {
+                this.imgUrls.push(url);
+            })
+
+            this.checkIfUserLiked().then(() => {
+                this.isLoading = false;
+            })
+        })
+        .catch(e => {
+            console.warn("Error downloading exercise data", e);
         })
     },
 
     methods: {
-        downloadImage: function(ref, order) {
-            storage.ref(ref).getDownloadURL().then(url => {
-                this.imgUrls.push({ order: order, imgUrl: url })
-                this.downloadedImageCounter ++;
+        checkIfUserLiked: function() {
+            return db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$props.userExerciseData.id).get().then(likeSnapshot => {
+                likeSnapshot.forEach(like => {
+                    if (like.exists) {
+                        this.isLiked = like.id;
+                    }
+                })
             })
         },
 
@@ -126,24 +143,6 @@ export default {
 
             this.isLiked = s; 
         },
-    },
-
-    watch: {
-        downloadedImageCounter: function() {
-            if (this.downloadedImageCounter >= this.exerciseData.imgPaths.length) {
-                this.imgUrls.sort((a, b) => a.order - b.order);
-                // Check if the user has liked.
-                db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$props.userExerciseData.id).get().then(likeSnapshot => {
-                    likeSnapshot.forEach(like => {
-                        if (like.exists) {
-                            this.isLiked = like.id;
-                        }
-                    })
-
-                    this.isLoading = false;
-                })
-            }
-        }
     }
 }
 </script>
