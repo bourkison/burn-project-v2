@@ -13,8 +13,8 @@
             </v-row>
         </v-container>
         <v-carousel v-if="imgUrls.length > 0" height="auto" v-model="carouselModel" show-arrows-on-hover hide-delimiter-background>
-            <v-carousel-item class="carouselImage" v-for="img in imgUrls" :key="img.order" eager>
-                <v-img :src="img.imgUrl" eager/>
+            <v-carousel-item class="carouselImage" v-for="(img, index) in imgUrls" :key="index" eager>
+                <v-img :src="img" eager/>
             </v-carousel-item>
         </v-carousel>
         <v-container>
@@ -84,25 +84,31 @@ export default {
             this.postData = postDoc.data();
 
             if (this.postData.imgPaths.length > 0) {
-                let i = 0;
+                let imageDownloadPromises = [];
+                
                 this.postData.imgPaths.forEach(imgPath => {
-                    this.downloadImage(imgPath, i);
-                    i ++;
+                    imageDownloadPromises.push(storage.ref(imgPath).getDownloadURL());
                 })
+
+                Promise.all(imageDownloadPromises).then(imgUrls => {
+                    imgUrls.forEach(url => {
+                        this.imgUrls.push(url);
+                    })
+                    
+                    this.checkIfLiked().then(() => {
+                        this.isLoading = false;
+                    })
+                })
+
             } else {
-                this.isLoading = false;
+                this.checkIfLiked().then(() => {
+                    this.isLoading = false;
+                })
             }
         })
     },
 
     methods: {
-        downloadImage: function(ref, order) {
-            storage.ref(ref).getDownloadURL().then(url => {
-                this.imgUrls.push({ order: order, imgUrl: url });
-                this.downloadedImageCounter ++;
-            })
-        },
-
         likeToggle: function(s) {
             if (s === '') {
                 this.postData.likeCount --;
@@ -111,25 +117,17 @@ export default {
             }
 
             this.isLiked = s;
-        }
-    },
+        },
 
-    watch: {
-        downloadedImageCounter: function() {
-            if (this.downloadedImageCounter >= this.postData.imgPaths.length) {
-                this.imgUrls.sort((a, b) => a.order - b.order);
-
-                // Images are now downloaded. Check if user has liked this post.
-                db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$props.postId).get().then(likeSnapshot => {
-                    likeSnapshot.forEach(like => {
-                        if (like.exists) {
-                            this.isLiked = like.id;
-                        }
-                    })
-
-                    this.isLoading = false;
+        checkIfLiked: function() {
+            // Images are now downloaded. Check if user has liked this post.
+            return db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$props.postId).get().then(likeSnapshot => {
+                likeSnapshot.forEach(like => {
+                    if (like.exists) {
+                        this.isLiked = like.id;
+                    }
                 })
-            }
+            })
         }
     }
 }
