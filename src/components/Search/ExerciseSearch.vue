@@ -6,7 +6,7 @@
             <div v-if="filteredUserExercises.length > 0">
                 <h2>My Exercises</h2>
                 <v-list>
-                    <v-list-item v-for="exercise in filteredUserExercises" :key="exercise.id">
+                    <v-list-item v-for="exercise in filteredUserExercises" :key="exercise.id" @click="selectExercise(exercise)">
                         <v-list-item-title>{{ exercise.name }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
@@ -15,10 +15,20 @@
             <div v-if="filteredFollowedExercises.length > 0">
                 <h2>Followed Exercises</h2>
                 <v-list>
-                    <v-list-item v-for="exercise in filteredFollowedExercises" :key="exercise.id">
+                    <v-list-item v-for="exercise in filteredFollowedExercises" :key="exercise.id" @click="selectExercise(exercise)">
                         <v-list-item-title>{{ exercise.name }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
+            </div>
+
+            <div v-if="searchText">
+                <h2>Other</h2>
+                <v-list>
+                    <v-list-item v-for="exercise in otherExercises" :key="exercise.id" @click="selectExercise(exercise)">
+                        <v-list-item-title>{{ exercise.name }}</v-list-item-title>
+                    </v-list-item>
+                </v-list>
+                <v-btn @click="searchExercise">Search</v-btn>
             </div>
         </v-container>
         <v-container v-else>
@@ -38,6 +48,8 @@ export default {
             searchText: '',
             userExercises: [],
             followedExercises: [],
+            otherExercises: [],
+
             unsortedExercises: [],
 
             // Firebase:
@@ -85,6 +97,14 @@ export default {
                 this.unsortedExercises.push({ order: i, data: exerciseDoc.data(), isFollow: isFollow });
                 this.downloadedExercises ++;
             })
+        },
+
+        selectExercise: function(obj) {
+            this.$emit("selectExercise", obj);
+        },
+
+        searchExercise: function() {
+            console.log("Search");
         }
     },
 

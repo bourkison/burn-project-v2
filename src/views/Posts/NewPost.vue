@@ -13,6 +13,13 @@
                     </v-card>
                 </v-col>
             </v-row>
+            <v-row v-if="selectedExercise">
+                <v-container>
+                    <v-expansion-panels>
+                        <ExerciseExpandable :exercise="selectedExercise"></ExerciseExpandable>
+                    </v-expansion-panels>
+                </v-container>
+            </v-row>
             <v-textarea v-model="postForm.content" label="Add text here..." auto-grow counter></v-textarea>
             <div>
                 <v-file-input v-model="imageFiles" @change="handleFileUpload" style="display:inline;margin:0;padding:0;" accept="image/png,image/jpg,image/jpeg" prepend-icon="mdi-camera" hide-input></v-file-input>
@@ -33,7 +40,7 @@
             </v-card>
         </v-dialog>
         <v-dialog v-model="exerciseSearchDialogue" style="min=height:300px;" max-width="600">
-            <ExerciseSearch></ExerciseSearch>
+            <ExerciseSearch @selectExercise="addExercise"></ExerciseSearch>
         </v-dialog>
     </v-card>
 </template>
@@ -42,26 +49,29 @@
 import Sortable from 'sortablejs'
 import { db, storage } from '@/firebase'
 
+import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable.vue'
 import ExerciseSearch from '@/components/Search/ExerciseSearch.vue'
 import ImageEditorDialogue from '@/components/ImageEditorDialogue.vue'
 
 export default {
     name: 'NewPost',
-    components: { ExerciseSearch, ImageEditorDialogue },
+    components: { ExerciseExpandable, ExerciseSearch, ImageEditorDialogue },
     data() {
         return {
             isLoading: false,
             postForm: {
                 content: '',
-                exerciseId: '',
-                workoutId: '',
-                burnId: '',
+                exercise: null,
+                workout: null,
+                burn: null,
                 imgPaths: []
             },
             imageFiles: [],
             imagesToEdit: [],
             imageEditIncrementor: 0,
             imageObjs: [],
+
+            selectedExercise: null,
 
             // Sortable:
             sortable: null,
@@ -92,6 +102,10 @@ export default {
             this.postForm.likeCount = 0;
             this.postForm.recentComments = [];
             this.postForm.commentCount = 0;
+
+            if (this.selectedExercise) {
+                this.postForm.exercise = { name: this.selectedExercise.name, id: this.selectedExercise.id }
+            }
 
             // Setting this to 1 will call our watcher, which begins our upload process.
             // We must make an ID rather than generate one in Firebase, so our storage can match.
@@ -180,7 +194,7 @@ export default {
 
         // This is called once post is uploaded and resets all variables.
         resetVariables: function() {
-            this.postForm = { content: '', exerciseId: '', workoutId: '', burnId: '', imgPaths: [] };
+            this.postForm = { content: '', exercise: null, workout: null, burn: null, imgPaths: [] };
             this.imageFiles = [];
             this.imagesToEdit = [];
             this.imageEditIncrementor = 0;
@@ -188,6 +202,12 @@ export default {
             this.imagesUploaded = 0;
 
             this.imagesToEdit.push({ id: this.imageEditIncrementor, url: null, dialogueOpen: false });
+        },
+
+        addExercise: function(exercise) {
+            console.log(exercise);
+            this.exerciseSearchDialogue = false;
+            this.selectedExercise = exercise;
         }
     },
 

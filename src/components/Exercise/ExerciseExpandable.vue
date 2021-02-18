@@ -1,6 +1,6 @@
 <template>
     <v-expansion-panel>
-        <v-expansion-panel-header>{{ exercise.name }}</v-expansion-panel-header>
+        <v-expansion-panel-header>{{ exerciseData.name }}</v-expansion-panel-header>
         <v-expansion-panel-content v-if="!isLoading">
             <v-sheet align="center">
                 <v-container v-html="compiledMarkdown"></v-container>
@@ -17,9 +17,14 @@ import * as marked from 'marked'
 export default {
     name: 'ExerciseExpandable',
     props: {
+        exerciseToDownload: {
+            type: Object,
+            required: false
+        },
+
         exercise: {
             type: Object,
-            required: true
+            required: false
         }
     },
     data() {
@@ -29,11 +34,18 @@ export default {
         }
     },
 
-    created: function() {
-        db.collection("exercises").doc(this.$props.exercise.id).get().then(exerciseDoc => {
-            this.exerciseData = exerciseDoc.data();
+    mounted: function() {
+        if (this.$props.exerciseToDownload) {
+            this.exerciseData.name = this.$props.exerciseToDownload.name
+            db.collection("exercises").doc(this.$props.exerciseToDownload.id).get().then(exerciseDoc => {
+                this.exerciseData = exerciseDoc.data();
+                this.isLoading = false;
+            })
+        } else if (this.$props.exercise) {
+            console.log("Exercise Expandable", this.$props.exercise);
+            this.exerciseData = this.$props.exercise;
             this.isLoading = false;
-        })
+        }
     },
 
     computed: {

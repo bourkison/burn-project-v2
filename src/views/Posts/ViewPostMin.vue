@@ -16,6 +16,11 @@
             </v-carousel-item>
         </v-carousel>
         <v-container>
+            <v-container v-if="postData.exercise">
+                <v-expansion-panels>
+                    <ExerciseExpandable :exerciseToDownload="postData.exercise"></ExerciseExpandable>
+                </v-expansion-panels>
+            </v-container>
             <v-container>
                 <div>{{ postData.content }}</div>
             </v-container>
@@ -41,10 +46,11 @@
 import { db, storage } from '../../firebase'
 
 import CommentSection from '../Comments/CommentSection.vue'
+import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable'
 
 export default {
     name: 'ViewPostMin',
-    components: { CommentSection },
+    components: { CommentSection, ExerciseExpandable },
     props: {
         postId: {
             type: String,

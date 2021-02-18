@@ -31,7 +31,7 @@
             </v-card>
             <v-card>
                 <v-expansion-panels>
-                    <ExerciseExpandable v-for="exercise in workoutData.exercises" :key="exercise.id" :exercise="exercise"></ExerciseExpandable>
+                    <ExerciseExpandable v-for="exercise in workoutData.exercises" :key="exercise.id" :exerciseToDownload="exercise"></ExerciseExpandable>
                 </v-expansion-panels>
             </v-card>
             <div align="center" style="margin-top:25px;">
