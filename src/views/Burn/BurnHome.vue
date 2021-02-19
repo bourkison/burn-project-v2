@@ -70,23 +70,25 @@
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
         </v-container>
-
-        <v-dialog v-if="workoutData.data && !workoutCommenced" v-model="startWorkoutDialogue" max-width="600">
-            <v-card>
-                <v-container>
-                    <v-list-item v-for="exercise in workoutData.data.exercises" :key="exercise.id">
-                        <v-list-item-content>
-                            <v-list-item-title>{{ exercise.name }}</v-list-item-title>
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-container>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="error" text @click="startWorkoutDialogue = false">Close</v-btn>
-                    <v-btn color="blue darken-1" text @click="startWorkout">Start</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        
+        <div v-if="workoutData">
+            <v-dialog v-if="workoutData.data && !workoutCommenced" v-model="startWorkoutDialogue" max-width="600">
+                <v-card>
+                    <v-container>
+                        <v-list-item v-for="exercise in workoutData.data.exercises" :key="exercise.id">
+                            <v-list-item-content>
+                                <v-list-item-title>{{ exercise.name }}</v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-container>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="error" text @click="startWorkoutDialogue = false">Close</v-btn>
+                        <v-btn color="blue darken-1" text @click="startWorkout">Start</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+        </div>
     </v-sheet>
 </template>
 
@@ -104,17 +106,13 @@ export default {
     data() {
         return {
             isLoading: true,
-            workoutData: {},
+            workoutData: null,
             userWorkouts: [],
             userRecentWorkouts: [],
             workoutCommenced: false,
 
             // Search
             searchText: '',
-
-            // Firebase:
-            downloadedWorkouts: 0,
-            workoutsToDownload: 0,
 
             // Vuetify:
             startWorkoutDialogue: false
@@ -164,16 +162,21 @@ export default {
             })
         }))
 
-        // Once everything is loaded, check that we have downloaded the query.
-        // If not, download then set to start, or alternatively, set isLoading to false.
+        // Once everything is loaded, check that we have downloaded the query if there is one there.
+        // If not, download it.
         Promise.all(workoutPromises).then(() => {
-            if (this.$route.query.w && !this.workoutData.data) {
-                db.collection("workouts").doc(this.$route.query.w).get().then(workout => {
-                    this.workoutData = { type: 'workout', data: workout.data() }
-                    console.log("workoutData", this.workoutData)
+            if (this.$route.query.w || this.$route.query.rw) {
+                if (this.workoutData) {
                     this.startWorkoutDialogue = true;
                     this.isLoading = false;
-                })
+                } else {
+                    console.log("Download");
+                    db.collection("workouts").doc(this.$route.query.w).get().then(workout => {
+                        this.workoutData = { type: 'workout', data: workout.data() }
+                        this.startWorkoutDialogue = true;
+                        this.isLoading = false;
+                    })
+                }
             } else {
                 this.isLoading = false;
             }
@@ -214,25 +217,6 @@ export default {
                 })
             } else {
                 return this.userWorkouts;
-            }
-        }
-    },
-
-    watch: {
-        downloadedWorkouts: function() {
-            if (this.downloadedWorkouts >= this.workoutsToDownload) {
-                if (this.$route.query.w || this.$route.query.rw) {
-                    if (this.workoutData) {
-                        this.startWorkoutDialogue = true;
-                    } else if (this.$route.query.w) {
-                        db.collection("workouts").doc(this.$route.query.w).get().then(workoutDoc => {
-                            if (workoutDoc.exists) {
-                                this.workoutData = {type: 'workout', data: workoutDoc.data()};
-                                this.startWorkoutDialogue = true;
-                            }
-                        })
-                    }
-                }
             }
         }
     }
