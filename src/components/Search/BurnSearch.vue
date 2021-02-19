@@ -1,10 +1,11 @@
 <template>
     <v-card>
         <v-container v-if="!isLoading">
+            <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" clearable label="Search recent workout..."></v-text-field>
             <div v-if="filteredRecentWorkouts.length > 0">
                 <h2>Recent Workouts</h2>
                 <v-list>
-                    <v-list-item v-for="recentWorkout in recentWorkouts" :key="recentWorkout.id" @click="selectRecentWorkout(recentWorkout)">
+                    <v-list-item v-for="recentWorkout in filteredRecentWorkouts" :key="recentWorkout.id" @click="selectRecentWorkout(recentWorkout)">
                         <v-list-item-title>{{ recentWorkout.name }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
@@ -50,7 +51,9 @@ export default {
     computed: {
         filteredRecentWorkouts: function() {
             if (this.searchText) {
-                return this.recentWorkouts;
+                return this.recentWorkouts.filter(recentWorkout => {
+                    return recentWorkout.name.toLowerCase().includes(this.searchText.toLowerCase());
+                })
             } else {
                 return this.recentWorkouts;
             }
