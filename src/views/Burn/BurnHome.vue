@@ -123,7 +123,7 @@ export default {
         let workoutPromises = [];
         dayjs.extend(relativeTime);
 
-
+        // Download user workouts.
         workoutPromises.push(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").orderBy("createdAt", "desc").get().then(workoutsSnapshot => {
             this.workoutsToDownload = workoutsSnapshot.size;
             if (this.workoutsToDownload === 0) {

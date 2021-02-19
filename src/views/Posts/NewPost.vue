@@ -32,12 +32,17 @@
             <div style="margin-top:15px;">
                 <v-textarea v-model="postForm.content" label="Add text here..." auto-grow counter outlined></v-textarea>
             </div>
-            <div>
-                <v-file-input v-model="imageFiles" @change="handleFileUpload" style="display:inline;margin:0;padding:0;" accept="image/png,image/jpg,image/jpeg" prepend-icon="mdi-camera" hide-input></v-file-input>
-                <v-btn icon @click.stop="exerciseSearchDialogue = true;"><v-icon>mdi-dumbbell</v-icon></v-btn>
-                <v-btn icon @click.stop="workoutSearchDialogue = true;"><v-icon>mdi-weight-lifter</v-icon></v-btn>
-            </div>
-            <div align="right"><v-btn @click="createPost" :loading="isLoading" text>Post</v-btn></div>
+            <v-row style="padding: 10px 5px 10px 20px;">
+                <span align="left">
+                    <v-file-input v-model="imageFiles" @change="handleFileUpload" style="display:inline;margin:0;padding:0;" accept="image/png,image/jpg,image/jpeg" prepend-icon="mdi-camera" hide-input></v-file-input>
+                    <v-btn icon @click.stop="exerciseSearchDialogue = true;"><v-icon>mdi-dumbbell</v-icon></v-btn>
+                    <v-btn icon @click.stop="workoutSearchDialogue = true;"><v-icon>mdi-weight-lifter</v-icon></v-btn>
+                </span>
+                <v-spacer />
+                <span align="right">
+                    <v-btn @click="createPost" :loading="isLoading" text>Post</v-btn>
+                </span>
+            </v-row>
         </v-container>
 
         <v-dialog max-height="600" max-width="900" v-model="editingImageDialogue" persistent eager>

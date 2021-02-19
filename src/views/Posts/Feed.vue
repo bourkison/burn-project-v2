@@ -1,6 +1,7 @@
 <template>
     <div v-if="!isLoading">
         <h1>Welcome, {{$store.state.userProfile.docData.username}}</h1>
+        <NewPost style="margin: 20px 0;" @newPost="newPost"></NewPost>
         <v-row v-for="post in posts" :key="post">
             <v-col cols="12" sm="12">
                 <ViewPostMin :postId="post"></ViewPostMin>
@@ -14,11 +15,13 @@
 
 <script>
 import { functions } from '@/firebase'
+
+import NewPost from '@/views/Posts/NewPost.vue'
 import ViewPostMin from '@/views/Posts/ViewPostMin.vue'
 
 export default {
     name: 'Feed',
-    components: { ViewPostMin },
+    components: { NewPost, ViewPostMin },
     data() {
         return {
             isLoading: true,
@@ -36,6 +39,12 @@ export default {
             console.error("Failure", e);
             this.isLoading = false;
         })
+    },
+
+    methods: {
+        newPost: function(p) {
+            this.posts.unshift(p.id);
+        }
     }
 }
 </script>
