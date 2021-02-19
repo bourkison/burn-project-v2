@@ -1,7 +1,7 @@
 <template>
     <v-container class="mainCont" fluid>
         <v-row>
-            <v-spacer></v-spacer>
+            <v-spacer/>
             <v-col cols="12"  sm="3" xl="2">
                 <v-sheet rounded="lg">
                     <v-card >
@@ -44,7 +44,7 @@
                     <!--  -->
                 </v-sheet>
             </v-col>
-            <v-spacer></v-spacer>
+            <v-spacer/>
         </v-row>
     </v-container>
 </template>
@@ -60,3 +60,10 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+    .mainCont {
+        width: 100%;
+        max-width: 1400px !important;
+    }
+</style>

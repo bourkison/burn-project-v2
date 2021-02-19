@@ -13,6 +13,7 @@
             <v-col cols="12" sm="3" xl="2">
                 <v-sheet rounded="lg" min-height="268"></v-sheet>
             </v-col>
+            <v-spacer />
         </v-row>
     </v-container>
 </template>
@@ -22,3 +23,10 @@ export default {
     name: 'Profile'
 }
 </script>
+
+<style scoped>
+    .mainCont {
+        width: 100%;
+        max-width: 1400px !important;
+    }
+</style>
