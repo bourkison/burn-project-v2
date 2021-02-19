@@ -29,6 +29,11 @@
                     <WorkoutExpandable :workout="selectedWorkout"></WorkoutExpandable>
                 </v-container>
             </v-row>
+            <v-row v-if="selectedRecentWorkout">
+                <v-container>
+                    <BurnMin :recentWorkout="selectedRecentWorkout"></BurnMin>
+                </v-container>
+            </v-row>
             <div style="margin-top:15px;">
                 <v-textarea v-model="postForm.content" label="Add text here..." auto-grow counter outlined></v-textarea>
             </div>
@@ -75,6 +80,7 @@
 import Sortable from 'sortablejs'
 import { db, storage } from '@/firebase'
 
+import BurnMin from '@/views/Burn/BurnMin.vue'
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable.vue'
 import WorkoutExpandable from '@/components/Workout/WorkoutExpandable.vue'
 import ImageEditorDialogue from '@/components/ImageEditorDialogue.vue'
@@ -86,7 +92,7 @@ import WorkoutSearch from '@/components/Search/WorkoutSearch.vue'
 
 export default {
     name: 'NewPost',
-    components: { BurnSearch, ExerciseExpandable, ExerciseSearch, ImageEditorDialogue, WorkoutExpandable, WorkoutSearch },
+    components: { BurnMin, BurnSearch, ExerciseExpandable, ExerciseSearch, ImageEditorDialogue, WorkoutExpandable, WorkoutSearch },
     data() {
         return {
             isLoading: false,

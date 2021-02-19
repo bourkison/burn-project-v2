@@ -6,10 +6,10 @@
                     <h2>{{ recentWorkout.name }}</h2>
                 </v-col>
                 <v-col cols="12" md="4" style="text-align: right;">
-                    <em>{{ timeString}} | {{ recentWorkout.createdAtText }}</em>
+                    <em>{{ timeString }}<span v-if="recentWorkout.createdAtText"> | {{ recentWorkout.createdAtText }}</span></em>
                 </v-col>
             </v-row>
-            <v-expansion-panels style="margin: 15px 0;">
+            <!-- <v-expansion-panels style="margin: 15px 0;">
                 <v-expansion-panel v-for="exercise in recentWorkout.exercises" :key="exercise.id">
                     <v-expansion-panel-header>{{ exercise.name }}</v-expansion-panel-header>
                     <v-expansion-panel-content>
@@ -22,9 +22,26 @@
                         </v-sheet>
                     </v-expansion-panel-content>
                 </v-expansion-panel>
-            </v-expansion-panels>
+            </v-expansion-panels> -->
+            <v-container>
+                <div align="center">
+                <v-row>
+                    <v-col cols="12" sm="1"><strong>#</strong></v-col>
+                    <v-col cols="12" sm="5"><strong>Name</strong></v-col>
+                    <v-col cols="12" sm="3"><strong>Kg</strong></v-col>
+                    <v-col cols="12" sm="3"><strong>Reps</strong></v-col>
+                </v-row>
+                <v-row v-for="exercise in recentWorkout.exercises" :key="exercise.id">
+                    <v-col cols="12" sm="1">{{ exercise.sets.length }}</v-col>
+                    <v-col cols="12" sm="5"><router-link :to="exercise.id">{{ exercise.name }}</router-link></v-col>
+                    <v-col cols="12" sm="3">{{ exercise.sets[0].kg }} kgs</v-col>
+                    <v-col cols="12" sm="3">{{ exercise.sets[0].measureAmount }}</v-col>
+                </v-row>
+                </div>
+            </v-container>
 
-            <div align="center"><v-btn color="success" @click="restartWorkout"><v-icon>mdi-plus</v-icon>Do Again</v-btn></div>
+
+            <div align="center"><v-btn color="success" @click="restartWorkout"><v-icon>mdi-plus</v-icon>Workout</v-btn></div>
         </v-container>
     </v-card>
 </template>
