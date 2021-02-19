@@ -154,6 +154,19 @@ export default {
                 })
 
                 this.postForm.workout = { name: this.selectedWorkout.name, exercises: temp, id: this.selectedWorkout.id }
+            } else if (this.selectedRecentWorkout) {
+                let exercises = [];
+
+                this.selectedRecentWorkout.exercises.forEach(exercise => {
+                    let sets = [];
+                    exercise.sets.forEach(set => {
+                        sets.push({ kg: set.kg, measureAmount: set.measureAmount });
+                    })
+
+                    exercises.push({ name: exercise.name, id: exercise.id, sets: sets });
+                })
+
+                this.postForm.burn = { name: this.selectedRecentWorkout.name, createdAt: this.selectedRecentWorkout.createdAt, exercises: exercises };
             }
 
             // Setting this to 1 will call our watcher, which begins our upload process.

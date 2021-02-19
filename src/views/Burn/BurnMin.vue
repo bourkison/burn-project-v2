@@ -52,7 +52,7 @@ export default {
     props: {
         recentWorkout: {
             type: Object,
-            required: true
+            required: false
         }
     },
 

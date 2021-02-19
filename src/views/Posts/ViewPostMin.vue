@@ -11,6 +11,7 @@
                             <router-link :to="'/' + postData.createdBy.username"><b>{{ postData.createdBy.username }}</b></router-link>&nbsp;
                             <span v-if="postData.exercise">&nbsp;shared an <router-link :to="'/exercises/' + postData.exercise.id">exercise</router-link></span>
                             <span v-if="postData.workout">&nbsp;shared a <router-link :to="'/workouts/' + postData.workout.id">workout</router-link></span>
+                            <span v-if="postData.burn">&nbsp;shared a recent workout</span>
                         </div>
                         <v-spacer/>
                         <span style="font-size:12px;"><em>{{ createdAtText }}</em></span>
@@ -31,6 +32,9 @@
             </v-container>
             <v-container style="padding: 0 40px 5px;" v-if="postData.workout">
                 <WorkoutExpandable :workout="postData.workout"></WorkoutExpandable>
+            </v-container>
+            <v-container style="padding:0 20px;" v-if="postData.burn">
+                <BurnMin :recentWorkout="postData.burn"></BurnMin>
             </v-container>
             <v-container>
                 <div>{{ postData.content }}</div>
@@ -59,13 +63,14 @@ import { db, storage } from '../../firebase'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
+import BurnMin from '@/views/Burn/BurnMin.vue'
 import CommentSection from '../Comments/CommentSection.vue'
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable'
 import WorkoutExpandable from '@/components/Workout/WorkoutExpandable'
 
 export default {
     name: 'ViewPostMin',
-    components: { CommentSection, ExerciseExpandable, WorkoutExpandable },
+    components: { BurnMin, CommentSection, ExerciseExpandable, WorkoutExpandable },
     props: {
         postId: {
             type: String,
