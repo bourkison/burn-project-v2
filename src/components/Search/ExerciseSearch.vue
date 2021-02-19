@@ -21,6 +21,10 @@
                 </v-list>
             </div>
 
+            <div v-if="userExercises.length === 0 && followedExercises.length === 0">
+                <v-container><em>Try following or creating some exercises first!</em></v-container>
+            </div>
+
             <div v-if="searchText">
                 <h2>Other</h2>
                 <v-list>

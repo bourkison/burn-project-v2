@@ -10,16 +10,16 @@
                         <v-avatar color="grey darken-1" size="40"></v-avatar>
                         
                         <v-btn text to="/">Home</v-btn>
-                        <v-menu open-on-hover bottom offset-y>
+                        <v-menu open-on-hover bottom offset-y v-if="$store.state.userProfile.loggedIn">
                             <template v-slot:activator="{ on, attrs }">
                                 <v-btn text v-if="$store.state.userProfile.loggedIn" v-bind="attrs" v-on="on">Drop Down</v-btn>
                             </template>
                             
                             <v-card>
                                 <v-list>
-                                    <v-list-item text v-if="$store.state.userProfile.loggedIn" to="/exercises">Exercises</v-list-item>
-                                    <v-list-item text v-if="$store.state.userProfile.loggedIn" to="/burn">Burn</v-list-item>
-                                    <v-list-item text v-if="$store.state.userProfile.loggedIn" to="/workouts">Workouts</v-list-item>
+                                    <v-list-item text to="/exercises">Exercises</v-list-item>
+                                    <v-list-item text to="/burn">Burn</v-list-item>
+                                    <v-list-item text to="/workouts">Workouts</v-list-item>
                                 </v-list>
                             </v-card>
                         </v-menu>

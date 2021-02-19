@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid>
+    <v-container class="mainCont" fluid>
         <v-row>
             <v-spacer></v-spacer>
             <v-col cols="12" sm="3" xl="2">
@@ -45,5 +45,9 @@ export default {
 }
 </script>
 
-<style scoped>  
+<style scoped>
+    .mainCont {
+        width: 100%;
+        max-width: 1400px !important;
+    }
 </style>

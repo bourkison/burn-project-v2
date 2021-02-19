@@ -22,7 +22,7 @@
             </div>
 
             <div v-if="userWorkouts.length === 0 && followedWorkouts.length === 0">
-                <v-container><em>Try following, or creating some workouts first!</em></v-container>
+                <v-container><em>Try following or creating some workouts first!</em></v-container>
             </div>
         </v-container>
         <v-container v-else>
