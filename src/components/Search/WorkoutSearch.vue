@@ -20,6 +20,10 @@
                     </v-list-item>
                 </v-list>
             </div>
+
+            <div v-if="userWorkouts.length === 0 && followedWorkouts.length === 0">
+                <v-container><em>Try following, or creating some workouts first!</em></v-container>
+            </div>
         </v-container>
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
@@ -47,16 +51,18 @@ export default {
     mounted: function() {
         let workoutPromises = [];
 
+        // Retrieve all workouts from user.
         db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").orderBy("createdAt", "desc").get()
-        .then(workoutsSnapshot => {            
+        .then(workoutsSnapshot => { 
+            // Download each workout and push to unsortedWorkouts array.    
             workoutsSnapshot.forEach(workout => {
-                // this.downloadWorkout(workout.id, i, workout.data().isFollow);
                 return workoutPromises.push(db.collection("workouts").doc(workout.id).get().then(workoutDoc => {
                     this.unsortedWorkouts.push({ data: workoutDoc.data(), isFollow: workout.data().isFollow });
                 }))
             })
         })
         .then(() => {
+            // Once all workouts are downloaded, sort them.
             Promise.all(workoutPromises).then(() => {
                 this.unsortedWorkouts.sort(function(a, b) { return a.order - b.order });
 
@@ -97,13 +103,6 @@ export default {
     },
 
     methods: {
-        downloadWorkout: function(id, i, isFollow) {
-            db.collection("workouts").doc(id).get().then(workoutDoc => {
-                this.unsortedWorkouts.push({ order: i, data: workoutDoc.data(), isFollow: isFollow });
-                this.downloadedWorkouts ++;
-            })
-        },
-
         selectWorkout: function(workout) {
             this.$emit("selectWorkout", workout);
         }
