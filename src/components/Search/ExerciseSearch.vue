@@ -59,12 +59,31 @@ export default {
     },
 
     mounted: function() {
-        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").orderBy("createdAt", "desc").get().then(exercisesSnapshot => {
-            let i = 0;
-            this.exercisesToDownload = exercisesSnapshot.size;
+        let exercisePromises = [];
+
+        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").orderBy("createdAt", "desc").get()
+        .then(exercisesSnapshot => {
             exercisesSnapshot.forEach(exercise => {
-                this.downloadExercise(exercise.id, i, exercise.data().isFollow);
-                i ++;
+                return exercisePromises.push(db.collection("exercises").doc(exercise.id).get().then(exerciseDoc => {
+                    this.unsortedExercises.push({ data: exerciseDoc.data(), isFollow: exercise.data().isFollow });
+                }))
+
+            })
+        })
+        .then(() => {
+            Promise.all(exercisePromises).then(() => {
+                this.unsortedExercises.sort(function(a, b) { return a.order - b.order });
+
+                this.unsortedExercises.forEach(exercise => {
+                    if (exercise.isFollow) {
+                        this.followedExercises.push(exercise.data);
+                    } else {
+                        this.userExercises.push(exercise.data)
+                    }
+                })
+
+                this.unsortedExercises = [];
+                this.isLoading = false;
             })
         })
     },
@@ -92,37 +111,12 @@ export default {
     },
 
     methods: {
-        downloadExercise: function(id, i, isFollow) {
-            db.collection("exercises").doc(id).get().then(exerciseDoc => {
-                this.unsortedExercises.push({ order: i, data: exerciseDoc.data(), isFollow: isFollow });
-                this.downloadedExercises ++;
-            })
-        },
-
         selectExercise: function(obj) {
             this.$emit("selectExercise", obj);
         },
 
         searchExercise: function() {
             console.log("Search");
-        }
-    },
-
-    watch: {
-        downloadedExercises: function() {
-            if (this.downloadedExercises >= this.exercisesToDownload) {
-                let temp = this.unsortedExercises.sort(function(a, b) { return a.order - b.order })
-                temp.forEach(exercise => {
-                    if (exercise.isFollow) {
-                        this.followedExercises.push(exercise.data);
-                    } else {
-                        this.userExercises.push(exercise.data)
-                    }
-                })
-
-                this.unsortedExercises = [];
-                this.isLoading = false;
-            }
         }
     }
 }
