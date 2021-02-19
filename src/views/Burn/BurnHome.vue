@@ -104,8 +104,6 @@ export default {
     data() {
         return {
             isLoading: true,
-            isLoadingWorkouts: true,
-            isLoadingRecentWorkouts: true,
             workoutData: {},
             userWorkouts: [],
             userRecentWorkouts: [],
@@ -124,9 +122,11 @@ export default {
     },
 
     created: function() {
+        let workoutPromises = [];
         dayjs.extend(relativeTime);
 
-        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").orderBy("createdAt", "desc").get().then(workoutsSnapshot => {
+
+        workoutPromises.push(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").orderBy("createdAt", "desc").get().then(workoutsSnapshot => {
             this.workoutsToDownload = workoutsSnapshot.size;
             if (this.workoutsToDownload === 0) {
                 this.isLoading = false;
@@ -144,10 +144,10 @@ export default {
                     this.downloadedWorkouts ++;
                 })
             })
-        })
+        }))
 
         // Download recent workouts.
-        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").orderBy("createdAt", "desc").limit(10).get().then(recentWorkoutsSnapshot => {
+        workoutPromises.push(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").orderBy("createdAt", "desc").limit(10).get().then(recentWorkoutsSnapshot => {
             // Only push most recent of each workout.
             let uniqueNames = [];
             recentWorkoutsSnapshot.forEach(recentWorkout => {
@@ -162,8 +162,21 @@ export default {
                     this.workoutData = { type: 'recentWorkout', data: recentWorkout.data() };
                 }
             })
+        }))
 
-            this.isLoadingRecentWorkouts = false;
+        // Once everything is loaded, check that we have downloaded the query.
+        // If not, download then set to start, or alternatively, set isLoading to false.
+        Promise.all(workoutPromises).then(() => {
+            if (this.$route.query.w && !this.workoutData.data) {
+                db.collection("workouts").doc(this.$route.query.w).get().then(workout => {
+                    this.workoutData = { type: 'workout', data: workout.data() }
+                    console.log("workoutData", this.workoutData)
+                    this.startWorkoutDialogue = true;
+                    this.isLoading = false;
+                })
+            } else {
+                this.isLoading = false;
+            }
         })
     },
 
@@ -210,32 +223,16 @@ export default {
             if (this.downloadedWorkouts >= this.workoutsToDownload) {
                 if (this.$route.query.w || this.$route.query.rw) {
                     if (this.workoutData) {
-                        this.isLoadingWorkouts = false;
                         this.startWorkoutDialogue = true;
                     } else if (this.$route.query.w) {
                         db.collection("workouts").doc(this.$route.query.w).get().then(workoutDoc => {
                             if (workoutDoc.exists) {
                                 this.workoutData = {type: 'workout', data: workoutDoc.data()};
-                                this.isLoadingWorkouts = false;
                                 this.startWorkoutDialogue = true;
                             }
                         })
                     }
-                } else {
-                    this.isLoadingWorkouts = false;
                 }
-            }
-        },
-
-        isLoadingWorkouts: function(n) {
-            if (!n && !this.isLoadingRecentWorkouts) {
-                this.isLoading = false;
-            }
-        },
-
-        isLoadingRecentWorkouts: function(n) {
-            if (!n && !this.isLoadingWorkouts) {
-                this.isLoading = false;
             }
         }
     }

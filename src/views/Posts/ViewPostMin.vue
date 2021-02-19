@@ -6,15 +6,14 @@
                     <v-avatar size="32"><v-img :src="postData.createdBy.profilePhoto"></v-img></v-avatar>
                 </v-col>
                 <v-col cols="12" sm="11">
-                    <v-row justify="center" align="center">
-                        <v-col cols="12" sm="9">
-                            <router-link :to="'/' + postData.createdBy.username"><b>{{ postData.createdBy.username }}</b></router-link>
-                            <span v-if="postData.exercise"> shared an <router-link :to="'/exercises/' + postData.exercise.id">exercise</router-link></span>
-                            <span v-if="postData.workout"> shared a <router-link :to="'/workouts/' + postData.workout.id">workout</router-link></span>
-                        </v-col>
-                        <v-col cols="12" sm="3" align="right">
-                            <span style="font-size:12px;"><em>{{ createdAtText }}</em></span>
-                        </v-col>
+                    <v-row justify="center" align="center" style="padding:10px">
+                        <div>
+                            <router-link :to="'/' + postData.createdBy.username"><b>{{ postData.createdBy.username }}</b></router-link>&nbsp;
+                            <span v-if="postData.exercise">&nbsp;shared an <router-link :to="'/exercises/' + postData.exercise.id">exercise</router-link></span>
+                            <span v-if="postData.workout">&nbsp;shared a <router-link :to="'/workouts/' + postData.workout.id">workout</router-link></span>
+                        </div>
+                        <v-spacer/>
+                        <span style="font-size:12px;"><em>{{ createdAtText }}</em></span>
                     </v-row>
                 </v-col>
             </v-row>
@@ -113,7 +112,6 @@ export default {
                     
                     return this.checkIfLiked()
                 })
-
             } else {
                 return this.checkIfLiked()
             }
