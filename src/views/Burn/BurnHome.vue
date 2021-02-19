@@ -83,7 +83,7 @@
                     </v-container>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="error" text @click="startWorkoutDialogue = false">Close</v-btn>
+                        <v-btn color="error" text @click="cancelStart">Close</v-btn>
                         <v-btn color="blue darken-1" text @click="startWorkout">Start</v-btn>
                     </v-card-actions>
                 </v-card>
@@ -94,6 +94,7 @@
 
 <script>
 import { db } from '../../firebase'
+import _ from 'lodash'
 
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -196,6 +197,14 @@ export default {
 
         cancelWorkout: function() {
             this.workoutCommenced = false;
+        },
+        
+        cancelStart: function() {
+            this.startWorkoutDialogue = false;
+            if (this.$route.query.w) {
+                // Remove w from query
+                this.$router.replace({ query: _.omit(this.$route.query, "w") });
+            }
         }
     },
 

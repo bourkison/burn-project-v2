@@ -24,7 +24,7 @@
                             </v-list-item>
                             <v-list-item to="/workouts/new">
                                 <v-list-item-icon>
-                                    <v-icon>mdi-dumbbell</v-icon>
+                                    <v-icon>mdi-weight-lifter</v-icon>
                                 </v-list-item-icon>
                                 <v-list-item-content>
                                     New Workout

@@ -37,6 +37,7 @@
                     <v-file-input v-model="imageFiles" @change="handleFileUpload" style="display:inline;margin:0;padding:0;" accept="image/png,image/jpg,image/jpeg" prepend-icon="mdi-camera" hide-input></v-file-input>
                     <v-btn icon @click.stop="exerciseSearchDialogue = true;"><v-icon>mdi-dumbbell</v-icon></v-btn>
                     <v-btn icon @click.stop="workoutSearchDialogue = true;"><v-icon>mdi-weight-lifter</v-icon></v-btn>
+                    <v-btn icon @click.stop="recentWorkoutSearchDialogue = true;"><v-icon>mdi-fire</v-icon></v-btn>
                 </span>
                 <v-spacer />
                 <span align="right">
@@ -63,6 +64,10 @@
         <v-dialog v-model="workoutSearchDialogue" style="min-height:300px;" max-width="600">
             <WorkoutSearch @selectWorkout="addWorkout"></WorkoutSearch>
         </v-dialog>
+
+        <v-dialog v-model="recentWorkoutSearchDialogue" style="min-height:300px;" max-width="600">
+            <BurnSearch @selectRecentWorkout="addRecentWorkout"></BurnSearch>
+        </v-dialog>
     </v-card>
 </template>
 
@@ -75,12 +80,13 @@ import WorkoutExpandable from '@/components/Workout/WorkoutExpandable.vue'
 import ImageEditorDialogue from '@/components/ImageEditorDialogue.vue'
 
 import ExerciseSearch from '@/components/Search/ExerciseSearch.vue'
+import BurnSearch from '@/components/Search/BurnSearch.vue'
 import WorkoutSearch from '@/components/Search/WorkoutSearch.vue'
 
 
 export default {
     name: 'NewPost',
-    components: { ExerciseExpandable, ExerciseSearch, ImageEditorDialogue, WorkoutExpandable, WorkoutSearch },
+    components: { BurnSearch, ExerciseExpandable, ExerciseSearch, ImageEditorDialogue, WorkoutExpandable, WorkoutSearch },
     data() {
         return {
             isLoading: false,
@@ -97,6 +103,7 @@ export default {
             imageObjs: [],
 
             selectedExercise: null,
+            selectedRecentWorkout: null,
             selectedWorkout: null,
 
             // Sortable:
@@ -113,7 +120,8 @@ export default {
             // Vuetify:
             editingImageDialogue: false,
             exerciseSearchDialogue: false,
-            workoutSearchDialogue: false
+            workoutSearchDialogue: false,
+            recentWorkoutSearchDialogue: false
         }
     },
 
@@ -230,17 +238,28 @@ export default {
         },
 
         addExercise: function(exercise) {
-            console.log(exercise);
             this.exerciseSearchDialogue = false;
             this.selectedExercise = exercise;
+
+            this.selectedWorkout = null;
+            this.selectedRecentWorkout = null;
         },
 
         addWorkout: function(workout) {
             this.workoutSearchDialogue = false;
             this.selectedWorkout = workout;
-            console.log(this.selectedWorkout);
 
             this.selectedExercise = null;
+            this.selectedRecentWorkout = null;
+        },
+
+        addRecentWorkout: function(recentWorkout) {
+            this.recentWorkoutSearchDialogue = false;
+            this.selectedRecentWorkout = recentWorkout;
+            console.log(this.selectedRecentWorkout);
+
+            this.selectedExercise = null;
+            this.selectedWorkout = null;
         }
     },
 

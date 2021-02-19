@@ -17,7 +17,7 @@
                                 </v-list-item>
                                 <v-list-item to="/burn/recent">
                                     <v-list-item-icon>
-                                        <v-icon>mdi-weight-lifter</v-icon>
+                                        <v-icon>mdi-fire</v-icon>
                                     </v-list-item-icon>
                                     <v-list-item-content>
                                         Recent Burns
