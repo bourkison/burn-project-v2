@@ -22,7 +22,7 @@
         </v-container>
         <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="error" text @click="signInDialog = false">Close</v-btn>
+            <v-btn color="error" text @click="closeLogin">Close</v-btn>
             <v-btn color="blue darken-1" text @click="login" :loading="isLoading">Log In</v-btn>
         </v-card-actions>
     </v-card>
@@ -60,7 +60,11 @@ export default {
                 this.errorMEssage = "Error signing in: " + e;
                 this.isLoading = false;
             });
-        },  
+        },
+
+        closeLogin: function() {
+            this.$emit("closeLogin");
+        }
     }
 }
 </script>

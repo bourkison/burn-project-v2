@@ -123,7 +123,7 @@
         </v-container>
         <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="error" text @click="signUpDialog = false">Close</v-btn>
+            <v-btn color="error" text @click="closeSignUp">Close</v-btn>
             <v-btn color="blue darken-1" text @click="signUp" :loading="isLoading">Sign Up</v-btn>
         </v-card-actions>
     </v-card>
@@ -230,6 +230,10 @@ export default {
             } else {
                 this.profilePhotoUrl = '';
             }
+        },
+
+        closeSignUp: function() {
+            this.$emit("closeSignUp");
         }
     },
     

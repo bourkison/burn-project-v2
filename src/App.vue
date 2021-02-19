@@ -38,10 +38,10 @@
                 <router-view></router-view>
             </v-main>
             <v-dialog v-model="signInDialog" persistent max-width="600px" style="overflow:hidden;" v-if="!$store.state.userProfile.loggedIn">
-                <LogInForm></LogInForm>
+                <LogInForm @closeLogin="closeLogin"></LogInForm>
             </v-dialog>
             <v-dialog v-model="signUpDialog" persistent max-width="600" v-if="!$store.state.userProfile.loggedIn">
-                <SignUpForm></SignUpForm>
+                <SignUpForm @closeSignUp="closeSignUp"></SignUpForm>
             </v-dialog>
         </div>
         <div v-else>
@@ -64,22 +64,30 @@ import LogInForm from './components/LogInForm.vue'
 import MainSearch from '@/components/Search/MainSearch.vue'
 
 export default {
-components: { SignUpForm, LogInForm, MainSearch },
-data() {
-    return {
-    signUpDialog: false,
-    signInDialog: false,
+    components: { SignUpForm, LogInForm, MainSearch },
+    data() {
+        return {
+            signUpDialog: false,
+            signInDialog: false,
 
-    isLoading: false,
-    }
-},
+            isLoading: false,
+        }
+    },
 
-methods: {
-    signOut: function() {
-    auth.signOut();
-    this.$router.push("/");
+    methods: {
+        signOut: function() {
+            auth.signOut();
+            this.$router.push("/");
+        },
+
+        closeLogin: function() {
+            this.signInDialog = false;
+        },
+
+        closeSignUp: function() {
+            this.signUpDialog = false;
+        }
     }
-}
 }
 </script>
 
