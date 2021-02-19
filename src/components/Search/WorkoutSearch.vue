@@ -41,19 +41,35 @@ export default {
             otherWorkouts: [],
             
             unsortedWorkouts: [],
-
-            // Firebase
-            workoutsToDownload: 0,
-            downloadedWorkouts: 0
         }
     },
 
     mounted: function() {
-        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").orderBy("createdAt", "desc").get().then(workoutsSnapshot => {
-            let i = 0;
-            this.workoutsToDownload = workoutsSnapshot.size;
+        let workoutPromises = [];
+
+        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").orderBy("createdAt", "desc").get()
+        .then(workoutsSnapshot => {            
             workoutsSnapshot.forEach(workout => {
-                this.downloadWorkout(workout.id, i, workout.data().isFollow);
+                // this.downloadWorkout(workout.id, i, workout.data().isFollow);
+                return workoutPromises.push(db.collection("workouts").doc(workout.id).get().then(workoutDoc => {
+                    this.unsortedWorkouts.push({ data: workoutDoc.data(), isFollow: workout.data().isFollow });
+                }))
+            })
+        })
+        .then(() => {
+            Promise.all(workoutPromises).then(() => {
+                this.unsortedWorkouts.sort(function(a, b) { return a.order - b.order });
+
+                this.unsortedWorkouts.forEach(workout => {
+                    if (workout.isFollow) {
+                        this.followedWorkouts.push(workout.data);
+                    } else {
+                        this.userWorkouts.push(workout.data);
+                    }
+                })
+
+                this.unsortedWorkouts = [];
+                this.isLoading = false;
             })
         })
     },
@@ -90,25 +106,6 @@ export default {
 
         selectWorkout: function(workout) {
             this.$emit("selectWorkout", workout);
-        }
-    },
-
-    watch: {
-        downloadedWorkouts: function() {
-            if (this.downloadedWorkouts >= this.workoutsToDownload) {
-                let temp = this.unsortedWorkouts.sort(function(a, b) { return a.order - b.order });
-
-                temp.forEach(workout => {
-                    if (workout.isFollow) {
-                        this.followedWorkouts.push(workout.data);
-                    } else {
-                        this.userWorkouts.push(workout.data);
-                    }
-                })
-
-                this.unsortedWorkouts = [];
-                this.isLoading = false;
-            }
         }
     }
 }
