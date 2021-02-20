@@ -116,7 +116,7 @@
 </template>
 
 <script>
-import { db } from '../firebase'
+import { db } from '@/firebase'
 import Sortable from 'sortablejs'
 
 export default {

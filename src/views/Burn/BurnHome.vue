@@ -93,13 +93,13 @@
 </template>
 
 <script>
-import { db } from '../../firebase'
+import { db } from '@/firebase'
 import _ from 'lodash'
 
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-import WorkoutRecorder from '../../components/WorkoutRecorder.vue'
+import WorkoutRecorder from '@/components/WorkoutRecorder.vue'
 
 export default {
     name: 'BurnHome',

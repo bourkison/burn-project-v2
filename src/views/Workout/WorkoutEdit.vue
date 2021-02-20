@@ -17,11 +17,11 @@
 </template>
 
 <script>
-import { db } from '../../firebase'
+import { db } from '@/firebase'
 
-import MarkdownInput from '../../components/MarkdownInput.vue'
-import ExerciseSelector from '../../components/Exercise/ExerciseSelector.vue'
-import DifficultySelector from '../../components/DifficultySelector.vue'
+import MarkdownInput from '@/components/MarkdownInput.vue'
+import ExerciseSelector from '@/components/Exercise/ExerciseSelector.vue'
+import DifficultySelector from '@/components/DifficultySelector.vue'
 
 export default {
     name: 'WorkoutEdit',

@@ -43,12 +43,12 @@
 </template>
 
 <script>
-import { db, storage } from '../../firebase'
+import { db, storage } from '@/firebase'
 
-import ExerciseImageUploader from '../../components/Exercise/ExerciseImageUploader.vue'
-import DifficultySelector from '../../components/DifficultySelector.vue'
-import MarkdownInput from '../../components/MarkdownInput.vue'
-import MuscleGroupSelect from '../../components/MuscleGroupSelect.vue'
+import ExerciseImageUploader from '@/components/Exercise/ExerciseImageUploader.vue'
+import DifficultySelector from '@/components/DifficultySelector.vue'
+import MarkdownInput from '@/components/MarkdownInput.vue'
+import MuscleGroupSelect from '@/components/MuscleGroupSelect.vue'
 
 export default {
     name: 'ExerciseEdit',

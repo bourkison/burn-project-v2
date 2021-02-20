@@ -52,7 +52,7 @@
 
 <script>
 import { db, fv } from '@/firebase'
-import Comment from './Comment.vue'
+import Comment from '@/components/Comment/Comment.vue'
 
 export default {
     name: 'CommentSection',

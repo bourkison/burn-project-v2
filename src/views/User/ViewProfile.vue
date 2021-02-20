@@ -42,10 +42,10 @@
 </template>
 
 <script>
-import { db, fv } from '../../firebase'
+import { db, fv } from '@/firebase'
 
-import PostNew from '@/components/Posts/PostNew.vue'
-import PostComponent from '@/components/Posts/PostComponent.vue'
+import PostNew from '@/components/Post/PostNew.vue'
+import PostComponent from '@/components/Post/PostComponent.vue'
 
 export default {
     name: 'ViewProfile',

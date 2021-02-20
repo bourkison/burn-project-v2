@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { db } from '../../firebase'
+import { db } from '@/firebase'
 import * as marked from 'marked'
 
 export default {

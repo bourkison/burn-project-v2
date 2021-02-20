@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { db, functions } from '../../firebase'
+import { db, functions } from '@/firebase'
 import * as marked from 'marked'
 
 import CommentSection from '@/components/Comments/CommentSection.vue'

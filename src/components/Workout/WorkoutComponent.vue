@@ -28,8 +28,8 @@
 </template>
 
 <script>
-import { db } from '../../firebase'
-import CommentSection from '@/components/Comments/CommentSection'
+import { db } from '@/firebase'
+import CommentSection from '@/components/Comment/CommentSection'
 
 export default {
 

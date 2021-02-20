@@ -72,7 +72,7 @@ import { db } from '@/firebase'
 import Sortable from 'sortablejs'
 import * as marked from 'marked'
 
-import SuggestedSetsSelector from './SuggestedSetsSelector.vue'
+import SuggestedSetsSelector from '@/components/Exercise/SuggestedSetsSelector.vue'
 
 export default {
     name: 'ExerciseSelector',

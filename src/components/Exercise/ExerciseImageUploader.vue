@@ -39,7 +39,7 @@
 import { storage } from '@/firebase'
 import Sortable from 'sortablejs'
 
-import ImageEditorDialogue from '../ImageEditorDialogue.vue'
+import ImageEditorDialogue from '@/components/ImageEditorDialogue.vue'
 
 export default {
     name: 'ExerciseImageUploader',

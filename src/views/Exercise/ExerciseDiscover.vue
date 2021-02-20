@@ -3,9 +3,6 @@
         <v-container>
             <h1 align="center">Top Exercises</h1>
             <ExerciseFeed :exercises="exercises" />
-            <!-- <v-container>
-                <ViewExerciseMin v-for="exercise in exercises" :userExerciseData="exercise" :key="exercise.id"></ViewExerciseMin>
-            </v-container> -->
         </v-container>
     </v-sheet>
 </template>
@@ -13,7 +10,6 @@
 <script>
 import { db } from '@/firebase'
 import ExerciseFeed from '@/components/Exercise/ExerciseFeed'
-// import ViewExerciseMin from './ViewExerciseMin'
 
 export default {
     name: 'ExerciseDiscover',

@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import { auth, userCollection } from '../firebase'
+import { auth, userCollection } from '@/firebase'
 
 export default {
     data() {

@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { db, storage, functions } from '../../firebase'
+import { db, storage, functions } from '@/firebase'
 import * as marked from 'marked'
 
 import MuscleGroup from '@/components/MuscleGroup.vue'

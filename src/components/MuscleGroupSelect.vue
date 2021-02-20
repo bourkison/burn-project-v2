@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import MuscleGroup from './MuscleGroup.vue'
+import MuscleGroup from '@/components/MuscleGroup.vue'
 // import _ from 'lodash'
 
 export default {

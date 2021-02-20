@@ -11,7 +11,7 @@
 
 <script>
 export default {
-    name: "DifficultySelector",
+    name: 'DifficultySelector',
     props: {
         initialDifficulty: {
             type: Number,

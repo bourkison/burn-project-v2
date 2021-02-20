@@ -11,12 +11,12 @@
 </template>
 
 <script>
-import { db } from '../../firebase'
+import { db } from '@/firebase'
 
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-import BurnMin from './BurnMin.vue'
+import BurnMin from '@//views/Burn/BurnMin.vue'
 
 export default {
     name: 'RecentBurn',
