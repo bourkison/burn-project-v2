@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { db, fv, functions } from '@/firebase'
+import { db, fv } from '@/firebase'
 import Comment from '@/components/Comment/Comment.vue'
 
 export default {
@@ -210,19 +210,6 @@ export default {
             }
         },
 
-        callLikeFunction: function() {
-            const createLike = functions.httpsCallable("createLike");
-            const user = { username: this.$store.state.userProfile.docData.username, profilePhotoUrl: this.$store.state.userProfile.docData.profilePhotoUrl };
-            
-            createLike({ collection: this.collectionPathString, type: this.pageType, docId: this.docId, user: user })
-            .then(result => {
-                console.log("Like created", result);
-            })
-            .catch(e => {
-                console.error("Error liking", e);
-            })
-        },
-
         handleLike: function() {
             // Check we're not already in the process of liking.
             if (!this.isLiking) {
@@ -235,6 +222,8 @@ export default {
                     // Add like.                    
                     this.likeIcon = "mdi-heart";
                     this.likeIconColor = "red darken-2";
+
+                    console.log("LIKING");
 
                     const likeId = this.generateId(16)
 
@@ -413,28 +402,43 @@ export default {
             if (this.newComment.content.trim() != "") {
                 let payload = this.newComment;
                 this.newComment = {};
-                payload.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhotoUrl: this.$store.state.userProfile.docData.profilePhotoUrl }
+                payload.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl }
                 payload.createdAt = new Date();
                 payload.likeCount = 0;
 
-                // First add comment to the relevant collection.
-                this.collectionPath.doc(this.docId).collection("comments").add(payload).then(commentRef => {
-                    // Increment comment count.
-                    this.collectionPath.doc(this.docId).update({ commentCount: fv.increment(1) }).then(() => {
-                        // Now add comment to the user.
-                        let commentPayload = { type: this.pageType, docId: this.docId, createdAt: new Date() }
-                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("comments").doc(commentRef.id).set(commentPayload).then(() => {
-                            payload.id = commentRef.id;
-                            this.comments.push(payload);
-                            this.commentCounter ++;
-                        }).catch(e => {
-                            console.warn("Error adding comment to user:", e);
-                        })
-                    }).catch(e => {
-                        console.warn("Error incrementing comment count:", e);
-                    })
-                }).catch(e => {
-                    console.warn("Error adding comment to comments:", e);
+                const commentId = this.generateId(16);
+
+                const batch = db.batch();
+
+                // First add comment to relevant collection.
+                batch.set(this.collectionPath.doc(this.docId).collection("comments"), payload);
+
+                // Then add comment to user document.
+                batch.set(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("comments").doc(commentId), {
+                    type: this.pageType,
+                    docId: this.docId,
+                    createdAt: payload.createdAt
+                });
+
+                // Increment comment count.
+                batch.update(this.collectionPath.doc(this.docId).collection("counters").doc((Math.floor(Math.random() * this.numShards).toString())), {
+                    commentCount: fv.increment(1)
+                });
+
+                // Update last activity.
+                batch.update(this.collectionPath.doc(this.docId), {
+                    lastActivity: payload.createdAt
+                });
+
+                // Commit the batch.
+                batch.commit()
+                .then(() => {
+                    payload.id = commendId;
+                    this.comments.push(payload);
+                    this.commentCounter ++;
+                })
+                .catch(e => {
+                    console.error("Error adding comment:", e);
                 })
             } else {
                 console.log("Comment can't be blank.");

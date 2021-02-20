@@ -48,9 +48,9 @@
                 <CommentSection
                     :post-id="postId"
                     :is-liked="isLiked"
-                    :like-count="postData.likeCount"
+                    :likeCount="likeCount"
                     :recentComments="postData.recentComments"
-                    :commentCount="postData.commentCount"
+                    :commentCount="commentCount"
                     :followableComponent="false"
                     @likeToggle="likeToggle"
                 ></CommentSection>
@@ -89,6 +89,8 @@ export default {
             postData: {},
             imgUrls: [],
             isLiked: '',
+            likeCount: 0,
+            commentCount: 0,
 
             createdAtText: '',
 
@@ -105,7 +107,8 @@ export default {
     },
 
     mounted: function() {
-        db.collection("posts").doc(this.$props.postId).get().then(postDoc => {
+        db.collection("posts").doc(this.$props.postId).get()
+        .then(postDoc => {
             this.postData = postDoc.data();
 
             if (this.postData.imgPaths.length > 0) {
@@ -125,9 +128,23 @@ export default {
             } else {
                 return this.checkIfLiked()
             }
-        }).then(() => {
+        })
+        .then(() => {
+            // Pull like count.
+            return db.collection("posts").doc(this.$props.docId).collection("counter").get()
+        })
+        .then(counterSnapshot => {
+            counterSnapshot.forEach(counter => {
+                this.likeCount += counter.data().likeCount;
+                this.commentCount += counter.data().commentCount;
+            })
+
             this.isLoading = false;
             this.createdAtText = dayjs(dayjs.unix(this.postData.createdAt.seconds)).fromNow();
+        })
+        .catch(e => {
+            console.error("Error downloading post:", e);
+            this.isLoading = false;
         })
     },
 

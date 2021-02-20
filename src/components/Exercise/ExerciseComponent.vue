@@ -25,10 +25,10 @@
                     <CommentSection 
                         :exercise-id="this.$props.userExerciseData.id" 
                         :is-liked="isLiked" 
-                        :like-count="exerciseData.likeCount" 
+                        :like-count="likeCount" 
                         :recentComments="exerciseData.recentComments"
-                        :commentCount="exerciseData.commentCount"
-                        :followCount="exerciseData.followCount"
+                        :commentCount="commentCount"
+                        :followCount="followCount"
                         :followableComponent="true" 
                         @likeToggle="likeToggle"
                     ></CommentSection>
@@ -64,6 +64,11 @@ export default {
             imgUrls: [],
             isLiked: '',
 
+            // Counters:
+            likeCount: 0,
+            commentCount: 0,
+            followCount: 0,
+
             // Firebase: 
             downloadedImageCounter: 0,
 
@@ -97,9 +102,20 @@ export default {
                 this.imgUrls.push(url);
             })
 
-            this.checkIfUserLiked().then(() => {
-                this.isLoading = false;
+            // Pull like, comment and follow count.
+            return db.collection("exercises").doc(this.$props.userExerciseData.id).collection("counters").get()
+        })
+        .then(counterSnapshot => {
+            counterSnapshot.forEach(counter => {
+                this.likeCount += counter.data().likeCount;
+                this.commentCount += counter.data().commentCount;
+                this.followCount += counter.data().followCount;
             })
+
+            return this.checkIfUserLiked()
+        })
+        .then(() => {
+            this.isLoading = false;
         })
         .catch(e => {
             console.warn("Error downloading exercise data", e);
@@ -141,9 +157,9 @@ export default {
 
         likeToggle: function(s) {
             if (s === '') {
-                this.exerciseData.likeCount --;
+                this.likeCount --;
             } else {
-                this.exerciseData.likeCount ++;
+                this.likeCount ++;
             }
 
             this.isLiked = s; 

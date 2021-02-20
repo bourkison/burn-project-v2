@@ -47,11 +47,11 @@
 
             <v-card outlined>
                 <CommentSection 
-                    :exercise-id="this.$route.params.exerciseid" 
-                    :is-liked="isLiked" 
-                    :like-count="exerciseData.likeCount"
-                    :commentCount="exerciseData.commentCount"
-                    :followCount="exerciseData.followCount"
+                    :exerciseId="this.$route.params.exerciseid" 
+                    :isLiked="isLiked" 
+                    :likeCount="likeCount"
+                    :commentCount="commentCount"
+                    :followCount="followCount"
                     :followableComponent="true" 
                     :recentComments="exerciseData.recentComments"
                     @likeToggle="likeToggle"
@@ -100,7 +100,7 @@ import { db, storage, functions } from '@/firebase'
 import * as marked from 'marked'
 
 import MuscleGroup from '@/components/MuscleGroup.vue'
-import CommentSection from '@/components/Comments/CommentSection.vue'
+import CommentSection from '@/components/Comment/CommentSection.vue'
 
 export default {
     name: 'ExerciseView',
@@ -114,6 +114,11 @@ export default {
             imgUrls: [],
             isLiked: '',
             errorMessage: '',
+
+            // Counters:
+            likeCount: 0,
+            commentCount: 0,
+            followCount: 0,
 
             // Firebase:
             downloadedImageCounter: 0,
@@ -176,9 +181,21 @@ export default {
                 this.exerciseExists = true;
                 this.starsAmount = this.exerciseData.difficulty;
 
-                this.checkIfLiked().then(() => {
-                    this.isLoading = false;
+                // Pull like, comment and follow count.
+                return db.collection("exercises").doc(this.$route.params.exerciseid).collection("counters").get()
+
+            })
+            .then(counterSnapshot => {
+                counterSnapshot.forEach(counter => {
+                    this.likeCount += counter.data().likeCount;
+                    this.commentCount += counter.data().commentCount;
+                    this.followCount += counter.data().followCount;
                 })
+
+                return this.checkIfLiked()
+            })
+            .then(() => {
+                this.isLoading = false;
             })
             .catch(e => {
                 console.warn("Error downloading exercise:", e);
@@ -213,9 +230,9 @@ export default {
 
         likeToggle: function(s) {
             if (s) {
-                this.exerciseData.likeCount ++;
+                this.likeCount ++;
             } else {
-                this.exerciseData.likeCount --;
+                this.likeCount --;
             }
             this.isLiked = s;
         },
