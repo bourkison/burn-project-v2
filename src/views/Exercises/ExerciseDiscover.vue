@@ -2,20 +2,22 @@
     <v-sheet rounded="lg" min-height="70vh">
         <v-container>
             <h1 align="center">Top Exercises</h1>
-            <v-container>
+            <ExerciseFeed :exercises="exercises" />
+            <!-- <v-container>
                 <ViewExerciseMin v-for="exercise in exercises" :userExerciseData="exercise" :key="exercise.id"></ViewExerciseMin>
-            </v-container>
+            </v-container> -->
         </v-container>
     </v-sheet>
 </template>
 
 <script>
-import { db } from '../../firebase'
-import ViewExerciseMin from './ViewExerciseMin'
+import { db } from '@/firebase'
+import ExerciseFeed from '@/components/Exercise/ExerciseFeed'
+// import ViewExerciseMin from './ViewExerciseMin'
 
 export default {
     name: 'ViewAllExercises',
-    components: { ViewExerciseMin },
+    components: { ExerciseFeed },
     data() {
         return {
             isLoading: true,

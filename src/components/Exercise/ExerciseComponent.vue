@@ -37,10 +37,10 @@
 </template>
 
 <script>
-import { db, storage } from '../../firebase'
+import { db, storage } from '@/firebase'
 import * as marked from 'marked'
 
-import CommentSection from '../Comments/CommentSection.vue'
+import CommentSection from '@/views/Comments/CommentSection.vue'
 
 export default {
     name: 'ViewExerciseMin',

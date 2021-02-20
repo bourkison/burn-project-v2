@@ -33,7 +33,7 @@
                 </v-row>
                 <v-row v-for="exercise in recentWorkout.exercises" :key="exercise.id">
                     <v-col cols="12" sm="1">{{ exercise.sets.length }}</v-col>
-                    <v-col cols="12" sm="5"><router-link :to="exercise.id">{{ exercise.name }}</router-link></v-col>
+                    <v-col cols="12" sm="5"><router-link :to="'/exercises/' + exercise.id">{{ exercise.name }}</router-link></v-col>
                     <v-col cols="12" sm="3">{{ exercise.sets[0].kg }} kgs</v-col>
                     <v-col cols="12" sm="3">{{ exercise.sets[0].measureAmount }}</v-col>
                 </v-row>

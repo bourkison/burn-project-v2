@@ -5,11 +5,11 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 
 import Exercise from '../views/Exercises/Exercise.vue'
-import NewExercise from '../views/Exercises/NewExercise.vue'
-import EditExercise from '../views/Exercises/EditExercise.vue'
-import ViewExercise from '../views/Exercises/ViewExercise.vue'
-import ViewAllExercises from '../views/Exercises/ViewAllExercises.vue'
-import ViewExercises from '../views/Exercises/ViewExercises.vue'
+import ExerciseNew from '../views/Exercises/ExerciseNew.vue'
+import ExerciseEdit from '../views/Exercises/ExerciseEdit.vue'
+import ExerciseView from '../views/Exercises/ExerciseView.vue'
+import ExerciseDiscover from '../views/Exercises/ExerciseDiscover.vue'
+import ExerciseFollowed from '../views/Exercises/ExerciseFollowed.vue'
 
 import Workout from '../views/Workouts/Workout.vue'
 import NewWorkout from '../views/Workouts/NewWorkout.vue'
@@ -64,27 +64,27 @@ const routes = [
       {
         path: '/exercises/new',
         name: 'New Exercise',
-        component: NewExercise
+        component: ExerciseNew
       },
       {
         path: '/exercises/discover',
-        name: 'ViewAllExercises',
-        component: ViewAllExercises
+        name: 'Discover Exercises',
+        component: ExerciseDiscover
       },
       {
         path: '/exercises/:exerciseid',
         name: 'View Exercise',
-        component: ViewExercise
+        component: ExerciseView
       },
       {
         path: '/exercises/:exerciseid/edit',
         name: 'Edit Exercise',
-        component: EditExercise
+        component: ExerciseEdit
       },
       {
         path: '/exercises',
         name: 'View Exercises',
-        component: ViewExercises
+        component: ExerciseFollowed
       },    
     ]
   },

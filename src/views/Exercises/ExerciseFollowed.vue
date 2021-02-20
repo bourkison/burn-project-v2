@@ -2,9 +2,10 @@
     <v-sheet rounded="lg" min-height="70vh">
         <v-container>
             <h1 align="center">Exercises</h1>
-            <v-container v-if="exercises.length > 0 && !isLoading">
+            <ExerciseFeed v-if="exercises.length > 0 && !isLoading" :exercises="exercises" />
+            <!-- <v-container v-if="exercises.length > 0 && !isLoading">
                 <ViewExerciseMin v-for="exercise in exercises" :userExerciseData="exercise" :key="exercise.id"></ViewExerciseMin>
-            </v-container>
+            </v-container> -->
             <v-container v-else-if="isLoading">
                 <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
             </v-container>
@@ -16,12 +17,12 @@
 </template>
 
 <script>
-import { db } from '../../firebase'
-import ViewExerciseMin from './ViewExerciseMin.vue'
+import { db } from '@/firebase'
+import ExerciseFeed from '@/components/Exercise/ExerciseFeed'
 
 export default {
     name: 'ViewExercises',
-    components: { ViewExerciseMin },
+    components: { ExerciseFeed },
     data() {
         return {
             isLoading: true,
