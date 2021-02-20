@@ -22,7 +22,7 @@ import BurnHome from '@/views/Burn/BurnHome.vue'
 import RecentBurn from '@/views/Burn/RecentBurn.vue'
 
 import Profile from '@/views/User/Profile.vue'
-import ViewProfile from '@/views/User/ViewProfile.vue'
+import ProfileView from '@/views/User/ProfileView.vue'
 
 Vue.use(VueRouter)
 
@@ -133,7 +133,7 @@ const routes = [
       },
       {
         path: '/burn/recent',
-        name: 'RecentBurn.vue',
+        name: 'Recent Burn.vue',
         component: RecentBurn
       }
     ]
@@ -145,8 +145,8 @@ const routes = [
     children: [
       {
         path: '/:profileid',
-        name: 'ViewProfile',
-        component: ViewProfile
+        name: 'View Profile',
+        component: ProfileView
       }
     ]
   }

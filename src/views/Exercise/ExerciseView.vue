@@ -25,11 +25,16 @@
                 </v-row>
             </v-card>
             <v-card outlined>
-                <v-carousel v-if="exerciseData.imgPaths.length > 0" v-model="model" show-arrows-on-hover hide-delimiter-background>
-                    <v-carousel-item class="carouselImage" v-for="(img, index) in imgUrls" :key="index" @click.stop="popUpImage(img)" eager>
-                        <v-img :src="img" eager/>
-                    </v-carousel-item>
-                </v-carousel>
+                <div v-if="imgUrls.length > 1">
+                    <v-carousel v-model="model" show-arrows-on-hover hide-delimiter-background>
+                        <v-carousel-item class="carouselImage" v-for="(img, index) in imgUrls" :key="index" @click.stop="popUpImage(img)" eager>
+                            <v-img :src="img" eager/>
+                        </v-carousel-item>
+                    </v-carousel>
+                </div>
+                <div v-else-if="imgUrls.length > 0">
+                    <v-img :src="imgUrls[0]" eager />
+                </div>
                 <v-container>
                         <v-sheet align="center">
                             <v-container class="mdOutput" v-html="compiledMarkdown"></v-container>

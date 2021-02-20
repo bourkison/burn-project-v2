@@ -30,7 +30,6 @@ export default {
 
         buildFeedFunction().then(result => {
             this.posts = result.data.posts;
-            console.log(this.posts);
             this.isLoading = false;
         }).catch(e => {
             console.error("Failure", e);

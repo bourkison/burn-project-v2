@@ -19,11 +19,16 @@
                 </v-col>
             </v-row>
         </v-container>
-        <v-carousel v-if="imgUrls.length > 0" height="auto" v-model="carouselModel" show-arrows-on-hover hide-delimiter-background>
-            <v-carousel-item class="carouselImage" v-for="(img, index) in imgUrls" :key="index" eager>
-                <v-img :src="img" eager/>
-            </v-carousel-item>
-        </v-carousel>
+        <div v-if="imgUrls.length > 1">
+            <v-carousel v-if="imgUrls.length > 0" height="auto" v-model="carouselModel" show-arrows-on-hover hide-delimiter-background>
+                    <v-carousel-item class="carouselImage" v-for="(img, index) in imgUrls" :key="index" eager>
+                        <v-img :src="img" eager/>
+                    </v-carousel-item>
+            </v-carousel>
+        </div>
+        <div v-else-if="imgUrls.length > 0">
+            <v-img :src="imgUrls[0]" eager />
+        </div>
         <v-container>
             <v-container style="padding:0 40px;" v-if="postData.exercise">
                 <v-expansion-panels>

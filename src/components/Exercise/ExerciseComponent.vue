@@ -1,10 +1,15 @@
 <template>
     <v-card v-if="!isLoading" class="exerciseMin" outlined>
-        <v-carousel height="auto" v-model="carouselModel" show-arrows-on-hover hide-delimiter-background>
-            <v-carousel-item class="carouselImage" v-for="(img, index) in imgUrls" :key="index" eager>
-                <v-img :src="img" eager/>
-            </v-carousel-item>
-        </v-carousel>
+        <div v-if="imgUrls.length > 1">
+            <v-carousel height="auto" v-model="carouselModel" show-arrows-on-hover hide-delimiter-background>
+                <v-carousel-item class="carouselImage" v-for="(img, index) in imgUrls" :key="index" eager>
+                    <v-img :src="img" eager/>
+                </v-carousel-item>
+            </v-carousel>
+        </div>
+        <div v-else-if="imgUrls.length > 0">
+            <v-img :src="imgUrls[0]" eager />
+        </div>
         <v-container>
             <v-sheet align="center">
                 <v-row>
