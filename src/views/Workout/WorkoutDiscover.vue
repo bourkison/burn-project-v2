@@ -2,8 +2,8 @@
     <v-sheet rounded="lg" min-height="70vh">
         <v-container v-if="!isLoading">
             <h1 align="center">Discover Workouts</h1>
-            <WorkoutFeed :workouts="workouts" />
-            <div align="center"><v-btn @click="loadMoreWorkouts" :loading="isLoadingMore">Load More</v-btn></div>
+            <WorkoutFeed :workoutObjs="workoutObjs" />
+            <div align="center" v-if="moreToLoad"><v-btn text @click="loadMoreWorkouts" :loading="isLoadingMore">Load More</v-btn></div>
         </v-container>
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
@@ -22,7 +22,8 @@ export default {
         return {
             isLoading: true,
             isLoadingMore: false,
-            workouts: [],
+            moreToLoad: true,
+            workoutObjs: [],
             lastLoadedWorkout: null,
         }
     },
@@ -30,8 +31,9 @@ export default {
     created: function() {
         db.collection("workouts").orderBy("createdAt", "desc").limit(5).get().then(workoutsSnapshot => {
             workoutsSnapshot.forEach(workout => {
-                let data = { createdAt: workout.data().createdAt, createdBy: workout.data().createdBy, id: workout.id }
-                this.workouts.push(data);
+                let d = workout.data();
+                d.id = workout.id;
+                this.workoutObjs.push(d);
             })
 
             this.isLoading = false;
@@ -46,10 +48,13 @@ export default {
     methods: {
         checkScroll: function() {
             window.onscroll = () => {
-                let bottomOfWindow = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) + window.innerHeight === document.documentElement.offsetHeight;
-                
-                if (bottomOfWindow) {
-                    this.loadMoreWorkouts();
+                if (this.moreToLoad) {
+                    let bottomOfWindow = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop) + window.innerHeight === document.documentElement.offsetHeight;
+                    
+                    if (bottomOfWindow) {
+                        console.log("bottom");
+                        this.loadMoreWorkouts();
+                    }
                 }
             }
         },
@@ -59,9 +64,14 @@ export default {
 
             db.collection("workouts").orderBy("createdAt", "desc").startAfter(this.lastLoadedWorkout).limit(5).get().then(workoutsSnapshot => {
                 workoutsSnapshot.forEach(workout => {
-                    let data = { createdAt: workout.data().createdAt, createdBy: workout.data().createdBy, id: workout.id }
-                    this.workouts.push(data);
+                    let d = workout.data();
+                    d.id = workout.id;
+                    this.workoutObjs.push(d);
                 })
+
+                if (workoutsSnapshot.size < 5) {
+                    this.moreToLoad = false;
+                }
 
                 this.isLoadingMore = false;
                 this.lastLoadedWorkout = workoutsSnapshot.docs[workoutsSnapshot.size - 1];

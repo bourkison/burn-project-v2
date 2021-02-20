@@ -4,13 +4,13 @@
             <v-sheet align="center">
                 <v-row>
                     <v-col cols="12" sm="6">
-                        <router-link :to="'/workouts/' + userWorkoutData.id"><h2 align="left">{{ workoutData.name }}</h2></router-link>
+                        <router-link :to="'/workouts/' + workoutId"><h2 align="left">{{ workoutData.name }}</h2></router-link>
                     </v-col>
                 </v-row>
             </v-sheet>
             <div align="left" style="margin:0 auto;">
                 <CommentSection
-                    :workout-id="this.$props.userWorkoutData.id"
+                    :workoutId="this.workoutData.id"
                     :is-liked="isLiked"
                     :likeCount="likeCount"
                     :recentComments="workoutData.recentComments"
@@ -36,8 +36,12 @@ export default {
     name: 'WorkoutComponent',
     components: { CommentSection },
     props: {
-        userWorkoutData: {
-            required: true,
+        workoutId: {
+            required: false,
+            type: String
+        },
+        workoutObj: {
+            required: false,
             type: Object
         }
     },
@@ -55,13 +59,26 @@ export default {
         }
     },
 
-    created: function() {
-        db.collection("workouts").doc(this.$props.userWorkoutData.id).get()
-        .then(workoutDoc => {
-            this.workoutData = workoutDoc.data();
+    mounted: function() {
+        // As we sometimes get passed an ID, and sometimes the whole object.
+        // (Whole object in Workout Discover, ID in WorkoutFollowed )
+        // We do this hack with Promises to account for both cases.
+        let promises = [];
 
+        if (this.$props.workoutObj) {
+            this.workoutData = this.$props.workoutObj;
+        } else {
+            promises.push(db.collection("workouts").doc(this.$props.workoutId).get().then(workoutDoc => {
+                let d = workoutDoc.data();
+                d.id = workoutDoc.id;
+                this.workoutData = d;
+            }))
+        }
+
+        Promise.all(promises).then(() => {
             // Pull like, comment and follow count.
-            return db.collection("workouts").doc(this.$props.userWorkoutData.id).collection("counters").get()
+            console.log("IN NEXT STEP");
+            return db.collection("workouts").doc(this.workoutData.id).collection("counters").get() 
         })
         .then(counterSnapshot => {
             counterSnapshot.forEach(counter => {
@@ -83,7 +100,7 @@ export default {
     methods: {
         checkIfLiked: function() {
             // Check if the user has liked.
-            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$props.userWorkoutData.id).get().then(likeSnapshot => {
+            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.workoutData.id).get().then(likeSnapshot => {
                 likeSnapshot.forEach(like => {
                     if (like.exists) {
                         this.isLiked = like.id;

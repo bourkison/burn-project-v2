@@ -1,6 +1,11 @@
 <template>
     <v-container>
-        <WorkoutComponent v-for="workout in workouts" :key="workout.id" :userWorkoutData="workout" />
+        <div v-if="workoutObjs">
+            <WorkoutComponent v-for="workout in workoutObjs" :key="workout.id" :workoutObj="workout" />
+        </div>
+        <div v-if="workoutIds">
+            <WorkoutComponent v-for="workout in workoutIds" :key="workout" :workoutId="workout" />
+        </div>
     </v-container>
 </template>
 
@@ -11,14 +16,18 @@ export default {
     name: 'WorkoutFeed',
     components: { WorkoutComponent },
     props: {
-        workouts: {
+        workoutObjs: {
             type: Array,
-            required: true
+            required: false
+        },
+        workoutIds: {
+            type: Array,
+            required: false
         }
     },
 
     created: function() {
-        console.log("Workout feed");
+        console.log("Workout feed", this.$props.workoutIds);
     }
 }
 </script>

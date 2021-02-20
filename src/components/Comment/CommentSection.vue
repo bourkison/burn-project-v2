@@ -106,6 +106,7 @@ export default {
             newComment: {
                 content: ''
             },
+
             commentsAllowed: true,
             docId: null,
             pageType: '',
@@ -114,6 +115,7 @@ export default {
             isFollowable: false,
             isFollowed: '',
             commentCounter: 0,
+            followCounter: 0,
 
             numShards: 10,
 
@@ -225,8 +227,6 @@ export default {
                     this.likeIcon = "mdi-heart";
                     this.likeIconColor = "red darken-2";
 
-                    console.log("LIKING");
-
                     const likeId = this.generateId(16)
 
                     // First add to relevant collection/document.
@@ -260,7 +260,6 @@ export default {
                     batch.commit()
                     .then(() => {
                         this.$emit("likeToggle", likeId);
-                        console.log("Liked");
                         this.isLiking = false;
                     })
                     .catch(e => {
@@ -287,7 +286,6 @@ export default {
                     batch.commit()
                     .then(() => {
                         this.$emit("likeToggle", "");
-                        console.log("Unliked");
                         this.isLiking = false;
                     })
                     .catch(e => {

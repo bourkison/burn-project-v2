@@ -5,7 +5,7 @@
             <!-- <v-container v-if="workouts.length > 0 && !isLoading">
                 <ViewWorkoutMin v-for="workout in workouts" :key="workout.id" :userWorkoutData="workout"></ViewWorkoutMin>
             </v-container> -->
-            <WorkoutFeed v-if="workouts.length > 0 && !isLoading" :workouts="workouts" />
+            <WorkoutFeed v-if="workouts.length > 0 && !isLoading" :workoutIds="workouts" />
             <v-container v-else-if="isLoading">
                 <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
             </v-container>
@@ -36,8 +36,7 @@ export default {
         db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").orderBy("createdAt", "desc").get().then(workoutsSnapshot => {
             if (workoutsSnapshot.size > 0) {
                 workoutsSnapshot.forEach(workout => {
-                    let data = { id: workout.id, createdAt: workout.data().createdAt, createdBy: workout.data().createdBy }
-                    this.workouts.push(data);
+                    this.workouts.push(workout.id);
                 })
             }
 
