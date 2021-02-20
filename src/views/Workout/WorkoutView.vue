@@ -79,7 +79,7 @@
 import { db, functions } from '@/firebase'
 import * as marked from 'marked'
 
-import CommentSection from '@/components/Comments/CommentSection.vue'
+import CommentSection from '@/components/Comment/CommentSection.vue'
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable.vue'
 
 export default {

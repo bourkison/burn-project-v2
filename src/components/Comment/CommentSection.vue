@@ -99,6 +99,8 @@ export default {
         return {
             isLoading: false,
             isLiking: false,
+            isFollowing: false,
+
             collectionPath: null,
             comments: [],
             newComment: {},
@@ -110,6 +112,8 @@ export default {
             isFollowable: false,
             isFollowed: '',
             commentCounter: 0,
+
+            numShards: 10,
 
             // Vuetify:
             likeIcon: '',
@@ -209,9 +213,7 @@ export default {
         callLikeFunction: function() {
             const createLike = functions.httpsCallable("createLike");
             const user = { username: this.$store.state.userProfile.docData.username, profilePhotoUrl: this.$store.state.userProfile.docData.profilePhotoUrl };
-            console.log("Calling create like 2");
-
-            console.log("CPS", this.collectionPathString, "PT", this.pageType, "docID", this.docId, "user", user);
+            
             createLike({ collection: this.collectionPathString, type: this.pageType, docId: this.docId, user: user })
             .then(result => {
                 console.log("Like created", result);
@@ -226,6 +228,7 @@ export default {
             if (!this.isLiking) {
                 this.isLiking = true;
                 const batch = db.batch();
+                const timestamp = new Date();
 
                 // Check to see if we like or unlike.
                 if (!this.$props.isLiked) {
@@ -234,7 +237,6 @@ export default {
                     this.likeIconColor = "red darken-2";
 
                     const likeId = this.generateId(16)
-                    const timestamp = new Date();
 
                     // First add to relevant collection/document.
                     batch.set(this.collectionPath.doc(this.docId).collection("likes").doc(likeId), {
@@ -244,24 +246,30 @@ export default {
                             profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl 
                         }, 
                         createdAt: timestamp
-                    })
+                    });
 
                     // Create the like in the user document.
                     batch.set(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(likeId), {
                         type: this.pageType,
                         id: this.docId,
                         createdAt: timestamp
-                    })
+                    });
 
                     // Increment one of the like counters.
-                    batch.set(this.collectionPath.doc(this.docId).collection("likeCounters").doc((Math.floor(Math.random() * 5)).toString()), {
-                        counter: fv.increment(1)
-                    })
+                    batch.update(this.collectionPath.doc(this.docId).collection("counters").doc((Math.floor(Math.random() * this.numShards)).toString()), {
+                        likeCount: fv.increment(1)
+                    });
+
+                    // Set last activity on this document.
+                    batch.update(this.collectionPath.doc(this.docId), {
+                        lastActivity: timestamp
+                    });
 
                     // Commit the batch
                     batch.commit()
                     .then(() => {
                         this.$emit("likeToggle", likeId);
+                        console.log("Liked");
                         this.isLiking = false;
                     })
                     .catch(e => {
@@ -280,14 +288,15 @@ export default {
                     batch.delete(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").doc(this.$props.isLiked));
 
                     // Decrement one of the like counters.
-                    batch.set(this.collectionPath.doc(this.docId).collection("likeCounters").doc((Math.floor(Math.random() * 5)).toString()), {
-                        counter: fv.increment(-1)
-                    })
+                    batch.update(this.collectionPath.doc(this.docId).collection("counters").doc((Math.floor(Math.random() * this.numShards)).toString()), {
+                        likeCount: fv.increment(-1)
+                    });
 
                     // Commit the batch.
                     batch.commit()
                     .then(() => {
                         this.$emit("likeToggle", "");
+                        console.log("Unliked");
                         this.isLiking = false;
                     })
                     .catch(e => {
@@ -301,7 +310,11 @@ export default {
         },
 
         handleFollow: function() {
-            if (this.isFollowable) {
+            if (this.isFollowable && !this.isFollowing) {
+                this.isFollowing = true;
+                const batch = db.batch();
+                const timestamp = new Date();
+
                 // Following is basically the same as a like.
                 // Though instead of adding to a "likes" collection in the user doc, we just add to the relevant collection.
                 // That way we differ between created and followed by the createdBy value.
@@ -313,41 +326,70 @@ export default {
                     this.followIconColor = "light-green ligten-1";
 
                     // First add to the relevant document.
-                    let followPayload = { createdBy: { username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid }, createdAt: new Date() }
-                    this.collectionPath.doc(this.docId).collection("follows").doc(this.$store.state.userProfile.data.uid).set(followPayload).then(() => {
-                        followPayload.isFollow = true;
-                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.docId).set(followPayload).then(() => {
-                            this.isFollowed = this.docId;
-                            this.snackbarHandler(true);
-                            this.followCounter ++;
-                        }).catch(e => {
-                            this.errorMessage = "Error creating follow. Error pushing to user's follows: " + e;
-                            console.log(this.errorMessage);
-                        })
-                    }).catch(e => {
-                        this.errorMessage = "Error creating follow. Error pushing to document's follows: " + e;
-                        console.log(this.errorMessage);
+                    batch.set(this.collectionPath.doc(this.docId).collection("follows").doc(this.$store.state.userProfile.data.uid), {
+                        createdBy: { 
+                            username: this.$store.state.userProfile.docData.username,
+                            id: this.$store.state.userProfile.data.uid,
+                            profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl 
+                        }, 
+                        createdAt: timestamp
+                    })
+
+                    // Then add to the user document.
+                    batch.set(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.docId), {
+                        createdAt: timestamp,
+                        isFollow: true,
+                    })
+
+                    // Increment the follow counter.
+                    batch.update(this.collectionPath.doc(this.docId).collection("counters").doc((Math.floor(Math.random() * this.numShards)).toString()), {
+                        followCount: fv.increment(1)
+                    })
+
+                    // Update lastActivity
+                    batch.update(this.collectionPath.doc(this.docId), {
+                        lastActivity: timestamp
+                    });
+
+                    // Commit the batch.
+                    batch.commit()
+                    .then(() => {
+                        this.isFollowed = this.docId;
+                        this.snackbarHandler(true);
+                        this.followCounter ++;
+                        this.isFollowing = false;
+                    })
+                    .catch(e => {
+                        console.error("Error creating follow:", e);
                     })
                 } else {
                     // Unfollow.
                     this.followIcon = "mdi-plus-circle-outline";
                     this.followIconColor = "";
 
-                    // Delete the follow document in the relevant collection.
-                    this.collectionPath.doc(this.docId).collection("follows").doc(this.$store.state.userProfile.data.uid).delete().then(() => {
-                        // Delete the document from the users collection.
-                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.isFollowed).delete().then(() => {
-                            this.isFollowed = '';
-                            this.snackbarHandler(true);
-                            this.followCounter --;
-                        }).catch(e => {
-                            this.errorMessage = "Error deleting follow. Error deleting from user's follows: " + e;
-                            console.log(this.errorMessage);
-                        })
-                    }).catch(e => {
-                        this.errorMessage = "Error deleting follow. Error deleting from document's follows: " + e;
-                        console.log(this.errorMessage);
+                    // First delete from relevant collection.
+                    batch.delete(this.collectionPath.doc(this.docId).collection("follows").doc(this.$store.state.userProfile.data.uid));
+
+                    // Then delete from users collection.
+                    batch.delete(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPath).doc(this.isFollowed));
+
+                    // Decrement the follow counter.
+                    batch.update(this.collectionPath.doc(this.docId).collection("counters").doc((Math.floor(Math.random() * this.numShards)).toString()), {
+                        followCount: fv.increment(-1)
+                    });
+
+                    // Commit the batch.
+                    batch.commit()
+                    .then(() => {
+                        this.isFollowed = '';
+                        this.snackBarHandler(true);
+                        this.followCounter --;
+                        this.isFollowing = false;
                     })
+                    .catch(e => {
+                        console.error("Error deleting follow:", e);
+                        this.isFollowing = false;
+                    });
                 }    
                 document.activeElement.blur();
             }
