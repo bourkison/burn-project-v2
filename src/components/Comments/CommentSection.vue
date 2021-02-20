@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { db, fv } from '../../firebase'
+import { db, fv } from '@/firebase'
 import Comment from './Comment.vue'
 
 export default {

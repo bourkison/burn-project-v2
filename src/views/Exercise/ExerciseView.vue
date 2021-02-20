@@ -94,8 +94,8 @@
 import { db, storage, functions } from '../../firebase'
 import * as marked from 'marked'
 
-import MuscleGroup from '../../components/MuscleGroup.vue'
-import CommentSection from '../Comments/CommentSection.vue'
+import MuscleGroup from '@/components/MuscleGroup.vue'
+import CommentSection from '@/components/Comments/CommentSection.vue'
 
 export default {
     name: 'ExerciseView',

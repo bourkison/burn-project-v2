@@ -4,25 +4,25 @@ import VueRouter from 'vue-router'
 
 import Home from '@/views/Home.vue'
 
-import Exercise from '@/views/Exercises/Exercise.vue'
-import ExerciseNew from '@/views/Exercises/ExerciseNew.vue'
-import ExerciseEdit from '@/views/Exercises/ExerciseEdit.vue'
-import ExerciseView from '@/views/Exercises/ExerciseView.vue'
-import ExerciseDiscover from '@/views/Exercises/ExerciseDiscover.vue'
-import ExerciseFollowed from '@/views/Exercises/ExerciseFollowed.vue'
+import Exercise from '@/views/Exercise/Exercise.vue'
+import ExerciseNew from '@/views/Exercise/ExerciseNew.vue'
+import ExerciseEdit from '@/views/Exercise/ExerciseEdit.vue'
+import ExerciseView from '@/views/Exercise/ExerciseView.vue'
+import ExerciseDiscover from '@/views/Exercise/ExerciseDiscover.vue'
+import ExerciseFollowed from '@/views/Exercise/ExerciseFollowed.vue'
 
-import Workout from '@/views/Workouts/Workout.vue'
-import WorkoutNew from '@/views/Workouts/WorkoutNew.vue'
-import WorkoutEdit from '@/views/Workouts/WorkoutEdit.vue'
-import WorkoutView from '@/views/Workouts/WorkoutView.vue'
-import WorkoutFollowed from '@/views/Workouts/WorkoutFollowed.vue'
+import Workout from '@/views/Workout/Workout.vue'
+import WorkoutNew from '@/views/Workout/WorkoutNew.vue'
+import WorkoutEdit from '@/views/Workout/WorkoutEdit.vue'
+import WorkoutView from '@/views/Workout/WorkoutView.vue'
+import WorkoutFollowed from '@/views/Workout/WorkoutFollowed.vue'
 
 import Burn from '@/views/Burn/Burn.vue'
 import BurnHome from '@/views/Burn/BurnHome.vue'
 import RecentBurn from '@/views/Burn/RecentBurn.vue'
 
-import Profile from '@/views/Users/Profile.vue'
-import ViewProfile from '@/views/Users/ViewProfile.vue'
+import Profile from '@/views/User/Profile.vue'
+import ViewProfile from '@/views/User/ViewProfile.vue'
 
 Vue.use(VueRouter)
 

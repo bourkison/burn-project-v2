@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { storage } from '../../firebase'
+import { storage } from '@/firebase'
 import Sortable from 'sortablejs'
 
 import ImageEditorDialogue from '../ImageEditorDialogue.vue'

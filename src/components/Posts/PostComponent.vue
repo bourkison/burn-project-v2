@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { db, storage } from '../../firebase'
+import { db, storage } from '@/firebase'
 
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'

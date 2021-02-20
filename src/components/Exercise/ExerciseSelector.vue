@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import { db } from '../../firebase'
+import { db } from '@/firebase'
 import Sortable from 'sortablejs'
 import * as marked from 'marked'
 

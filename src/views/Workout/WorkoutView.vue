@@ -79,9 +79,8 @@
 import { db, functions } from '../../firebase'
 import * as marked from 'marked'
 
-import CommentSection from '../Comments/CommentSection.vue'
-import ExerciseExpandable from '../../components/Exercise/ExerciseExpandable.vue'
-// import SuggestedSetsSelector from '../../components/Exercise/SuggestedSetsSelector.vue'
+import CommentSection from '@/components/Comments/CommentSection.vue'
+import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable.vue'
 
 export default {
     name: 'WorkoutView',
