@@ -11,7 +11,8 @@
             <v-col cols="12" sm="6" lg="5" xl="4">
                 <v-sheet min-height="70vh" rounded="lg">
                     <v-container v-if="$store.state.userProfile.loggedIn">
-                        <PostFeed></PostFeed>
+                        <h1>Welcome, {{$store.state.userProfile.docData.username}}</h1>
+                        <PostFeedHome/>
                     </v-container>
                     <v-container v-else>
                         <router-link to="/login">Login</router-link> or <router-link to="/signup">Sign Up</router-link> to get started.
@@ -32,16 +33,11 @@
 <script>
 // @ is an alias to /src
 // import HelloWorld from '@/components/HelloWorld.vue'
-import PostFeed from '@/components/Post/PostFeed.vue'
+import PostFeedHome from '@/components/Post/PostFeedHome.vue'
 
 export default {
     name: 'Home',
-    components: { PostFeed },
-    data() {
-        return {
-            // isLoading: false
-        }
-    },
+    components: { PostFeedHome },
 }
 </script>
 

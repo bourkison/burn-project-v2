@@ -24,15 +24,10 @@
                     </v-container>
                 </v-col>
             </v-row>
-            <v-row v-if="isLoggedInUser">
-                <v-col cols="12" sm="12">
-                    <PostNew @newPost="newPost" />
-                </v-col>
-            </v-row>
-            <v-row v-for="postId in posts" :key="postId">
-                <v-col cols="12" sm="12">
-                    <PostComponent :postId="postId" />
-                </v-col>
+            <v-row>
+                <v-container>
+                    <PostFeed :posts="posts" :newPost="isLoggedInUser" />
+                </v-container>
             </v-row>
         </v-container>
         <v-container v-else>
@@ -44,12 +39,11 @@
 <script>
 import { db, fv } from '@/firebase'
 
-import PostNew from '@/components/Post/PostNew.vue'
-import PostComponent from '@/components/Post/PostComponent.vue'
+import PostFeed from '@/components/Post/PostFeed.vue'
 
 export default {
     name: 'ViewProfile',
-    components: { PostNew, PostComponent },
+    components: { PostFeed },
     data() {
         return {
             isLoading: true,
