@@ -15,6 +15,7 @@ import Workout from '@/views/Workout/Workout.vue'
 import WorkoutNew from '@/views/Workout/WorkoutNew.vue'
 import WorkoutEdit from '@/views/Workout/WorkoutEdit.vue'
 import WorkoutView from '@/views/Workout/WorkoutView.vue'
+import WorkoutDiscover from '@/views/Workout/WorkoutDiscover.vue'
 import WorkoutFollowed from '@/views/Workout/WorkoutFollowed.vue'
 
 import Burn from '@/views/Burn/Burn.vue'
@@ -100,6 +101,11 @@ const routes = [
         path: '/workouts/new',
         name: 'New Workout',
         component: WorkoutNew
+      },
+      {
+        path: '/workouts/discover',
+        name: 'Discover Workouts',
+        component: WorkoutDiscover
       },
       {
         path: '/workouts/:workoutid',

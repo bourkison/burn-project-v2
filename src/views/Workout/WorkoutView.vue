@@ -167,9 +167,9 @@ export default {
 
         likeToggle: function(s) {
             if (s) {
-                this.workoutData.likeCount ++;
+                this.likeCount ++;
             } else {
-                this.workoutData.likeCount --;
+                this.likeCount --;
             }
 
             this.isLiked = s;

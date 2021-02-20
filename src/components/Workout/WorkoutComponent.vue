@@ -12,7 +12,7 @@
                 <CommentSection
                     :workout-id="this.$props.userWorkoutData.id"
                     :is-liked="isLiked"
-                    :like-count="likeCount"
+                    :likeCount="likeCount"
                     :recentComments="workoutData.recentComments"
                     :commentCount="commentCount"
                     :followCount="followCount"
@@ -61,7 +61,7 @@ export default {
             this.workoutData = workoutDoc.data();
 
             // Pull like, comment and follow count.
-            return db.collection("workouts").doc(this.$props.userWorkoutData.id).get()
+            return db.collection("workouts").doc(this.$props.userWorkoutData.id).collection("counters").get()
         })
         .then(counterSnapshot => {
             counterSnapshot.forEach(counter => {
@@ -94,9 +94,9 @@ export default {
 
         likeToggle: function(s) {
             if (s) {
-                this.workoutData.likeCount ++;
+                this.likeCount ++;
             } else {
-                this.workoutData.likeCount --;
+                this.likeCount --;
             }
 
             this.isLiked = s;

@@ -1,7 +1,7 @@
 <template>
     <v-sheet rounded="lg" min-height="70vh">
         <v-container>
-            <h1 align="center">Top Exercises</h1>
+            <h1 align="center">Discover Exercises</h1>
             <ExerciseFeed :exercises="exercises" />
         </v-container>
     </v-sheet>
@@ -18,9 +18,6 @@ export default {
         return {
             isLoading: true,
             exercises: [], // Exercises from user doc.
-            
-            // Firebase:
-            loadedImages: 0
         }
     },
 
@@ -32,14 +29,6 @@ export default {
                 this.exercises.push(data);
             })
         })
-    },
-
-    watch: {
-        loadedExercises: function() {
-            if (this.loadedExercises >= this.userExercises.length) {
-                console.log("Exercises loaded!", this.exercises);
-            }
-        }
     }
 }
 </script>

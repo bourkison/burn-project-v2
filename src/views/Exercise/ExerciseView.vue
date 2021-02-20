@@ -192,6 +192,7 @@ export default {
             })
             .then(counterSnapshot => {
                 counterSnapshot.forEach(counter => {
+                    console.log(counter.data().likeCount);
                     this.likeCount += counter.data().likeCount;
                     this.commentCount += counter.data().commentCount;
                     this.followCount += counter.data().followCount;
