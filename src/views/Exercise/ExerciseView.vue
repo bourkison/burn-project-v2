@@ -1,6 +1,6 @@
 <template>
     <v-sheet class="mainSheet" min-height="70vh" rounded="lg">
-        <v-container v-if="!isLoading">
+        <v-container v-if="!isLoading && exerciseExists">
             <v-card>
                 <v-row class="headerRow" align="center" justify="center">
                     <v-col cols="12" sm="6">
@@ -75,6 +75,9 @@
                 </v-card>
             </v-dialog>
             <!-- End Delete Dialogue -->
+        </v-container>
+        <v-container v-else-if="!isLoading && !exerciseExists">
+            <div>404 NOT FOUND.</div>
         </v-container>
 
         <v-container v-else>
@@ -171,6 +174,8 @@ export default {
                 } else {
                     this.exerciseExists = false;
                     this.isLoading = false;
+
+                    throw new Error("Exercise does not exist.");
                 }
             })
             .then(imgUrls => {
@@ -198,7 +203,7 @@ export default {
                 this.isLoading = false;
             })
             .catch(e => {
-                console.warn("Error downloading exercise:", e);
+                console.error("Error downloading exercise:", e);
             })
         },
 

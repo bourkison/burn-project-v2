@@ -103,7 +103,9 @@ export default {
 
             collectionPath: null,
             comments: [],
-            newComment: {},
+            newComment: {
+                content: ''
+            },
             commentsAllowed: true,
             docId: null,
             pageType: '',
@@ -360,7 +362,8 @@ export default {
                     batch.delete(this.collectionPath.doc(this.docId).collection("follows").doc(this.$store.state.userProfile.data.uid));
 
                     // Then delete from users collection.
-                    batch.delete(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPath).doc(this.isFollowed));
+                    console.log("ISFOLLOWED", this.isFollowed);
+                    batch.delete(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection(this.collectionPathString).doc(this.isFollowed));
 
                     // Decrement the follow counter.
                     batch.update(this.collectionPath.doc(this.docId).collection("counters").doc((Math.floor(Math.random() * this.numShards)).toString()), {
@@ -371,7 +374,7 @@ export default {
                     batch.commit()
                     .then(() => {
                         this.isFollowed = '';
-                        this.snackBarHandler(true);
+                        this.snackbarHandler(true);
                         this.followCounter --;
                         this.isFollowing = false;
                     })
@@ -411,7 +414,7 @@ export default {
                 const batch = db.batch();
 
                 // First add comment to relevant collection.
-                batch.set(this.collectionPath.doc(this.docId).collection("comments"), payload);
+                batch.set(this.collectionPath.doc(this.docId).collection("comments").doc(commentId), payload);
 
                 // Then add comment to user document.
                 batch.set(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("comments").doc(commentId), {
@@ -430,11 +433,17 @@ export default {
                     lastActivity: payload.createdAt
                 });
 
+                // Set up counters for comments.
+                for (let i = 0; i < (this.numShards / 2); i ++) {
+                    const shardRef = this.collectionPath.doc(this.docId).collection("comments").doc(commentId).collection("counters").doc(i.toString());
+                    batch.set(shardRef, { counter: 0 });
+                }
+
                 // Commit the batch.
                 batch.commit()
                 .then(() => {
-                    payload.id = commendId;
-                    this.comments.push(payload);
+                    payload.id = commentId;
+                    this.comments.unshift(payload);
                     this.commentCounter ++;
                 })
                 .catch(e => {
