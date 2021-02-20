@@ -18,7 +18,7 @@
     <v-sheet>
         <v-container>
             <h1 align="center">{{ exerciseForm.name ? exerciseForm.name : 'New Exercise' }}</h1>
-            <v-form @submit.prevent="createExercise">
+            <v-form @submit.prevent="createExerciseWithFunction">
                 <v-text-field
                     v-model="exerciseForm.name"
                     label="Exercise Name"
@@ -35,14 +35,14 @@
                         <DifficultySelector class="difficultyCard" @setDifficulty="setDifficulty"></DifficultySelector>
                     </v-col>
                 </v-row>
-                <div class="text-center"><v-btn type="submit" v-bind:loading="isLoading" :disabled="isLoading">Create Exercise</v-btn></div>
+                <div class="text-center"><v-btn type="submit" :loading="isCreating">Create Exercise</v-btn></div>
             </v-form>
         </v-container>
     </v-sheet>
 </template>
 
 <script>
-import { db, storage } from '@/firebase'
+import { db, functions, storage } from '@/firebase'
 
 import ExerciseImageUploader from '@/components/Exercise/ExerciseImageUploader.vue'
 import MarkdownInput from '@/components/MarkdownInput.vue'
@@ -64,7 +64,7 @@ export default {
                 suggestedSets: [{id: 0}],
                 videoSrc: ''
             },
-            isLoading: false,
+            isCreating: false,
             imageFiles: [],
             imgIterator: 0,
             setIterator: 0,
@@ -84,8 +84,41 @@ export default {
     },
 
     methods: {
-        createExercise() {
-            this.isLoading = true;
+        createExerciseWithFunction: function() {
+            this.isCreating = true;
+
+            // First upload the image files.
+            let imageUploadPromises = [];
+            this.imageFiles.forEach(img => {
+                let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
+                imageUploadPromises.push(imageRef.putString(img, 'data_url'));
+                this.exerciseForm.imgPaths.push(imageRef.fullPath);
+            })
+
+            Promise.all(imageUploadPromises)
+            .then(() => {
+                const createExercise = functions.httpsCallable("createExercise");
+                const user = { username: this.$store.state.userProfile.docData.username, profilePhotoUrl: this.$store.state.userProfile.docData.profilePhotoUrl };
+
+                createExercise({ exerciseForm: this.exerciseForm, imageFiles: this.imageFiles, user: user })
+                .then(result => {
+                    this.isCreating = false;
+                    console.log(result);
+                    this.$router.push("/exercises/" + result.data.id);
+                })
+                .catch(e => {
+                    console.log("Error creating document:", e);
+                    this.isCreating = false;
+                })
+            })
+            .catch(e => {
+                console.log("Error uploading images", e);
+                this.isCreating = false;
+            })
+        },
+
+        createExercise: function() {
+            this.isCreating = true;
             this.exerciseForm.createdBy = {id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl};
             this.exerciseForm.createdAt = new Date();
             this.exerciseForm.likeCount = 0;
@@ -104,7 +137,7 @@ export default {
             // let imageRef = storage.child("exercises/" + this.$store.state.userProfile.data.uid + "")            
         },
 
-        generateId(n) {
+        generateId: function(n) {
             let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
             let id = '';
             // 7 random characters
@@ -114,23 +147,23 @@ export default {
             return id;
         },
 
-        updateDescription(t) {
+        updateDescription: function(t) {
             this.exerciseForm.description = t;
         },
 
-        setDifficulty(d) {
+        setDifficulty: function(d) {
             this.exerciseForm.difficulty = d;
         },
 
-        updateMgs (mg) {
+        updateMgs: function(mg) {
             this.exerciseForm.muscleGroups = mg;
         },
 
-        updateSets (sets) {
+        updateSets: function (sets) {
             this.exerciseForm.suggestedSets = sets;
         },
 
-        updateImgFiles (arr) {
+        updateImgFiles: function (arr) {
             this.imageFiles = [];
             arr.forEach(img => {
                 this.imageFiles.push(img.file);

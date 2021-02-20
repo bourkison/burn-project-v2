@@ -88,8 +88,8 @@ export default {
 
             createWorkout({ workoutForm: this.workoutForm, user: user })
             .then(result => {
-                this.$router.push("/workouts/" + result.data.id);
                 this.isCreating = false;
+                this.$router.push("/workouts/" + result.data.id);
             })
             .catch(e => {
                 console.log("ERROR:", e);
