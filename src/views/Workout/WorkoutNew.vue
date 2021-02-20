@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { db } from '@/firebase'
+import { db, functions } from '@/firebase'
 import MarkdownInput from '@/components/MarkdownInput.vue'
 import DifficultySelector from '@/components/DifficultySelector.vue'
 import ExerciseSelector from '@/components/Exercise/ExerciseSelector.vue'
@@ -81,6 +81,23 @@ export default {
     },
 
     methods: {
+        createWorkout: function() {
+            this.isCreating = true;
+            const createWorkout = functions.httpsCallable("createWorkout");
+            const user = { username: this.$store.state.userProfile.docData.username, profilePhotoUrl: this.$store.state.userProfile.docData.profilePhotoUrl };
+
+            createWorkout({ workoutForm: this.workoutForm, user: user })
+            .then(result => {
+                this.$router.push("/workouts/" + result.data.id);
+                this.isCreating = false;
+            })
+            .catch(e => {
+                console.log("ERROR:", e);
+                this.isCreating = false;
+            })
+
+        },
+
         updateDescription: function(d) {
             this.workoutForm.description = d;
         },
@@ -91,69 +108,6 @@ export default {
 
         setDifficulty: function(d) {
             this.workoutForm.difficulty = d;
-        },
-
-        generateId(n) {
-            let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-            let id = '';
-            // 7 random characters
-            for (let i = 0; i < n; i++) {
-                id += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
-            }
-            return id;
-        },
-
-        createWorkout: function() {
-            this.isCreating = true;
-            this.workoutForm.createdAt = new Date();
-            this.workoutForm.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl }
-            
-            // Update the exercises to only include name, id, suggestedSets
-            let i = 0;
-            this.workoutForm.exercises.forEach(exercise => {
-                this.workoutForm.exercises[i] = { name: exercise.name, id: exercise.id, suggestedSets: exercise.suggestedSets }
-                i ++;
-            })
-
-            // Setting this to 1 will call the watcher, which begins the upload process.
-            this.idAttempts = 1;
-        }
-    },
-
-    watch: {
-        // Upload begin:
-        idAttempts: function() {
-            let firstHalfId = this.workoutForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase();
-            if (firstHalfId.length > 0) {
-                firstHalfId += "-";
-            }
-            this.workoutForm.id = firstHalfId + "-" + this.generateId(15 - firstHalfId.length);
-            this.workoutForm.likeCount = 0;
-            this.workoutForm.recentComments = [];
-            this.workoutForm.commentCount = 0;
-            this.workoutForm.followCount = 0;
-            
-            db.collection("workouts").doc(this.workoutForm.id).get().then(idTestDoc => {
-                if (!idTestDoc.exists) {
-                    // If the ID doesn't exist, first set the workout document in workouts collection.
-                    db.collection("workouts").doc(this.workoutForm.id).set(this.workoutForm).then(() => {
-                        // Then in users collection
-                        let workoutPayload = { createdAt: this.workoutForm.createdAt, isFollow: false }
-                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").doc(this.workoutForm.id).set(workoutPayload).then(() => {
-                            this.isCreating = false;
-                            this.$router.push("/workouts/" + this.workoutForm.id);
-                        }).catch(e => {
-                            this.errorMessage = "Error updating user: " + e;
-                            console.log(this.errorMessage);
-                        })
-                    }).catch(e => {
-                        this.errorMessage = "Error creating workout: " + e;
-                        console.log(this.errorMessage);
-                    })
-                } else {
-                    this.idAttempts++;
-                }
-            })
         }
     }
 }
