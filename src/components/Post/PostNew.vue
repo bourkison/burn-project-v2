@@ -46,7 +46,7 @@
                 </span>
                 <v-spacer />
                 <span align="right">
-                    <v-btn @click="createPostWithFunction" :loading="isLoading" text>Post</v-btn>
+                    <v-btn @click="createPost" :loading="isLoading" text>Post</v-btn>
                 </span>
             </v-row>
         </v-container>
@@ -136,7 +136,7 @@ export default {
     },
 
     methods: {
-        createPostWithFunction: function() {
+        createPost: function() {
             this.isLoading = true;
             let imageUploadPromises = [];
 
