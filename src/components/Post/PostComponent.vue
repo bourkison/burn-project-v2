@@ -130,7 +130,7 @@ export default {
             }
         })
         .then(() => {
-            // Pull like count.
+            // Pull like and comment count.
             return db.collection("posts").doc(this.$props.docId).collection("counter").get()
         })
         .then(counterSnapshot => {

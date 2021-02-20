@@ -2,8 +2,8 @@
     <div>
         <v-row align="center" justify="center">
             <v-col cols="12" sm="1">
-                <v-avatar v-if="comment.createdBy.profilePhotoUrl != null" min-width="32" min-height="32" style="width:unset;height:unset;">
-                    <v-img aspect-ratio="1" width="100%" height="100%" :src="comment.createdBy.profilePhotoUrl"/>
+                <v-avatar v-if="comment.createdBy.profilePhoto != null" min-width="32" min-height="32" style="width:unset;height:unset;">
+                    <v-img aspect-ratio="1" width="100%" height="100%" :src="comment.createdBy.profilePhoto"/>
                 </v-avatar>
                 <v-avatar v-else color="red darken-1" size="32">
                     <v-icon dark>mdi-account-circle</v-icon>

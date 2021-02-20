@@ -1,6 +1,6 @@
 <template>
     <v-sheet class="mainSheet" rounded="lg">
-        <v-container v-if="!isLoading">
+        <v-container v-if="!isLoading && workoutExists">
             <v-card>
                 <v-row class="headerRow" align="center" justify="center">
                     <v-col cols="12" sm="6">
@@ -41,10 +41,10 @@
                 <CommentSection
                     :workout-id="this.$route.params.workoutid"
                     :is-liked="isLiked"
-                    :like-count="workoutData.likeCount"
+                    :likeCount="likeCount"
                     :recentComments="workoutData.recentComments"
-                    :commentCount="workoutData.commentCount"
-                    :followCount="workoutData.followCount"
+                    :commentCount="commentCount"
+                    :followCount="followCount"
                     :followableComponent="true"
                     @likeToggle="likeToggle"
                 ></CommentSection>
@@ -69,6 +69,9 @@
             </v-dialog>
             <!-- End Delete Dialogue -->
         </v-container>
+        <v-container v-else-if="!workoutExists && !isLoading">
+            <div>404 Not Found.</div>
+        </v-container>
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
         </v-container>
@@ -90,7 +93,13 @@ export default {
             isLoading: true,
             isDeleting: false,
             workoutData: {},
+            workoutExists: false,
             isLiked: '',
+
+            // Counters:
+            likeCount: 0,
+            commentCount: 0,
+            followCount: 0,
 
             // Vuetify:
             isDeletingDialogue: false,
@@ -113,20 +122,46 @@ export default {
 
     methods: {
         downloadWorkout: function() {
-            db.collection("workouts").doc(this.$route.params.workoutid).get().then(workoutDoc => {
+            db.collection("workouts").doc(this.$route.params.workoutid).get()
+            .then(workoutDoc => {
                 if (workoutDoc.exists) {
                     this.workoutData = workoutDoc.data();
+                    this.workoutExists = true;
 
-                    // Check if the user has liked.
-                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$route.params.workoutid).get().then(likeSnapshot => {
-                        likeSnapshot.forEach(like => {
-                            if (like.exists) {
-                                this.isLiked = like.id;
-                            }
-                        })
-                        this.isLoading = false;
-                    })                
+                    // Pull like, comment and follow count.
+                    return db.collection("workouts").doc(this.$route.params.workoutid).collection("counters").get()           
+                } else {
+                    this.workoutExists = false;
+                    this.isLoading = false;
+
+                    throw new Error("Workout does not exist");
                 }
+            })
+            .then(counterSnapshot => {
+                counterSnapshot.forEach(counter => {
+                    this.likeCount += counter.data().likeCount;
+                    this.commentCount += counter.data().commentCount;
+                    this.followCount += counter.data().followCount;
+                })
+
+                // Check if the user has liked.
+                return this.checkIfLiked();
+            })
+            .then(() => {
+                this.isLoading = false;
+            })
+            .catch(e => {
+                console.error("Error downloading workout", e);
+            })
+        },
+
+        checkIfLiked: function() {
+            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$route.params.workoutid).get().then(likeSnapshot => {
+                likeSnapshot.forEach(like => {
+                    if (like.exists) {
+                        this.isLiked = like.id;
+                    }
+                })
             })
         },
 

@@ -25,7 +25,7 @@
                     <CommentSection 
                         :exercise-id="this.$props.userExerciseData.id" 
                         :is-liked="isLiked" 
-                        :like-count="likeCount" 
+                        :likCount="likeCount" 
                         :recentComments="exerciseData.recentComments"
                         :commentCount="commentCount"
                         :followCount="followCount"

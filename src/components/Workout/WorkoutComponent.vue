@@ -12,10 +12,10 @@
                 <CommentSection
                     :workout-id="this.$props.userWorkoutData.id"
                     :is-liked="isLiked"
-                    :like-count="workoutData.likeCount"
+                    :like-count="likeCount"
                     :recentComments="workoutData.recentComments"
-                    :commentCount="workoutData.commentCount"
-                    :followCount="workoutData.followCount"
+                    :commentCount="commentCount"
+                    :followCount="followCount"
                     :followableComponent="true"
                     @likeToggle="likeToggle"
                 ></CommentSection>
@@ -46,14 +46,42 @@ export default {
         return {
             isLoading: true,
             workoutData: {},
-            isLiked: ''
+            isLiked: '',
+
+            // Counters:
+            likeCount: 0,
+            commentCount: 0,
+            followCount: 0
         }
     },
 
     created: function() {
-        db.collection("workouts").doc(this.$props.userWorkoutData.id).get().then(workoutDoc => {
+        db.collection("workouts").doc(this.$props.userWorkoutData.id).get()
+        .then(workoutDoc => {
             this.workoutData = workoutDoc.data();
 
+            // Pull like, comment and follow count.
+            return db.collection("workouts").doc(this.$props.userWorkoutData.id).get()
+        })
+        .then(counterSnapshot => {
+            counterSnapshot.forEach(counter => {
+                this.likeCount += counter.data().likeCount;
+                this.commentCount += counter.data().commentCount;
+                this.followCount += counter.data().followCount;
+            })
+
+            return this.checkIfLiked();
+        })
+        .then(() => {
+            this.isLoading = false;
+        })
+        .catch(e => {
+            console.log("Error downloading workout", e);
+        })
+    },
+
+    methods: {
+        checkIfLiked: function() {
             // Check if the user has liked.
             db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.$props.userWorkoutData.id).get().then(likeSnapshot => {
                 likeSnapshot.forEach(like => {
@@ -61,14 +89,9 @@ export default {
                         this.isLiked = like.id;
                     }
                 })
-                this.isLoading = false;
             })
-        }).catch(e => {
-            console.log("Error downloading workout", e);
-        })
-    },
+        },
 
-    methods: {
         likeToggle: function(s) {
             if (s) {
                 this.workoutData.likeCount ++;
