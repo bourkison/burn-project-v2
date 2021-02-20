@@ -33,7 +33,7 @@ import DifficultySelector from '../../components/DifficultySelector.vue'
 import ExerciseSelector from '../../components/Exercise/ExerciseSelector.vue'
 
 export default {
-    name: 'NewWorkout',
+    name: 'WorkoutNew',
     components: { MarkdownInput, ExerciseSelector, DifficultySelector },
     data() {
         return {

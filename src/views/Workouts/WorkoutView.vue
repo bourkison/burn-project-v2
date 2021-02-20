@@ -84,7 +84,7 @@ import ExerciseExpandable from '../../components/Exercise/ExerciseExpandable.vue
 // import SuggestedSetsSelector from '../../components/Exercise/SuggestedSetsSelector.vue'
 
 export default {
-    name: 'ViewWorkout',
+    name: 'WorkoutView',
     components: { CommentSection, ExerciseExpandable },
     data() {
         return {

@@ -2,27 +2,27 @@ import firebase from 'firebase'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import Home from '../views/Home.vue'
+import Home from '@/views/Home.vue'
 
-import Exercise from '../views/Exercises/Exercise.vue'
-import ExerciseNew from '../views/Exercises/ExerciseNew.vue'
-import ExerciseEdit from '../views/Exercises/ExerciseEdit.vue'
-import ExerciseView from '../views/Exercises/ExerciseView.vue'
-import ExerciseDiscover from '../views/Exercises/ExerciseDiscover.vue'
-import ExerciseFollowed from '../views/Exercises/ExerciseFollowed.vue'
+import Exercise from '@/views/Exercises/Exercise.vue'
+import ExerciseNew from '@/views/Exercises/ExerciseNew.vue'
+import ExerciseEdit from '@/views/Exercises/ExerciseEdit.vue'
+import ExerciseView from '@/views/Exercises/ExerciseView.vue'
+import ExerciseDiscover from '@/views/Exercises/ExerciseDiscover.vue'
+import ExerciseFollowed from '@/views/Exercises/ExerciseFollowed.vue'
 
-import Workout from '../views/Workouts/Workout.vue'
-import NewWorkout from '../views/Workouts/NewWorkout.vue'
-import EditWorkout from '../views/Workouts/EditWorkout.vue'
-import ViewWorkout from '../views/Workouts/ViewWorkout.vue'
-import ViewWorkouts from '../views/Workouts/ViewWorkouts.vue'
+import Workout from '@/views/Workouts/Workout.vue'
+import WorkoutNew from '@/views/Workouts/WorkoutNew.vue'
+import WorkoutEdit from '@/views/Workouts/WorkoutEdit.vue'
+import WorkoutView from '@/views/Workouts/WorkoutView.vue'
+import WorkoutFollowed from '@/views/Workouts/WorkoutFollowed.vue'
 
-import Burn from '../views/Burn/Burn.vue'
-import BurnHome from '../views/Burn/BurnHome.vue'
-import RecentBurn from '../views/Burn/RecentBurn.vue'
+import Burn from '@/views/Burn/Burn.vue'
+import BurnHome from '@/views/Burn/BurnHome.vue'
+import RecentBurn from '@/views/Burn/RecentBurn.vue'
 
-import Profile from '../views/Users/Profile.vue'
-import ViewProfile from '../views/Users/ViewProfile.vue'
+import Profile from '@/views/Users/Profile.vue'
+import ViewProfile from '@/views/Users/ViewProfile.vue'
 
 Vue.use(VueRouter)
 
@@ -99,22 +99,22 @@ const routes = [
       {
         path: '/workouts/new',
         name: 'New Workout',
-        component: NewWorkout
+        component: WorkoutNew
       },
       {
         path: '/workouts/:workoutid',
         name: 'View Workout',
-        component: ViewWorkout
+        component: WorkoutView
       },
       {
         path: '/workouts/:workoutid/edit',
         name: 'Edit Workout',
-        component: EditWorkout
+        component: WorkoutEdit
       },
       {
         path: '/workouts',
         name: 'View Workouts',
-        component: ViewWorkouts
+        component: WorkoutFollowed
       }
     ]
   },

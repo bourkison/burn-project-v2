@@ -16,7 +16,7 @@ import ExerciseFeed from '@/components/Exercise/ExerciseFeed'
 // import ViewExerciseMin from './ViewExerciseMin'
 
 export default {
-    name: 'ViewAllExercises',
+    name: 'ExerciseDiscover',
     components: { ExerciseFeed },
     data() {
         return {

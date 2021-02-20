@@ -51,7 +51,7 @@ import MarkdownInput from '../../components/MarkdownInput.vue'
 import MuscleGroupSelect from '../../components/MuscleGroupSelect.vue'
 
 export default {
-    name: 'EditExercise',
+    name: 'ExerciseEdit',
     components: { ExerciseImageUploader, DifficultySelector, MarkdownInput, MuscleGroupSelect },
     data() {
         return {

@@ -24,7 +24,7 @@ import ExerciseSelector from '../../components/Exercise/ExerciseSelector.vue'
 import DifficultySelector from '../../components/DifficultySelector.vue'
 
 export default {
-    name: 'EditWorkout',
+    name: 'WorkoutEdit',
     components: { MarkdownInput, ExerciseSelector, DifficultySelector },
     data() {
         return {

@@ -51,7 +51,7 @@ import MuscleGroupSelect from '../../components/MuscleGroupSelect.vue'
 import SuggestedSetsSelector from '../../components/Exercise/SuggestedSetsSelector.vue'
 
 export default {
-    name: "NewExercise",
+    name: 'ExerciseNew',
     components: { ExerciseImageUploader, MarkdownInput, MuscleGroupSelect, DifficultySelector, SuggestedSetsSelector },
     data() {
         return {

@@ -98,7 +98,7 @@ import MuscleGroup from '../../components/MuscleGroup.vue'
 import CommentSection from '../Comments/CommentSection.vue'
 
 export default {
-    name: 'ViewExercise',
+    name: 'ExerciseView',
     components: { MuscleGroup, CommentSection },
     data() {
         return {

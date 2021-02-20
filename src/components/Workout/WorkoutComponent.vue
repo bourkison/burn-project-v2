@@ -29,11 +29,11 @@
 
 <script>
 import { db } from '../../firebase'
-import CommentSection from '../Comments/CommentSection'
+import CommentSection from '@/views/Comments/CommentSection'
 
 export default {
 
-    name: 'ViewWorkoutMin',
+    name: 'WorkoutComponent',
     components: { CommentSection },
     props: {
         userWorkoutData: {

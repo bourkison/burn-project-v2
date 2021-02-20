@@ -21,7 +21,7 @@ import { db } from '@/firebase'
 import ExerciseFeed from '@/components/Exercise/ExerciseFeed'
 
 export default {
-    name: 'ViewExercises',
+    name: 'ExerciseFollowed',
     components: { ExerciseFeed },
     data() {
         return {
