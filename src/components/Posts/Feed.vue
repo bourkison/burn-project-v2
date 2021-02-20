@@ -1,10 +1,10 @@
 <template>
     <div v-if="!isLoading">
         <h1>Welcome, {{$store.state.userProfile.docData.username}}</h1>
-        <NewPost style="margin: 20px 0;" @newPost="newPost"></NewPost>
+        <PostNew style="margin: 20px 0;" @newPost="newPost" />
         <v-row v-for="post in posts" :key="post">
             <v-col cols="12" sm="12">
-                <ViewPostMin :postId="post"></ViewPostMin>
+                <PostComponent :postId="post"></PostComponent>
             </v-col>
         </v-row>
     </div>
@@ -16,12 +16,12 @@
 <script>
 import { functions } from '@/firebase'
 
-import NewPost from '@/views/Posts/NewPost.vue'
-import ViewPostMin from '@/views/Posts/ViewPostMin.vue'
+import PostNew from '@/components/Posts/PostNew.vue'
+import PostComponent from '@/components/Posts/PostComponent.vue'
 
 export default {
     name: 'Feed',
-    components: { NewPost, ViewPostMin },
+    components: { PostNew, PostComponent },
     data() {
         return {
             isLoading: true,

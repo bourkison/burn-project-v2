@@ -26,12 +26,12 @@
             </v-row>
             <v-row v-if="isLoggedInUser">
                 <v-col cols="12" sm="12">
-                    <NewPost @newPost="newPost"></NewPost>
+                    <PostNew @newPost="newPost" />
                 </v-col>
             </v-row>
             <v-row v-for="postId in posts" :key="postId">
                 <v-col cols="12" sm="12">
-                    <ViewPostMin :postId="postId"></ViewPostMin>
+                    <PostComponent :postId="postId" />
                 </v-col>
             </v-row>
         </v-container>
@@ -44,12 +44,12 @@
 <script>
 import { db, fv } from '../../firebase'
 
-import NewPost from '../Posts/NewPost.vue'
-import ViewPostMin from '../Posts/ViewPostMin.vue'
+import PostNew from '@/components/Posts/PostNew.vue'
+import PostComponent from '@/components/Posts/PostComponent.vue'
 
 export default {
     name: 'ViewProfile',
-    components: { NewPost, ViewPostMin },
+    components: { PostNew, PostComponent },
     data() {
         return {
             isLoading: true,

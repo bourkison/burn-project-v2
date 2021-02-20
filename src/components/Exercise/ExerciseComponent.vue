@@ -40,7 +40,7 @@
 import { db, storage } from '@/firebase'
 import * as marked from 'marked'
 
-import CommentSection from '@/views/Comments/CommentSection.vue'
+import CommentSection from '@/components/Comments/CommentSection.vue'
 
 export default {
     name: 'ViewExerciseMin',

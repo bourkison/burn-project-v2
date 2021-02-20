@@ -91,7 +91,7 @@ import WorkoutSearch from '@/components/Search/WorkoutSearch.vue'
 
 
 export default {
-    name: 'NewPost',
+    name: 'PostNew',
     components: { BurnMin, BurnSearch, ExerciseExpandable, ExerciseSearch, ImageEditorDialogue, WorkoutExpandable, WorkoutSearch },
     data() {
         return {

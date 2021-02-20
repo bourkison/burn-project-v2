@@ -64,7 +64,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
 import BurnMin from '@/views/Burn/BurnMin.vue'
-import CommentSection from '../Comments/CommentSection.vue'
+import CommentSection from '@/components/Comments/CommentSection.vue'
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable'
 import WorkoutExpandable from '@/components/Workout/WorkoutExpandable'
 

@@ -29,7 +29,7 @@
 
 <script>
 import { db } from '../../firebase'
-import CommentSection from '@/views/Comments/CommentSection'
+import CommentSection from '@/components/Comments/CommentSection'
 
 export default {
 

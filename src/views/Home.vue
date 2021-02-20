@@ -32,7 +32,7 @@
 <script>
 // @ is an alias to /src
 // import HelloWorld from '@/components/HelloWorld.vue'
-import Feed from '@/views/Posts/Feed.vue'
+import Feed from '@/components/Posts/Feed.vue'
 
 export default {
     name: 'Home',
