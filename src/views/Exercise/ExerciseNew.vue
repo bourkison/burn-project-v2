@@ -18,7 +18,7 @@
     <v-sheet>
         <v-container>
             <h1 align="center">{{ exerciseForm.name ? exerciseForm.name : 'New Exercise' }}</h1>
-            <v-form @submit.prevent="createExerciseWithFunction">
+            <v-form @submit.prevent="createExercise">
                 <v-text-field
                     v-model="exerciseForm.name"
                     label="Exercise Name"
@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { db, functions, storage } from '@/firebase'
+import { functions, storage } from '@/firebase'
 
 import ExerciseImageUploader from '@/components/Exercise/ExerciseImageUploader.vue'
 import MarkdownInput from '@/components/MarkdownInput.vue'
@@ -84,7 +84,7 @@ export default {
     },
 
     methods: {
-        createExerciseWithFunction: function() {
+        createExercise: function() {
             this.isCreating = true;
 
             // First upload the image files.
@@ -95,6 +95,7 @@ export default {
                 this.exerciseForm.imgPaths.push(imageRef.fullPath);
             })
 
+            // Once images are all uploaded successfully, create the document.
             Promise.all(imageUploadPromises)
             .then(() => {
                 const createExercise = functions.httpsCallable("createExercise");
@@ -115,26 +116,6 @@ export default {
                 console.log("Error uploading images", e);
                 this.isCreating = false;
             })
-        },
-
-        createExercise: function() {
-            this.isCreating = true;
-            this.exerciseForm.createdBy = {id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl};
-            this.exerciseForm.createdAt = new Date();
-            this.exerciseForm.likeCount = 0;
-            this.exerciseForm.recentComments = [];
-            this.exerciseForm.commentCount = 0;
-            this.exerciseForm.followCount = 0;
-            
-            this.exerciseForm.suggestedSets.forEach (s => {
-                delete s.id;
-                s.measureAmount = Number(s.measureAmount);
-            })
-
-            // Setting this to 1 will call our watcher, which will begin the upload process.
-            this.idAttempts = 1
-
-            // let imageRef = storage.child("exercises/" + this.$store.state.userProfile.data.uid + "")            
         },
 
         generateId: function(n) {
@@ -168,61 +149,7 @@ export default {
             arr.forEach(img => {
                 this.imageFiles.push(img.file);
             })
-            // this.imageFiles = arr;
         }
-    },
-
-    watch: {
-        // This watcher tests for uniqueness of exercise id, then starts upload on images.
-        // Will call imagesUploaded watcher when completed.
-        idAttempts: function() {
-            let firstHalfId = this.exerciseForm.name.replaceAll(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase()
-            if (firstHalfId.length > 0) {
-                firstHalfId += "-";
-            }
-            this.exerciseForm.id = firstHalfId + this.generateId(15 - firstHalfId.length);
-
-            db.collection("exercises").doc(this.exerciseForm.id).get()
-            .then(idTestDoc => {
-                if (!idTestDoc.exists) {
-                    // We upload images first so their references can be added to the Exercise doc.
-                    // let i = 0;
-                    let imageUploadPromises = [];
-
-                    this.imageFiles.forEach(img => {
-                        // this.uploadImageFile(img, i);
-                        // i ++;
-
-                        let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
-                        imageUploadPromises.push(imageRef.putString(img, 'data_url'));
-                        this.exerciseForm.imgPaths.push(imageRef.fullPath);
-                    })
-
-                    return Promise.all(imageUploadPromises)
-                } else {
-                    this.idAttempts ++;
-                }
-            })
-            .then(() => {
-                // Now we can upload the doc.
-                db.collection("exercises").doc(this.exerciseForm.id).set(this.exerciseForm).then(() => {
-                    let exercisePayload = { createdAt: this.exerciseForm.createdAt, isFollow: false }                    
-                    // Doc now created, lets push the exercise ID to the user doc.
-                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").doc(this.exerciseForm.id).set(exercisePayload).then(() => {
-                        this.$router.push("/exercises/" + this.exerciseForm.id);
-                    }).catch(e => {
-                        this.errorMessage = "Error updating user: " + e;
-                        console.warn(e);
-                    })
-                }).catch(e => {
-                    this.errorMessage = "Error uploading exercise: " + e;
-                    console.warn(e);
-                })
-            })
-            .catch(e => {
-                console.warn(e);
-            })
-        },
     }
 }
 </script>

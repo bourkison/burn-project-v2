@@ -46,7 +46,7 @@
                 </span>
                 <v-spacer />
                 <span align="right">
-                    <v-btn @click="createPost" :loading="isLoading" text>Post</v-btn>
+                    <v-btn @click="createPostWithFunction" :loading="isLoading" text>Post</v-btn>
                 </span>
             </v-row>
         </v-container>
@@ -78,7 +78,7 @@
 
 <script>
 import Sortable from 'sortablejs'
-import { db, storage } from '@/firebase'
+import { db, storage, functions } from '@/firebase'
 
 import BurnMin from '@/views/Burn/BurnMin.vue'
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable.vue'
@@ -136,14 +136,11 @@ export default {
     },
 
     methods: {
-        createPost: function() {
+        createPostWithFunction: function() {
             this.isLoading = true;
-            this.postForm.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl };
-            this.postForm.createdAt = new Date();
-            this.postForm.likeCount = 0;
-            this.postForm.recentComments = [];
-            this.postForm.commentCount = 0;
+            let imageUploadPromises = [];
 
+            // First check if we are sharing anything.
             if (this.selectedExercise) {
                 this.postForm.exercise = { name: this.selectedExercise.name, id: this.selectedExercise.id }
             } else if (this.selectedWorkout) {
@@ -169,10 +166,32 @@ export default {
                 this.postForm.burn = { name: this.selectedRecentWorkout.name, createdAt: this.selectedRecentWorkout.createdAt, exercises: exercises };
             }
 
-            // Setting this to 1 will call our watcher, which begins our upload process.
-            // We must make an ID rather than generate one in Firebase, so our storage can match.
-            this.idAttempts = 1;
-            // db.collection("posts").add(this.postForm)
+            // Then upload images if user has inputted any.
+            if (this.imageObjs.length > 0) {
+                this.imageObjs.forEach(img => {
+                    let imageRef = storage.ref("posts/" + this.postForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
+                    imageUploadPromises.push(imageRef.putString(img.file, 'data_url'));
+                    this.postForm.imgPaths.push(imageRef.fullPath);
+                })
+            }
+
+            // Once uploaded, call the Firebase function.
+            Promise.all(imageUploadPromises)
+            .then(() => {
+                const createPost = functions.httpsCallable("createPost");
+                const user = { username: this.$store.state.userProfile.docData.username, profilePhotoUrl: this.$store.state.userProfile.docData.profilePhotoUrl };
+
+                return createPost({ postForm: this.postForm, user: user });
+            })
+            .then(() => {
+                this.$emit("newPost", this.postForm);
+                this.isLoading = false;
+                this.resetVariables();
+            })
+            .catch(e => {
+                console.error("Error creating post:", e);
+                this.isLoading = false;
+            })
         },
 
         handleFileUpload: function(e) {
@@ -224,24 +243,6 @@ export default {
             return id;
         },
 
-        createPostDocument: function() {
-            // Now upload the doc.
-            db.collection("posts").doc(this.postForm.id).set(this.postForm).then(() => {
-                let postPayload = { createdAt: this.postForm.createdAt }
-                // Doc created, lets push the ID to the user doc.
-                db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("posts").doc(this.postForm.id).set(postPayload).then(() => {
-                    console.log("POSTED");
-                    this.isLoading = false;
-                    this.$emit("newPost", this.postForm);
-                    this.resetVariables();
-                }).catch(e => {
-                    console.warn("Error updating user:", e);
-                })
-            }).catch(e => {
-                console.warn("Error uploading post:", e);
-            })
-        },
-
         // This is called once post is uploaded and resets all variables.
         resetVariables: function() {
             this.postForm = { content: '', exercise: null, workout: null, burn: null, imgPaths: [] };
@@ -258,25 +259,24 @@ export default {
 
         addExercise: function(exercise) {
             this.exerciseSearchDialogue = false;
-            this.selectedExercise = exercise;
 
+            this.selectedExercise = exercise;
             this.selectedWorkout = null;
             this.selectedRecentWorkout = null;
         },
 
         addWorkout: function(workout) {
             this.workoutSearchDialogue = false;
-            this.selectedWorkout = workout;
 
+            this.selectedWorkout = workout;
             this.selectedExercise = null;
             this.selectedRecentWorkout = null;
         },
 
         addRecentWorkout: function(recentWorkout) {
             this.recentWorkoutSearchDialogue = false;
-            this.selectedRecentWorkout = recentWorkout;
-            console.log(this.selectedRecentWorkout);
 
+            this.selectedRecentWorkout = recentWorkout;
             this.selectedExercise = null;
             this.selectedWorkout = null;
         }
@@ -289,34 +289,6 @@ export default {
             } else {
                 this.sortable = null;
             }
-        },
-
-        idAttempts: function() {
-            this.postForm.id = this.generateId(16);
-
-            db.collection("posts").doc(this.postForm.id).get().then(idTestDoc => {
-                if (!idTestDoc.exists) {
-                    if (this.imageObjs.length > 0) {
-                        let imageUploadPromises = [];
-
-                        this.imageObjs.forEach(img => {
-                            let imageRef = storage.ref("posts/" + this.postForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
-                            imageUploadPromises.push(imageRef.putString(img.file, 'data_url'));
-                            this.postForm.imgPaths.push(imageRef.fullPath);
-                        })
-
-                        Promise.all(imageUploadPromises).then(() => {
-                            this.createPostDocument();
-                        })
-                    } else {
-                        console.log("no images");
-                        this.createPostDocument();
-                    }
-                } else {
-                    // Increment id attempts to start this process again.
-                    this.idAttempts ++;
-                }
-            })
         }
     }
 }
