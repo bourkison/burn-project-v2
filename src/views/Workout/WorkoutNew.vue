@@ -122,7 +122,8 @@ export default {
             s.forEach(exercise => {
                 this.workoutForm.exercises.push({
                     id: exercise.id,
-                    name: exercise.name
+                    name: exercise.name,
+                    sets: []
                 })
 
                 // Then push unique muscle groups to this array.
@@ -134,21 +135,20 @@ export default {
             })
 
             this.workoutForm.muscleGroups = muscleGroups;
-            console.log(this.workoutForm.exercises);
-            console.log(this.workoutForm.muscleGroups);
         },
 
         updateSets: function(index, sets) {
             sets.forEach(set => {
+                set.measureAmount = Number(set.measureAmount);
                 delete set.id
             });
             
             this.workoutForm.exercises[index].sets = sets;
-            console.log(this.workoutForm);
         },
 
         updateTags: function(tags) {
             this.workoutForm.tags = tags;
+            console.log(this.workoutForm);
         },
 
         setDifficulty: function(d) {

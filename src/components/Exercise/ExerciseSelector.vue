@@ -54,7 +54,7 @@
                             <v-expansion-panel-content>
                                 <div align="right"><v-icon @click="removeSet(index)">mdi-close</v-icon></div>
                                 <v-sheet class="mdOutput" v-html="compiledMarkdown(selectedExercise.description)"></v-sheet>
-                                <v-card align="center"><SuggestedSetsSelector class="suggestedSets" :id="selectedExercise.id" :initSuggestedSets="selectedExercise.suggestedSets" @updateSets="updateSets"></SuggestedSetsSelector></v-card>
+                                <v-card align="center"><SuggestedSetsSelector class="suggestedSets" :id="selectedExercise.id" @updateSets="updateSets"></SuggestedSetsSelector></v-card>
                             </v-expansion-panel-content>    
                         </v-expansion-panel>
                     </v-expansion-panels>   

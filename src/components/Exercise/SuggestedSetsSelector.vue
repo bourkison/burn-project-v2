@@ -35,7 +35,7 @@ export default {
     data() {
         return {
             setIterator: 0,
-            suggestedSets: [{id: 0}],
+            suggestedSets: [{id: 0, measureAmount: "0", measureBy: "Reps"}],
 
             // Vuetify:
             measureByOptions: ["Time", "Reps"],
@@ -55,7 +55,7 @@ export default {
         addSet () {
             this.setIterator ++;
             const i = this.setIterator;
-            this.suggestedSets.push({ id: i, measureBy: this.suggestedSets[this.suggestedSets.length - 1].measureBy});
+            this.suggestedSets.push({ id: i, measureBy: this.suggestedSets[this.suggestedSets.length - 1].measureBy, measureAmount: this.suggestedSets[this.suggestedSets.length - 1].measureAmount });
         },
 
         deleteSet (i) {
