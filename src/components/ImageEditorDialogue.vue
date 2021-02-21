@@ -1,5 +1,5 @@
 <template>
-    <div align="center">
+    <div class="editImageSelectorCont" align="center">
         <div align="center" v-if="isLoading"><v-progress-circular indeterminate centered></v-progress-circular></div>
         <div class="imgContainer"><img id="cropperImg" style="visibility:hidden;" :src="imgUrl" /></div>
         <img class="imgPreview" :src="destination" />
@@ -76,10 +76,16 @@ export default {
                         this.destination = canvas.toDataURL();
                     })
                 })
-
-                // console.log(document.querySelector(".cropper-move"))
             }, 500)
         }
+
+        if (this.$props.isAvatar) {
+            document.querySelector(".editImageSelectorCont").classList.add("avatarCont");
+            console.log("IS AVATAR", document.querySelector(".editImageSelectorCont").classList);
+        }
+
+        console.log(this.$props.isAvatar);
+        console.log(document.querySelector(".editImageSelectorCont").classList);
     },
 
     methods: {
@@ -90,18 +96,22 @@ export default {
 }
 </script>
 
-<style v-if="isAvatar">
-.cropper-crop-box, .cropper-view-box {
+<style>
+.avatarCont .cropper-crop-box, 
+.avatarCont .cropper-view-box {
     border-radius: 50%;
 }
 
-.cropper-view-box {
+.avatarCont .cropper-view-box {
     box-shadow: 0 0 0 1px #39f;
     outline: 0;
 }
 
-.imgPreview {
+.avatarCont .imgPreview {
     border-radius: 50%;
+}
+
+.imgPreview {
     display: none;
 }
 </style>

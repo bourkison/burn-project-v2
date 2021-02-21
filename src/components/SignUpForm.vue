@@ -130,7 +130,7 @@
                 <div v-if="imageToEdit.dialogueOpen">
                     <v-card-title>Edit Image</v-card-title>
                     <v-card-text ref="dialogueContainer">
-                        <ImageEditorDialogue :imgUrl="imageToEdit.url" :imgId="imageToEdit.id" :isAvater="true" @outputEdit="outputImageEdit" />
+                        <ImageEditorDialogue :imgUrl="imageToEdit.url" :imgId="imageToEdit.id" :isAvatar="true" @outputEdit="outputImageEdit" />
                     </v-card-text>
                 </div>
             </v-card>

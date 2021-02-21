@@ -23,11 +23,9 @@
         <v-dialog max-height="600" max-width="900" v-model="editingImageDialogue" persistent eager>
             <v-card v-for="img in imagesToEdit" :key="img.id">
                 <div v-if="img.dialogueOpen">
-                    <v-card-title>
-                        Edit Image
-                    </v-card-title>
+                    <v-card-title>Edit Image</v-card-title>
                     <v-card-text ref="dialogueContainer">
-                        <ImageEditorDialogue :imgUrl="img.url" :imgId="img.id" @outputEdit="outputEdit"></ImageEditorDialogue>
+                        <ImageEditorDialogue :imgUrl="img.url" :imgId="img.id" @outputEdit="outputEdit" :isAvatar="false"></ImageEditorDialogue>
                     </v-card-text>
                 </div>
             </v-card>
