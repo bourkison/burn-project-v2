@@ -1,19 +1,3 @@
-<!-- 
-    exercise: 
-    {
-        name: string,
-        description: string,
-        muscleGroups: array of strings, // Lists all muscle groups he exercise targets.
-        suggestedMeasure: string, // Suggested way to calculate exercise (i.e. reps, reps and weight, time, etc)
-        suggestedSets: object, // Suggested reps/sets.
-        difficulty: integer,
-        imgUrl: array of URL strings,
-        videoSrc: video src string,
-        createdBy: userId,
-        createdAt: Timestamp
-    }
--->
-
 <template>
     <v-sheet>
         <v-container>
@@ -30,9 +14,15 @@
                     <v-col cols="12" md="6"><MuscleGroupSelect @mgCH="updateMgs"></MuscleGroupSelect></v-col>
                     <v-col cols="12" md="6">
                         <v-card align="center" outlined>
-                            <SuggestedSetsSelector @updateSets="updateSets"></SuggestedSetsSelector>
+                            <v-container>
+                                <h3>Measure By</h3>
+                                <v-select :items="['Reps', 'Time']" v-model="exerciseForm.measureBy"></v-select>
+                            </v-container>
                         </v-card>
                         <DifficultySelector class="difficultyCard" @setDifficulty="setDifficulty"></DifficultySelector>
+                        <v-card class="tagCard" align="center" outlined>
+                            <TagSelect @updateTags="updateTags"/>
+                        </v-card>
                     </v-col>
                 </v-row>
                 <div class="text-center"><v-btn type="submit" :loading="isCreating">Create Exercise</v-btn></div>
@@ -47,12 +37,12 @@ import { functions, storage } from '@/firebase'
 import ExerciseImageUploader from '@/components/Exercise/ExerciseImageUploader.vue'
 import MarkdownInput from '@/components/MarkdownInput.vue'
 import DifficultySelector from '@/components/DifficultySelector.vue'
-import MuscleGroupSelect from '@/components/MuscleGroupSelect.vue'
-import SuggestedSetsSelector from '@/components/Exercise/SuggestedSetsSelector.vue'
+import MuscleGroupSelect from '@/components/Utility/MuscleGroupSelect.vue'
+import TagSelect from '@/components/Utility/TagSelect.vue'
 
 export default {
     name: 'ExerciseNew',
-    components: { ExerciseImageUploader, MarkdownInput, MuscleGroupSelect, DifficultySelector, SuggestedSetsSelector },
+    components: { ExerciseImageUploader, MarkdownInput, MuscleGroupSelect, DifficultySelector, TagSelect },
     data() {
         return {
             exerciseForm: {
@@ -60,19 +50,15 @@ export default {
                 description: '',
                 muscleGroups: [],
                 difficulty: 1,
-                imgPaths: [],
-                suggestedSets: [{id: 0}],
-                videoSrc: ''
+                filePaths: [],
+                measureBy: 'Reps',
+                tags: []
             },
             isCreating: false,
             imageFiles: [],
             imgIterator: 0,
             setIterator: 0,
             errorMessage: '',
-
-            // Firebase:
-            idAttempts: 0,
-            imagesUploaded: 0,
 
             // Vuetify:
             model: 0,
@@ -92,7 +78,7 @@ export default {
             this.imageFiles.forEach(img => {
                 let imageRef = storage.ref("exercises/" + this.exerciseForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
                 imageUploadPromises.push(imageRef.putString(img, 'data_url'));
-                this.exerciseForm.imgPaths.push(imageRef.fullPath);
+                this.exerciseForm.filePaths.push(imageRef.fullPath);
             })
 
             // Once images are all uploaded successfully, create the document.
@@ -140,8 +126,8 @@ export default {
             this.exerciseForm.muscleGroups = mg;
         },
 
-        updateSets: function (sets) {
-            this.exerciseForm.suggestedSets = sets;
+        updateTags: function(tags) {
+            this.exerciseForm.tags = tags;
         },
 
         updateImgFiles: function (arr) {
@@ -164,7 +150,8 @@ export default {
     }
 
     .imageUpload,
-    .difficultyCard {
+    .difficultyCard,
+    .tagCard {
         margin-top: 10px;
     }
 

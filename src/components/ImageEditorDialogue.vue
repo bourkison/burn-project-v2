@@ -50,8 +50,6 @@ export default {
         this.imgCont = document.querySelector('.imgContainer');
         this.imgPreview = document.querySelector('.imgPreview');
 
-        // console.log("mounted", this.$props.imgUrl);
-
         if (this.$props.imgUrl) {
             console.log("Here we launch Cropper.");
             this.isLoading = true;
@@ -79,13 +77,10 @@ export default {
             }, 500)
         }
 
+        // If avatar, add class that makes Cropper circular.
         if (this.$props.isAvatar) {
             document.querySelector(".editImageSelectorCont").classList.add("avatarCont");
-            console.log("IS AVATAR", document.querySelector(".editImageSelectorCont").classList);
         }
-
-        console.log(this.$props.isAvatar);
-        console.log(document.querySelector(".editImageSelectorCont").classList);
     },
 
     methods: {
