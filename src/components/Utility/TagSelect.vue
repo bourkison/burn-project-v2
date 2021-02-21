@@ -1,6 +1,6 @@
 <template>
     <v-container>
-        <h2>Tags 
+        <h2 align="center">Tags 
             <v-tooltip top offset-y>
                 <template v-slot:activator="{ on, attrs }">
                     <v-icon small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>

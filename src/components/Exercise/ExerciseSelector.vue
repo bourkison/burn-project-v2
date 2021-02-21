@@ -116,30 +116,69 @@ export default {
     },
 
     mounted: function() {
+        let exercisePromises = [];
+
         // Retrieve created exercises data.
         this.$props.createdExercises.forEach(exerciseId => {
-            db.collection("exercises").doc(exerciseId).get().then(exerciseDoc => {
+            exercisePromises.push(db.collection("exercises").doc(exerciseId).get()
+            .then(exerciseDoc => {
                 let d = exerciseDoc.data();
                 d.id = exerciseId;
 
                 this.createdExercisesData.push(d);
-                this.downloadedExercises ++;
-            }).catch(e => {
-                console.log("Error downloading created exercise data", e, exerciseId);
             })
+            .catch(e => {
+                console.log("Error downloading created exercise data", e, exerciseId);
+            }))
         })
 
         // Then retrieve followed exercises data.
         this.$props.followedExercises.forEach(exerciseId => {
-            db.collection("exercises").doc(exerciseId).get().then(exerciseDoc => {
+            exercisePromises.push(db.collection("exercises").doc(exerciseId).get()
+            .then(exerciseDoc => {
                 let d = exerciseDoc.data();
                 d.id = exerciseId;
 
                 this.followedExercisesData.push(d);
-                this.downloadedExercises ++;
-            }).catch(e => {
-                console.log("Error downloading followed exercise data", e, exerciseId);
             })
+            .catch(e => {
+                console.log("Error downloading followed exercise data", e, exerciseId);
+            }))
+        })
+
+
+        Promise.all(exercisePromises)
+        .then(() => {
+            if (this.$props.initExercises) {
+                this.$props.initExercises.forEach(exercise => {
+                    // For each exercise in init exercise, we check that we haven't already downloaded.
+                    // If we haven't, download and push into selected exercise data.
+                    // If we have, push from relevant array.
+                    let cIndex = this.createdExercisesData.findIndex(x => x.id === exercise.id);
+                    let fIndex = this.createdExercisesData.findIndex(x => x.id === exercise.id);
+
+
+                    if (cIndex < 0 && fIndex < 0) {
+                        return db.collection("exercises").doc(exercise.id).get()
+                        .then(exerciseDoc => {
+                            this.selectedExercisesData.push(exerciseDoc.data);
+                            this.selectedFollowedExercises.push(exercise.id);
+                        })
+                    } else if (cIndex > 0) {
+                        this.selectedCreatedExercises.push(exercise.id);
+                        this.selectedExercisesData.push(this.createdExercisesData[cIndex]);
+                    } else if (fIndex > 0) {
+                        this.selectedFollowedExercises.push(exercise.id);
+                        this.selectedExercisesData.push(this.followedExercisesData[fIndex]);
+                    }
+                })
+            }
+        })
+        .then(() => {
+            this.isLoading = false;
+        })
+        .catch(e => {
+            console.error("Error setting up exercise selector", e);
         })
     },
 
@@ -158,6 +197,7 @@ export default {
         updateSets: function(sets, id) {
             let index = this.selectedExercisesData.findIndex(x => x.id === id);
             this.selectedExercisesData[index].suggestedSets = sets;
+            this.$emit("updateSets", index, sets);
         },
 
         removeSet: function(index) {
@@ -200,35 +240,6 @@ export default {
                 this.sortable = new Sortable(document.getElementById("selectedContainer"), this.sortableOptions);
             } else if (this.selectedExercisesData.length === 0) {
                 this.sortable = null;
-            }
-        },
-
-        downloadedExercises: function() {
-            if (this.downloadedExercises == this.createdExercises.length + this.followedExercises.length) {
-                
-                // Push init exercises into relevant selectedExercises and selectedExercisesData.
-                if (this.$props.initExercises) {
-                    this.$props.initExercises.forEach(initEx => {
-                        let index;
-
-                        index = this.createdExercisesData.findIndex(o => o.id === initEx.id);
-
-                        if (index >= 0) {
-                            this.selectedCreatedExercises.push(initEx.id);
-                            this.selectedExercisesData.push(this.createdExercisesData.find(o => o.id === initEx.id))
-
-                        } else {
-                            index = this.followedExercisesData.findIndex(o => o.id === initEx.id);
-                            
-                            if (index >= 0) {
-                                this.selectedFollowedExercises.push(initEx.id);
-                                this.selectedExercisesData.push(this.followedExercisesData.find(o => o.id === initEx.id))
-                            }
-                        }
-                    })
-                }
-                
-                this.isLoading = false;
             }
         },
 

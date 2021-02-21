@@ -14,9 +14,18 @@
             <h1 align="center">{{ workoutForm.name ? workoutForm.name : 'New Workout' }}</h1>
             <v-form @submit.prevent="createWorkout">
                 <v-text-field v-model="workoutForm.name" label="Workout Name" :rules=[rules.required]></v-text-field>
-                <MarkdownInput @update-text="updateDescription"></MarkdownInput>
-                <ExerciseSelector class="exerciseSelector" :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises" @selectedExercisesChange="updateSelectedExercises"></ExerciseSelector>
-                <DifficultySelector class="difficultySelector" @setDifficulty="setDifficulty"></DifficultySelector>
+                <MarkdownInput @update-text="updateDescription" />
+                <ExerciseSelector class="exerciseSelector" :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises" @selectedExercisesChange="updateSelectedExercises" @updateSets="updateSets" />
+                <v-row align="center" justify="center">
+                    <v-col cols="12" md="6">
+                        <DifficultySelector class="difficultySelector" @setDifficulty="setDifficulty" />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-card class="tagSelector" outlined>
+                            <TagSelect @updateTags="updateTags" />
+                        </v-card>
+                    </v-col>
+                </v-row>
                 <div class="text-center submitButton"><v-btn type="submit" :loading="isCreating" :disabled="isCreating">Create Workout</v-btn></div>
             </v-form>
         </v-container>
@@ -30,11 +39,12 @@
 import { db, functions } from '@/firebase'
 import MarkdownInput from '@/components/MarkdownInput.vue'
 import DifficultySelector from '@/components/DifficultySelector.vue'
+import TagSelect from '@/components/Utility/TagSelect.vue'
 import ExerciseSelector from '@/components/Exercise/ExerciseSelector.vue'
 
 export default {
     name: 'WorkoutNew',
-    components: { MarkdownInput, ExerciseSelector, DifficultySelector },
+    components: { MarkdownInput, ExerciseSelector, DifficultySelector, TagSelect },
     data() {
         return {
             isLoading: true,
@@ -46,7 +56,9 @@ export default {
                 name: '',
                 description: '',
                 exercises: [],
-                difficulty: 1
+                difficulty: 1,
+                muscleGroups: [],
+                tags: []
             },
 
             // Firebase:
@@ -103,7 +115,40 @@ export default {
         },
 
         updateSelectedExercises: function(s) {
-            this.workoutForm.exercises = s;
+            let muscleGroups = [];
+            this.workoutForm.exercises = [];
+
+            // Push each exercises ID and Name to this Workout.
+            s.forEach(exercise => {
+                this.workoutForm.exercises.push({
+                    id: exercise.id,
+                    name: exercise.name
+                })
+
+                // Then push unique muscle groups to this array.
+                exercise.muscleGroups.forEach(muscleGroup => {
+                    if (!muscleGroups.includes(muscleGroup)) {
+                        muscleGroups.push(muscleGroup)
+                    }
+                })
+            })
+
+            this.workoutForm.muscleGroups = muscleGroups;
+            console.log(this.workoutForm.exercises);
+            console.log(this.workoutForm.muscleGroups);
+        },
+
+        updateSets: function(index, sets) {
+            sets.forEach(set => {
+                delete set.id
+            });
+            
+            this.workoutForm.exercises[index].sets = sets;
+            console.log(this.workoutForm);
+        },
+
+        updateTags: function(tags) {
+            this.workoutForm.tags = tags;
         },
 
         setDifficulty: function(d) {
@@ -118,6 +163,10 @@ export default {
     .exerciseSelector {
         margin-top: 20px;
         padding: 10px;
+    }
+
+    .tagSelector {
+        margin-top: 20px;
     }
 
     .submitButton {
