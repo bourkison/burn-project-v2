@@ -24,10 +24,6 @@ export default {
             type: Array,
             required: false
         }
-    },
-
-    created: function() {
-        console.log("Workout feed", this.$props.workoutIds);
     }
 }
 </script>

@@ -4,13 +4,13 @@
             <v-sheet align="center">
                 <v-row>
                     <v-col cols="12" sm="6">
-                        <router-link :to="'/workouts/' + workoutId"><h2 align="left">{{ workoutData.name }}</h2></router-link>
+                        <router-link :to="'/workouts/' + workoutData.id"><h2 align="left">{{ workoutData.name }}</h2></router-link>
                     </v-col>
                 </v-row>
             </v-sheet>
             <div align="left" style="margin:0 auto;">
                 <CommentSection
-                    :workoutId="this.workoutData.id"
+                    :workoutId="workoutData.id"
                     :is-liked="isLiked"
                     :likeCount="likeCount"
                     :recentComments="workoutData.recentComments"
@@ -77,7 +77,6 @@ export default {
 
         Promise.all(promises).then(() => {
             // Pull like, comment and follow count.
-            console.log("IN NEXT STEP");
             return db.collection("workouts").doc(this.workoutData.id).collection("counters").get() 
         })
         .then(counterSnapshot => {
@@ -87,20 +86,20 @@ export default {
                 this.followCount += counter.data().followCount;
             })
 
-            return this.checkIfLiked();
+            return this.checkIfUserLiked();
         })
         .then(() => {
             this.isLoading = false;
         })
         .catch(e => {
-            console.log("Error downloading workout", e);
+            console.error("Error downloading workout", e);
         })
     },
 
     methods: {
-        checkIfLiked: function() {
+        checkIfUserLiked: function() {
             // Check if the user has liked.
-            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.workoutData.id).get().then(likeSnapshot => {
+            return db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("likes").where("id", "==", this.workoutData.id).get().then(likeSnapshot => {
                 likeSnapshot.forEach(like => {
                     if (like.exists) {
                         this.isLiked = like.id;

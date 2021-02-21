@@ -24,6 +24,11 @@ export default {
         imgId: {
             required: true,
             type: Number
+        },
+
+        isAvatar: {
+            required: false,
+            type: Boolean
         }
     },
 
@@ -71,6 +76,8 @@ export default {
                         this.destination = canvas.toDataURL();
                     })
                 })
+
+                // console.log(document.querySelector(".cropper-move"))
             }, 500)
         }
     },
@@ -82,3 +89,19 @@ export default {
     }
 }
 </script>
+
+<style v-if="isAvatar">
+.cropper-crop-box, .cropper-view-box {
+    border-radius: 50%;
+}
+
+.cropper-view-box {
+    box-shadow: 0 0 0 1px #39f;
+    outline: 0;
+}
+
+.imgPreview {
+    border-radius: 50%;
+    display: none;
+}
+</style>
