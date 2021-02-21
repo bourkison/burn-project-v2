@@ -8,18 +8,25 @@
                     label="Exercise Name"
                     :rules=[rules.required]
                 ></v-text-field>
-                <ExerciseImageUploader @updateImgFiles="updateImgFiles"></ExerciseImageUploader>
+                <ExerciseImageUploader @updateImgFiles="updateImgFiles" />
                 <MarkdownInput @update-text="updateDescription"></MarkdownInput>
                 <v-row align="center" justify="center">
-                    <v-col cols="12" md="6"><MuscleGroupSelect @mgCH="updateMgs"></MuscleGroupSelect></v-col>
+                    <v-col cols="12" md="6"><MuscleGroupSelect @mgCH="updateMgs" /></v-col>
                     <v-col cols="12" md="6">
                         <v-card align="center" outlined>
                             <v-container>
-                                <h3>Measure By</h3>
+                                <h3>Measure By
+                                    <v-tooltip top offset-y>
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <v-icon small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+                                        </template>
+                                        <span>Choose how this exercise is measured.</span>
+                                    </v-tooltip>
+                                </h3>
                                 <v-select :items="['Reps', 'Time']" v-model="exerciseForm.measureBy"></v-select>
                             </v-container>
                         </v-card>
-                        <DifficultySelector class="difficultyCard" @setDifficulty="setDifficulty"></DifficultySelector>
+                        <DifficultySelector class="difficultyCard" @setDifficulty="setDifficulty" />
                         <v-card class="tagCard" align="center" outlined>
                             <TagSelect @updateTags="updateTags"/>
                         </v-card>
@@ -85,7 +92,7 @@ export default {
             Promise.all(imageUploadPromises)
             .then(() => {
                 const createExercise = functions.httpsCallable("createExercise");
-                const user = { username: this.$store.state.userProfile.docData.username, profilePhotoUrl: this.$store.state.userProfile.docData.profilePhotoUrl };
+                const user = { username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhoto };
 
                 createExercise({ exerciseForm: this.exerciseForm, imageFiles: this.imageFiles, user: user })
                 .then(result => {
