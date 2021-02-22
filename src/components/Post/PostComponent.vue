@@ -105,6 +105,7 @@ export default {
     },
 
     mounted: function() {
+        console.log("Props:", this.$props.postId);
         db.collection("posts").doc(this.$props.postId).get()
         .then(postDoc => {
             this.postData = postDoc.data();

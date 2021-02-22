@@ -25,6 +25,8 @@ import RecentBurn from '@/views/Burn/RecentBurn.vue'
 import Profile from '@/views/User/Profile.vue'
 import ProfileView from '@/views/User/ProfileView.vue'
 
+import PostView from '@/views/Post/PostView.vue'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -143,6 +145,14 @@ const routes = [
         component: RecentBurn
       }
     ]
+  },
+  {
+    path: '/posts/:postid',
+    name: 'Posts',
+    component: PostView,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/:profileid',
