@@ -82,10 +82,6 @@ export default {
             type: Number,
             required: true
         },
-        recentComments: {
-            type: Array,
-            required: true
-        },
         commentCount: {
             type: Number,
             required: true
@@ -97,7 +93,7 @@ export default {
     },
     data() {
         return {
-            isLoading: false,
+            isLoading: true,
             isLiking: false,
             isFollowing: false,
 
@@ -179,10 +175,21 @@ export default {
                 console.log(this.errorMessage);
             })
         }
+
+        // Download the first five comments.
+        db.collection(this.collectionPathString).doc(this.docId).collection("comments").orderBy("createdAt", "desc").limit(5).get()
+        .then(commentsSnapshot => {
+            commentsSnapshot.forEach(comment => {
+                let c = comment.data();
+                c.id = comment.id;
+                this.comments.push(c);
+            })
+
+            this.isLoading = false;
+        })
         
         this.commentCounter = this.$props.commentCount;
         this.followCounter = this.$props.followCount;
-        this.comments = this.$props.recentComments;
     },
 
     methods: {

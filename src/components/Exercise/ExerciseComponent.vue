@@ -91,8 +91,8 @@ export default {
             this.exerciseData = exerciseDoc.data();
             let imageDownloadPromises = [];
 
-            this.exerciseData.imgPaths.forEach(imgPath => {
-                imageDownloadPromises.push(storage.ref(imgPath).getDownloadURL());
+            this.exerciseData.filePaths.forEach(filePath => {
+                imageDownloadPromises.push(storage.ref(filePath).getDownloadURL());
             })
             
             return Promise.all(imageDownloadPromises);

@@ -52,7 +52,8 @@ export default {
 
     methods: {
         downloadExercise: function() {
-            db.collection("exercises").doc(this.$props.exerciseToDownload.id).get().then(exerciseDoc => {
+            db.collection("exercises").doc(this.$props.exerciseToDownload.id).get()
+            .then(exerciseDoc => {
                 this.exerciseData = exerciseDoc.data();
                 this.isLoading = false;
             })

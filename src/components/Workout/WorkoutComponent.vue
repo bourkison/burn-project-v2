@@ -13,7 +13,6 @@
                     :workoutId="workoutData.id"
                     :is-liked="isLiked"
                     :likeCount="likeCount"
-                    :recentComments="workoutData.recentComments"
                     :commentCount="commentCount"
                     :followCount="followCount"
                     :followableComponent="true"
