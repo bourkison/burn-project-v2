@@ -164,8 +164,6 @@ export default {
                 const createPost = functions.httpsCallable("createPost");
                 const user = { username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhoto };
 
-                console.log(this.postForm);
-                console.log(user, this.$store.state.userProfile.docData);
                 return createPost({ postForm: this.postForm, user: user });
             })
             .then(() => {

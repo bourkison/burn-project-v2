@@ -2,7 +2,7 @@
     <v-sheet rounded="lg">
         <v-container v-if="!isLoading">
             <h1 align="center">Recent Burns</h1>
-            <BurnMin v-for="recentWorkout in recentWorkouts" :recentWorkout="recentWorkout" :key="recentWorkout.rId"></BurnMin>
+            <BurnComponent v-for="recentWorkout in recentWorkouts" :recentWorkout="recentWorkout" :key="recentWorkout.rId" />
         </v-container>
         <v-container v-else>
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
@@ -16,11 +16,11 @@ import { db } from '@/firebase'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-import BurnMin from '@//views/Burn/BurnMin.vue'
+import BurnComponent from '@//components/Burn/BurnComponent.vue'
 
 export default {
     name: 'RecentBurn',
-    components: { BurnMin },
+    components: { BurnComponent },
     data() {
         return {
             isLoading: true,

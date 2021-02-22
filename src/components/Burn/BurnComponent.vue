@@ -45,7 +45,7 @@
 
 <script>
 export default {
-    name: 'BurnMin',
+    name: 'BurnComponent',
     props: {
         recentWorkout: {
             type: Object,
