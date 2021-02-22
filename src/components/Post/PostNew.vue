@@ -31,7 +31,8 @@
             </v-row>
             <v-row v-if="selectedRecentWorkout">
                 <v-container>
-                    <BurnMin :recentWorkout="selectedRecentWorkout"></BurnMin>
+                    <!-- <BurnMin :recentWorkout="selectedRecentWorkout"></BurnMin> -->
+                    <BurnShare :burnObj="selectedRecentWorkout" />
                 </v-container>
             </v-row>
             <div style="margin-top:15px;">
@@ -80,7 +81,7 @@
 import Sortable from 'sortablejs'
 import { storage, functions } from '@/firebase'
 
-import BurnMin from '@/views/Burn/BurnMin.vue'
+import BurnShare from '@/components/Burn/BurnShare.vue'
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable.vue'
 import WorkoutExpandable from '@/components/Workout/WorkoutExpandable.vue'
 import ImageEditorDialogue from '@/components/ImageEditorDialogue.vue'
@@ -92,7 +93,7 @@ import WorkoutSearch from '@/components/Search/WorkoutSearch.vue'
 
 export default {
     name: 'PostNew',
-    components: { BurnMin, BurnSearch, ExerciseExpandable, ExerciseSearch, ImageEditorDialogue, WorkoutExpandable, WorkoutSearch },
+    components: { BurnShare, BurnSearch, ExerciseExpandable, ExerciseSearch, ImageEditorDialogue, WorkoutExpandable, WorkoutSearch },
     data() {
         return {
             isLoading: false,
@@ -161,7 +162,7 @@ export default {
             Promise.all(imageUploadPromises)
             .then(() => {
                 const createPost = functions.httpsCallable("createPost");
-                const user = { username: this.$store.state.userProfile.docData.username, profilePhotoUrl: this.$store.state.userProfile.docData.profilePhotoUrl };
+                const user = { username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhoto };
 
                 return createPost({ postForm: this.postForm, user: user });
             })

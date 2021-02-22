@@ -30,16 +30,16 @@
             <v-img :src="imgUrls[0]" eager />
         </div>
         <v-container>
-            <v-container style="padding:0 40px;" v-if="postData.exercise">
+            <v-container style="padding:0 40px;" v-if="postData.share && postData.share.type == 'exercises'">
                 <v-expansion-panels>
-                    <ExerciseExpandable :exerciseToDownload="postData.exercise"></ExerciseExpandable>
+                    <ExerciseExpandable :exerciseToDownload="postData.share" />
                 </v-expansion-panels>
             </v-container>
-            <v-container style="padding: 0 40px 5px;" v-if="postData.workout">
-                <WorkoutExpandable :workout="postData.workout"></WorkoutExpandable>
+            <v-container style="padding: 0 40px 5px;" v-if="postData.share && postData.share.type == 'workouts'">
+                <WorkoutExpandable :workout="postData.workout" />
             </v-container>
-            <v-container style="padding:0 20px;" v-if="postData.burn">
-                <BurnMin :recentWorkout="postData.burn"></BurnMin>
+            <v-container style="padding:0 20px;" v-if="postData.share && postData.share.type === 'burns'">
+                <BurnShare :burnId="postData.share.id" :userId="postData.createdBy.id" />
             </v-container>
             <v-container>
                 <div>{{ postData.content }}</div>
@@ -68,14 +68,15 @@ import { db, storage } from '@/firebase'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-import BurnMin from '@/views/Burn/BurnMin.vue'
+// import BurnMin from '@/views/Burn/BurnMin.vue'
+import BurnShare from '@/components/Burn/BurnShare.vue'
 import CommentSection from '@/components/Comment/CommentSection.vue'
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable'
 import WorkoutExpandable from '@/components/Workout/WorkoutExpandable'
 
 export default {
     name: 'ViewPostMin',
-    components: { BurnMin, CommentSection, ExerciseExpandable, WorkoutExpandable },
+    components: { BurnShare, CommentSection, ExerciseExpandable, WorkoutExpandable },
     props: {
         postId: {
             type: String,
@@ -111,10 +112,10 @@ export default {
         .then(postDoc => {
             this.postData = postDoc.data();
 
-            if (this.postData.imgPaths.length > 0) {
+            if (this.postData.filePaths.length > 0) {
                 let imageDownloadPromises = [];
                 
-                this.postData.imgPaths.forEach(imgPath => {
+                this.postData.filePaths.forEach(imgPath => {
                     imageDownloadPromises.push(storage.ref(imgPath).getDownloadURL());
                 })
 
