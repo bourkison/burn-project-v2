@@ -11,16 +11,12 @@
 
 <script>
 import Cropper from 'cropperjs'
+import imageCompression from 'browser-image-compression'
 
 export default {
     name: 'ImageEditorDialogue',
 
     props: {
-        imgUrl: {
-            required: true,
-            type: String
-        },
-
         imgId: {
             required: true,
             type: Number
@@ -29,6 +25,11 @@ export default {
         isAvatar: {
             required: false,
             type: Boolean
+        },
+
+        imgFile: {
+            type: File,
+            required: true
         }
     },
 
@@ -37,6 +38,7 @@ export default {
             imgCont: null,
             imgEl: null,
             imgPreview: null,
+            imgUrl: '',
 
             destination: null,
             cropper: {},
@@ -50,31 +52,45 @@ export default {
         this.imgCont = document.querySelector('.imgContainer');
         this.imgPreview = document.querySelector('.imgPreview');
 
-        if (this.$props.imgUrl) {
+        if (this.$props.imgFile) {
             console.log("Here we launch Cropper.");
             this.isLoading = true;
 
-            // Timeout is set to give image a chance to load before setting cropper.
-            setTimeout(() => {
-                this.isLoading = false;
-                let ratio = (this.imgEl.clientWidth / this.imgEl.clientHeight);
-                console.log(ratio);
+            console.log(this.$props.imgFile);
+            const options = {
+                maxSizeMB: 1,
+                maxWidthOrHeight: 1920
+            }
 
-                // Set image container to have a max height of 500px.
-                this.imgCont.style.height = "500px";
-                this.imgCont.style.width = 500 * ratio + "px";
-                this.imgEl.style.visibility = "visible";
+            imageCompression(this.$props.imgFile, options)
+            .then(file => {
+                this.imgUrl = URL.createObjectURL(file);
+                // Timeout is set to give image a chance to load before setting cropper.
+                setTimeout(() => {
+                    this.isLoading = false;
+                    let ratio = (this.imgEl.clientWidth / this.imgEl.clientHeight);
+                    console.log(ratio);
 
-                this.cropper = new Cropper(this.imgEl, {
-                    scalable: false,
-                    viewMode: 3,
-                    aspectRatio: 1,
-                    crop: (() => {
-                        const canvas = this.cropper.getCroppedCanvas();
-                        this.destination = canvas.toDataURL();
+                    // Set image container to have a max height of 500px.
+                    this.imgCont.style.height = "500px";
+                    this.imgCont.style.width = 500 * ratio + "px";
+                    this.imgEl.style.visibility = "visible";
+
+                    this.cropper = new Cropper(this.imgEl, {
+                        scalable: false,
+                        viewMode: 3,
+                        aspectRatio: 1,
+                        crop: (() => {
+                            const canvas = this.cropper.getCroppedCanvas();
+                            this.destination = canvas.toDataURL();
+                        })
                     })
-                })
-            }, 250);
+                }, 250);
+            })
+            .catch(e => {
+                console.error("image compression", e);
+            })
+
         }
 
         // If avatar, add class that makes Cropper circular.
@@ -86,7 +102,18 @@ export default {
     methods: {
         addImage: function() {
             this.$emit("outputEdit", this.destination, this.$props.imgId);
-        }
+            // let b = this.dataURLtoBlob(this.destination);
+            // console.log(b);
+        },
+
+        // dataURLtoBlob: function(dataurl) {
+        //     var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        //         bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        //     while(n--){
+        //         u8arr[n] = bstr.charCodeAt(n);
+        //     }
+        //     return new Blob([u8arr], {type:mime});
+        // }
     }
 }
 </script>

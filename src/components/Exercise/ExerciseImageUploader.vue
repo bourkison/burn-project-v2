@@ -25,7 +25,7 @@
                 <div v-if="img.dialogueOpen">
                     <v-card-title>Edit Image</v-card-title>
                     <v-card-text ref="dialogueContainer">
-                        <ImageEditorDialogue :imgUrl="img.url" :imgId="img.id" @outputEdit="outputEdit" :isAvatar="false"></ImageEditorDialogue>
+                        <ImageEditorDialogue :imgFile="img.file" :imgId="img.id" @outputEdit="outputEdit" :isAvatar="false"></ImageEditorDialogue>
                     </v-card-text>
                 </div>
             </v-card>
@@ -108,6 +108,7 @@ export default {
         handleFileUpload: function(e) {
             this.imageFiles = e;
             // this.imagesToEdit.push({ id: this.imageEditIncrementor, url: URL.createObjectURL(e), dialogueOpen: true });
+            this.imagesToEdit[this.imageEditIncrementor].file = e;
             this.imagesToEdit[this.imageEditIncrementor].url = URL.createObjectURL(e);
             this.imagesToEdit[this.imageEditIncrementor].dialogueOpen = true;
             this.editingImageDialogue = true;

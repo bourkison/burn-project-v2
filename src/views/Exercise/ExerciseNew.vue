@@ -79,6 +79,7 @@ export default {
     methods: {
         createExercise: function() {
             this.isCreating = true;
+            // exerciseForm.id = this.generateId();
 
             // First upload the image files.
             let imageUploadPromises = [];
