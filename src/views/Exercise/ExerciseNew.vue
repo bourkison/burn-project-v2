@@ -80,6 +80,8 @@ export default {
         createExercise: function() {
             this.isCreating = true;
 
+
+            this.exerciseForm.id = '';
             this.exerciseForm.id += this.exerciseForm.name.replace(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase();
             if (this.exerciseForm.id.length > 0) {
                 this.exerciseForm.id += '-';

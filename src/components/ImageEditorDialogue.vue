@@ -43,8 +43,8 @@ export default {
             destination: null,
             cropper: {},
 
-            minAspectRatio: 0.8,
-            maxAspectRatio: 1,
+            minAspectRatio: 0.95,
+            maxAspectRatio: 1.05,
 
             isLoading: false
         }
@@ -74,7 +74,6 @@ export default {
                 setTimeout(() => {
                     this.isLoading = false;
                     let ratio = (this.imgEl.clientWidth / this.imgEl.clientHeight);
-                    console.log(ratio);
 
                     // Set image container to have a max height of 500px.
                     this.imgCont.style.height = "500px";
@@ -86,10 +85,15 @@ export default {
                         viewMode: 3,
                         ready: (() => {
                             // On launch, set the initial cropBox to have an aspect ratio of 1.
-                            let cropBoxData = this.cropper.getCropBoxData();
-                            let cropBoxWidth = cropBoxData.width;
-
-                            this.cropper.setCropBoxData({ height: cropBoxWidth / this.minAspectRatio });
+                            // Unless we are on avatar, in which case force aspect ratio to be 1.
+                            if (this.$props.isAvatar) {
+                                this.cropper.setAspectRatio(1);
+                            } else {
+                                let cropBoxData = this.cropper.getCropBoxData();
+                                let cropBoxWidth = cropBoxData.width;
+                                console.log("Init:", cropBoxData, cropBoxWidth);
+                                this.cropper.setCropBoxData({ height: cropBoxWidth });
+                            }
                         }),
                         crop: (() => {
                             const canvas = this.cropper.getCroppedCanvas();
@@ -112,7 +116,7 @@ export default {
                 }, 250);
             })
             .catch(e => {
-                console.error("image compression", e);
+                console.error("Error compressing image", e);
             })
 
         }

@@ -26,7 +26,7 @@
             </v-card>
             <v-card outlined>
                 <div v-if="imgUrls.length > 1">
-                    <v-carousel v-model="model" show-arrows-on-hover hide-delimiter-background>
+                    <v-carousel v-model="model" show-arrows-on-hover hide-delimiter-background height="auto">
                         <v-carousel-item class="carouselImage" v-for="(img, index) in imgUrls" :key="index" @click.stop="popUpImage(img)" eager>
                             <v-img :src="img" eager/>
                         </v-carousel-item>

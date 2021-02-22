@@ -4,7 +4,7 @@
             <v-form @submit.prevent="updateExercise">
                 <h1>{{ newExerciseData.name }}</h1>
                 <v-text-field v-model="newExerciseData.name" :rules=[rules.required] label="Exercise Name"></v-text-field>
-                <ExerciseImageUploader :initImages="oldExerciseData.imgPaths" @editImgFiles="editImgFiles"></ExerciseImageUploader>
+                <ExerciseImageUploader :initImages="oldExerciseData.filePaths" @editImgFiles="editImgFiles"></ExerciseImageUploader>
                 <MarkdownInput :starting-text="oldExerciseData.description" @update-text="updateDescription"></MarkdownInput>
                 <v-row>
                     <v-col cols="12" sm="6">
@@ -91,14 +91,8 @@ export default {
                     this.oldExerciseData = exerciseDoc.data();
                     this.newExerciseData = exerciseDoc.data();
 
-                    // Set suggested sets
-                    this.newExerciseData.suggestedSets.forEach(s => {
-                        s.id = this.setIterator;
-                        this.setIterator ++;
-                    })
-
                     // Download images:
-                    this.newExerciseData.imgPaths.forEach(img => {
+                    this.newExerciseData.filePaths.forEach(img => {
                         storage.ref(img).getDownloadURL().then(url => {
                             this.imgUrls.push({ id: this.downloadImageCounter, imgUrl: url });
                             this.downloadImageCounter ++;
@@ -190,18 +184,18 @@ export default {
 
     watch: {
         downloadImageCounter: function() {
-            if (this.downloadImageCounter >= this.newExerciseData.imgPaths.length) {
+            if (this.downloadImageCounter >= this.newExerciseData.filePaths.length) {
                 this.isLoading = false;
             }
         },
 
         imageChecker: function() {
             if (this.imageChecker >= this.imageObjs.length) {
-                // First we need to build out the imgPaths array.
-                this.newExerciseData.imgPaths = [];
+                // First we need to build out the filePaths array.
+                this.newExerciseData.filePaths = [];
 
                 this.imageObjs.forEach(img => {
-                    this.newExerciseData.imgPaths.push(img.path);
+                    this.newExerciseData.filePaths.push(img.path);
                 })
 
                 // Next, remove ID from the suggested sets.

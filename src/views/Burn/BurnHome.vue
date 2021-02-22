@@ -29,13 +29,13 @@
             <div v-if="!workoutCommenced">
                 <h1 align="center">Burn</h1>
                 <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" label="Search for a workout..." clearable></v-text-field>
-                <div v-if="filteredRecentWorkouts.length > 0">
+                <div v-if="filteredBurns.length > 0">
                     <h2>Recent Workouts</h2>
                     <div class="recentWorkouts">
-                        <v-container v-for="recentWorkout in filteredRecentWorkouts" :key="'recent_' + recentWorkout.name">
-                            <v-row justify="center" align="center" @click="startDialogue(recentWorkout, 'recentWorkout')" class="rowHover">
+                        <v-container v-for="burn in filteredBurns" :key="'recent_' + burn.name">
+                            <v-row justify="center" align="center" @click="startDialogue(burn, 'burn')" class="rowHover">
                                 <v-col cols="12" sm="9">
-                                    <div>{{ recentWorkout.name }}<br><span class="recentWorkoutTime"><em>{{ recentWorkout.createdAtText }}</em></span></div>
+                                    <div>{{ burn.name }}<br><span class="burnTime"><em>{{ recentWorkout.createdAtText }}</em></span></div>
                                 </v-col>
                                 <v-col cols="12" sm="3">
                                     <div align="right"><v-icon>mdi-chevron-right</v-icon></div>
@@ -63,7 +63,7 @@
             </div>
             <div v-else>
                 <v-card outlined rounded="lg">
-                    <WorkoutRecorder :workoutObj="workoutData" @cancelWorkout="cancelWorkout"></WorkoutRecorder>
+                    <WorkoutRecorder :workoutObj="burnData" @cancelWorkout="cancelWorkout"></WorkoutRecorder>
                 </v-card>
             </div>
         </v-container>
@@ -71,11 +71,11 @@
             <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
         </v-container>
         
-        <div v-if="workoutData">
-            <v-dialog v-if="workoutData.data && !workoutCommenced" v-model="startWorkoutDialogue" max-width="600">
+        <div v-if="burnData">
+            <v-dialog v-if="burnData && !workoutCommenced" v-model="startWorkoutDialogue" max-width="600">
                 <v-card>
                     <v-container>
-                        <v-list-item v-for="exercise in workoutData.data.exercises" :key="exercise.id">
+                        <v-list-item v-for="exercise in burnData.exercises" :key="exercise.id">
                             <v-list-item-content>
                                 <v-list-item-title>{{ exercise.name }}</v-list-item-title>
                             </v-list-item-content>
@@ -107,7 +107,7 @@ export default {
     data() {
         return {
             isLoading: true,
-            workoutData: null,
+            burnData: null,
             userWorkouts: [],
             userRecentWorkouts: [],
             workoutCommenced: false,
@@ -138,9 +138,9 @@ export default {
                     data.id = workoutDoc.id;
                     this.userWorkouts.push(data);
 
-                    // Check if this is our route query workout. If so put in workoutData to avoid loading twice.
+                    // Check if this is our route query workout. If so put in burnData to avoid loading twice.
                     if (this.$route.query.w && this.$route.query.w === workoutDoc.id) {
-                        this.workoutData = { type: 'workout', data: data };
+                        this.burnData = { type: 'workout', data: data };
                     }
 
                     this.downloadedWorkouts ++;
@@ -162,7 +162,7 @@ export default {
                 }
 
                 if (this.$route.query.rw && this.$route.query.rw == recentWorkout.id) {
-                    this.workoutData = { type: 'recentWorkout', data: recentWorkout.data() };
+                    this.burnData = { type: 'burn', data: recentWorkout.data() };
                 }
             })
         }))
@@ -172,14 +172,14 @@ export default {
         Promise.all(workoutPromises)
         .then(() => {
             if (this.$route.query.w || this.$route.query.rw) {
-                if (this.workoutData) {
+                if (this.burnData) {
                     this.startWorkoutDialogue = true;
                     this.isLoading = false;
                 } else {
                     console.log("Download");
                     db.collection("workouts").doc(this.$route.query.w).get()
                     .then(workout => {
-                        this.workoutData = { type: 'workout', data: workout.data() }
+                        this.burnData = { type: 'workout', data: workout.data() }
                         this.startWorkoutDialogue = true;
                         this.isLoading = false;
                     })
@@ -197,7 +197,21 @@ export default {
         },
 
         startDialogue: function(w, t) {
-            this.workoutData = {type: t, data: w};
+            if (t === "workout") {
+                // Build to Burn format.
+                this.burnData = {
+                    exercises: w.exercises,
+                    workout: {
+                        id: w.id,
+                        name: w.name 
+                    },
+                    name: w.name
+                }
+
+                console.log(this.burnData);
+            } else {
+                this.burnData = w;
+            }
             this.startWorkoutDialogue =  true;
         },
 
@@ -215,7 +229,7 @@ export default {
     },
 
     computed: {
-        filteredRecentWorkouts: function() {
+        filteredBurns: function() {
             if (this.searchText) {
                 return this.userRecentWorkouts.filter(recentWorkout => {
                     return recentWorkout.name.toLowerCase().includes(this.searchText.toLowerCase());
@@ -239,7 +253,7 @@ export default {
 </script>
 
 <style scoped>
-    .recentWorkoutTime {
+    .burnTime {
         font-size: 12px;
     }
 

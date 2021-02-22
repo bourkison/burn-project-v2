@@ -241,7 +241,7 @@ export default {
                         createdBy: { 
                             username: this.$store.state.userProfile.docData.username,
                             id: this.$store.state.userProfile.data.uid,
-                            profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl 
+                            profilePhoto: this.$store.state.userProfile.docData.profilePhoto 
                         }, 
                         createdAt: timestamp
                     });
@@ -326,7 +326,7 @@ export default {
                         createdBy: { 
                             username: this.$store.state.userProfile.docData.username,
                             id: this.$store.state.userProfile.data.uid,
-                            profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl 
+                            profilePhoto: this.$store.state.userProfile.docData.profilePhoto 
                         }, 
                         createdAt: timestamp
                     })
@@ -410,7 +410,7 @@ export default {
             if (this.newComment.content.trim() != "") {
                 let payload = this.newComment;
                 this.newComment = {};
-                payload.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl }
+                payload.createdBy = { id: this.$store.state.userProfile.data.uid, username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhoto }
                 payload.createdAt = new Date();
                 payload.likeCount = 0;
 

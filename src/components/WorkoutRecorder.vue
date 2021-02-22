@@ -2,7 +2,7 @@
     <v-container>  
         <v-row align="center" justify="center">
             <v-col cols="12" sm="10">
-                <h1>{{ workout.name }}</h1>
+                <h1>{{ burn.name }}</h1>
             </v-col>
             <v-col cols="12" sm="2">
                 <p class="timeString">{{ timeString }}</p>
@@ -87,7 +87,7 @@
                         <v-form @submit.prevent="uploadWorkout">
                             <p>Would you like to save this Burn under a new name?</p> 
                             <p><em>(Names must be unique to appear seperately in New Burn)</em></p>
-                            <v-text-field label="Burn Name" v-model="workout.name" clearable></v-text-field>
+                            <v-text-field label="Burn Name" v-model="burn.name" clearable></v-text-field>
                         </v-form>
                     </v-container>
                 </div>
@@ -130,7 +130,7 @@ export default {
 
     data() {
         return {
-            workout: {},
+            burn: {},
             origWorkoutName: '',
             exercises: [],
             startTime: 0,
@@ -160,35 +160,25 @@ export default {
     },
 
     mounted: function() {
-        this.workout = this.$props.workoutObj.data
-        this.origWorkoutName = this.$props.workoutObj.type === "workout" ? this.workout.name : this.workout.workoutName;
+        this.burn = this.$props.workoutObj;
+        console.log(this.burn);
+        this.origWorkoutName = this.burn.name;
 
-        this.workout.exercises.forEach(e => {
+        this.burn.exercises.forEach(e => {
             let temp = [];
             let incrementor = 0;
-            // Here we format the sets array of objects to be correct.
-            if (this.$props.workoutObj.type === "workout") {
-                e.sets.forEach(set => {
-                    let data = { measureAmount: set.measureAmount, measureBy: set.measureBy, kg: null, id: incrementor, completed: false }
+            console.log("Exercises", e);
 
-                    if (data.measureBy === "Time") {
-                        data.timer = { interval: null, startTimer: 0 }
-                    }
-                    temp.push(data);
-                    incrementor ++;
-                })
-            } else {
-                e.sets.forEach(set => {
-                    set.id = incrementor;
+            e.sets.forEach(set => {
+                set.id = incrementor;
 
-                    if (set.measureBy === "Time") {
-                        set.timer = { interval: null, startTimer: 0 }
-                    }
+                if (set.measureBy === "Time") {
+                    set.timer = { interval: null, startTimer: 0 }
+                }
 
-                    temp.push(set);
-                    incrementor ++;
-                })
-            }
+                temp.push(set);
+                incrementor ++;
+            })
 
             const d = { id: e.id, sets: temp, name: e.name }
             this.exercises.push(d);
@@ -275,7 +265,7 @@ export default {
             this.finishTime = new Date().getTime();
 
             // First see if the user has done this workout before.
-            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("burns").where("id", "==", this.workout.id).get()
+            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("burns").where("workout.id", "==", this.burn.workout.id).get()
             .then(workoutSnapshot => {
                 if (workoutSnapshot.size > 0) {
                     // If so, user has done this before.
@@ -327,9 +317,9 @@ export default {
                 createdAt: new Date(), 
                 workout: { 
                     id: this.workout.id,
-                    workoutName: this.origWorkoutName,
+                    name: this.origWorkoutName,
                 },
-                name: this.workout.name, 
+                name: this.burn.name, 
                 duration: this.finishTime - this.startTime
             }
             console.log("PL", payload);

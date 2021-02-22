@@ -130,7 +130,7 @@
                 <div v-if="imageToEdit.dialogueOpen">
                     <v-card-title>Edit Image</v-card-title>
                     <v-card-text ref="dialogueContainer">
-                        <ImageEditorDialogue :imgUrl="imageToEdit.url" :imgId="imageToEdit.id" :isAvatar="true" @outputEdit="outputImageEdit" />
+                        <ImageEditorDialogue :imgFile="imageToEdit.file" :imgId="imageToEdit.id" :isAvatar="true" @outputEdit="outputImageEdit" />
                     </v-card-text>
                 </div>
             </v-card>
@@ -246,54 +246,11 @@ export default {
             .catch(e => {
                 console.error("Error creating user!", e);
             })
-
-
-        //     auth.createUserWithEmailAndPassword(this.signUpForm.email, this.signUpForm.password).then(user => {
-        //         // User now created in Auth system. We now need to create User in Firestore.
-        //         db.collection("users").doc(user.user.uid).set(userPayload).then(() => {
-        //                 let imageRef = storage.ref("users/" + user.user.uid + "/pp/" + Number(new Date()));
-
-        //                 imageRef.put(this.signUpForm.profilePhotoFile).then(() => {
-        //                 imageRef.getDownloadURL().then(profilePhotoUrl => {
-        //                     db.collection("users").doc(user.user.uid).update({ profilePhotoUrl }).then(() => {
-        //                         this.isLoading = false;
-        //                         this.signUpDialog = false;
-        //                     }).catch(e => {
-        //                         this.errorMessage = "Error assigning image URL to user." + e;
-        //                         console.log(this.errorMessage);
-        //                     })
-        //                 }).catch(e => {
-        //                     this.errorMessage = "Error downloading image URL." + e;
-        //                     console.log(this.errorMessage);
-        //                 })
-        //                 }).catch(e => {
-        //                 this.errorMessage = "Error uploading image." + e;
-        //                 console.log(this.errorMessage);
-        //                 })                
-        //             }).catch(e => {
-        //                 // TODO: Delete newly created user as not created properly.
-        //                 this.errorMessage = "User signed up but error creating user doc." + e;
-        //                 console.log(this.errorMessage);
-        //                 this.isLoading = false;
-        //             })
-        //     }).catch(e => {
-        //         this.errorMessage = "Error creating user: " + e;
-        //         console.log(this.errorMessage);
-        //         this.isLoading = false;
-        //     })
-        // },
-
-        // handleFileUpload: function(e) {
-        //     if (e) {
-        //         this.profilePhotoUrl = URL.createObjectURL(e);
-        //     } else {
-        //         this.profilePhotoUrl = '';
-        //     }
         },
 
         handleFileUpload: function(e) {
             this.proilePhotoUrl = URL.createObjectURL(e);
-            this.imageToEdit.url  = URL.createObjectURL(e);
+            this.imageToEdit.file = e;
             this.imageToEdit.dialogueOpen = true;
             this.editingImageDialogue = true;
         },

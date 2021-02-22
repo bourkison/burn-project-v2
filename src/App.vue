@@ -77,7 +77,6 @@ export default {
     methods: {
         signOut: function() {
             auth.signOut();
-            this.$router.push("/");
         },
 
         closeLogin: function() {
