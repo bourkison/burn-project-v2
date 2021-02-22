@@ -123,7 +123,7 @@ export default {
             exercisePromises.push(db.collection("exercises").doc(exerciseId).get()
             .then(exerciseDoc => {
                 let d = exerciseDoc.data();
-                d.id = exerciseId;
+                d.id = exerciseDoc.id;
 
                 this.createdExercisesData.push(d);
             })
@@ -137,7 +137,7 @@ export default {
             exercisePromises.push(db.collection("exercises").doc(exerciseId).get()
             .then(exerciseDoc => {
                 let d = exerciseDoc.data();
-                d.id = exerciseId;
+                d.id = exerciseDoc.id;
 
                 this.followedExercisesData.push(d);
             })
@@ -150,12 +150,16 @@ export default {
         Promise.all(exercisePromises)
         .then(() => {
             if (this.$props.initExercises) {
+                console.log("Init", this.$props.initExercises);
+
                 this.$props.initExercises.forEach(exercise => {
                     // For each exercise in init exercise, we check that we haven't already downloaded.
                     // If we haven't, download and push into selected exercise data.
                     // If we have, push from relevant array.
                     let cIndex = this.createdExercisesData.findIndex(x => x.id === exercise.id);
-                    let fIndex = this.createdExercisesData.findIndex(x => x.id === exercise.id);
+                    let fIndex = this.followedExercisesData.findIndex(x => x.id === exercise.id);
+
+                    console.log(exercise.id, cIndex, fIndex);
 
 
                     if (cIndex < 0 && fIndex < 0) {
@@ -164,10 +168,10 @@ export default {
                             this.selectedExercisesData.push(exerciseDoc.data);
                             this.selectedFollowedExercises.push(exercise.id);
                         })
-                    } else if (cIndex > 0) {
+                    } else if (cIndex >= 0) {
                         this.selectedCreatedExercises.push(exercise.id);
                         this.selectedExercisesData.push(this.createdExercisesData[cIndex]);
-                    } else if (fIndex > 0) {
+                    } else if (fIndex >= 0) {
                         this.selectedFollowedExercises.push(exercise.id);
                         this.selectedExercisesData.push(this.followedExercisesData[fIndex]);
                     }

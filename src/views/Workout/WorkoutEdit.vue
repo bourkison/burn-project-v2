@@ -22,6 +22,7 @@ import { db } from '@/firebase'
 import MarkdownInput from '@/components/Utility/MarkdownInput.vue'
 import ExerciseSelector from '@/components/Exercise/ExerciseSelector.vue'
 import DifficultySelector from '@/components/Utility/DifficultySelector.vue'
+import { functions } from '../../firebase'
 
 export default {
     name: 'WorkoutEdit',
@@ -52,13 +53,15 @@ export default {
     methods: {
         downloadWorkout: function() {
             // First download this workout information.
-            db.collection("workouts").doc(this.$route.params.workoutid).get().then(workoutDoc => {
+            db.collection("workouts").doc(this.$route.params.workoutid).get()
+            .then(workoutDoc => {
                 if (workoutDoc.exists) {
                     this.oldWorkoutData = workoutDoc.data();
                     this.newWorkoutData = workoutDoc.data();
 
                     // Then download user exercises for ExerciseSelector.
-                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").orderBy("createdAt", "desc").get().then(exercisesSnapshot => {
+                    db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").orderBy("createdAt", "desc").get()
+                    .then(exercisesSnapshot => {
                         if (exercisesSnapshot.size > 0) {
                             exercisesSnapshot.forEach(exercise => {
                                 if (exercise.data().isFollow) {
@@ -70,7 +73,8 @@ export default {
                                 this.isLoading = false;
                             })
                         }
-                    }).catch(e => {
+                    })
+                    .catch(e => {
                         this.isLoading = false;
                         this.errorMessage = "Error downloading exercises " + e;
                         console.log(this.errorMessage);
@@ -79,7 +83,8 @@ export default {
                     console.log("This workout does not exist.");
                     this.isLoading = false;
                 }
-            }).catch(e => {
+            })
+            .catch(e => {
                 console.log("Error downloading workout.", e);
                 this.isLoading = false;
             })
@@ -87,13 +92,18 @@ export default {
 
         updateWorkout: function() {
             this.isUpdating = true;
+            this.newWorkoutData.id = this.$route.params.workoutid;
+            
+            const editWorkout = functions.httpsCallable("editWorkout");
 
-            db.collection("workouts").doc(this.$route.params.workoutid).update(this.newWorkoutData).then(() => {
+            editWorkout({ workoutForm: this.newWorkoutData })
+            .then(result => {
                 this.isUpdating = false;
-                this.$router.push("/workouts/" + this.$route.params.workoutid);
-            }).catch(e => {
-                console.log("Error updating workout", e);
+                this.$router.push("/workouts/" + result.data.id);
+            })
+            .catch(e => {
                 this.isUpdating = false;
+                console.error("Error updating workout:", e);
             })
         },
 
