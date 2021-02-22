@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import { db, storage } from '@/firebase'
+import { db, storage, functions } from '@/firebase'
 
 import ExerciseImageUploader from '@/components/Exercise/ExerciseImageUploader.vue'
 import DifficultySelector from '@/components/Utility/DifficultySelector.vue'
@@ -111,14 +111,21 @@ export default {
                     // Download images:
                     let imageDownloadPromises = [];
                     this.newExerciseData.filePaths.forEach(img => {
-                        imageDownloadPromises.push(storage.ref(img).getDownloadURL().then(url => {
-                            this.imgUrls.push({ id: this.downloadImageCounter, imgUrl: url });
-                        }))
+                        imageDownloadPromises.push(storage.ref(img).getDownloadURL())
                     })
 
                     Promise.all(imageDownloadPromises)
-                    .then(() => {
+                    .then(urls => {
+                        let i = 0;
+                        urls.forEach(url => {
+                            this.imgUrls.push({ id: i, imgUrl: url });
+                            i ++;
+                        })
+
                         this.isLoading = false;
+                    })
+                    .catch(e => {
+                        console.error("Error downloading images", e);
                     })
                 } else {
                     this.isLoading = false;
@@ -168,15 +175,17 @@ export default {
                 })
 
                 this.newExerciseData.id = this.$route.params.exerciseid;
-                const editExercise = functions.httpsCallable("editExercise");
 
+                const editExercise = functions.httpsCallable("editExercise");
                 return editExercise({ exerciseForm: this.newExerciseData })
             })
             .then(result => {
                 this.$router.push("/exercises/" + result.data.id);
+                this.isUpdating = false;
             })
             .catch(e => {
                 console.error("Error updating document", e);
+                this.isUpdating = false;
             })
         },
 
