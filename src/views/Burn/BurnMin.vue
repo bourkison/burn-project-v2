@@ -1,13 +1,10 @@
 <template>
     <v-card outlined class="burnMin">
         <v-container>
-            <v-row justify="center" align="center">
-                <v-col cols="12" md="8">
-                    <h2>{{ recentWorkout.name }}</h2>
-                </v-col>
-                <v-col cols="12" md="4" style="text-align: right;">
-                    <em>{{ timeString }}<span v-if="recentWorkout.createdAtText"> | {{ recentWorkout.createdAtText }}</span></em>
-                </v-col>
+            <v-row justify="center" align="center" style="padding:10px">
+                <h2>{{ recentWorkout.name }}</h2>
+                <v-spacer />
+                <em>{{ timeString }}<span v-if="recentWorkout.createdAtText"> | {{ recentWorkout.createdAtText }}</span></em>
             </v-row>
             <!-- <v-expansion-panels style="margin: 15px 0;">
                 <v-expansion-panel v-for="exercise in recentWorkout.exercises" :key="exercise.id">

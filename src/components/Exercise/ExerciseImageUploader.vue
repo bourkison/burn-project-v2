@@ -111,7 +111,6 @@ export default {
             this.imagesToEdit[this.imageEditIncrementor].url = URL.createObjectURL(e);
             this.imagesToEdit[this.imageEditIncrementor].dialogueOpen = true;
             this.editingImageDialogue = true;
-            console.log(this.imagesToEdit);
         },
 
         handleEditFileUpload: function(e) {

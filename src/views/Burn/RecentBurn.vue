@@ -31,7 +31,8 @@ export default {
     created: function() {
         dayjs.extend(relativeTime);
 
-        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").orderBy("createdAt", "desc").get().then(recentWorkoutsSnapshot => {
+        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("burns").orderBy("createdAt", "desc").get()
+        .then(recentWorkoutsSnapshot => {
             recentWorkoutsSnapshot.forEach(recentWorkout => {
                 let d = recentWorkout.data();
                 d.rId = recentWorkout.id;
@@ -40,6 +41,9 @@ export default {
             })
 
             this.isLoading = false;
+        })
+        .catch(e => {
+            console.error("Error downloading burns.", e);
         })
     }
 }

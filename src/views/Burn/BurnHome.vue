@@ -125,7 +125,8 @@ export default {
         dayjs.extend(relativeTime);
 
         // Download user workouts.
-        workoutPromises.push(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").orderBy("createdAt", "desc").get().then(workoutsSnapshot => {
+        workoutPromises.push(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("workouts").orderBy("createdAt", "desc").get()
+        .then(workoutsSnapshot => {
             this.workoutsToDownload = workoutsSnapshot.size;
             if (this.workoutsToDownload === 0) {
                 this.isLoading = false;
@@ -133,11 +134,13 @@ export default {
 
             workoutsSnapshot.forEach(workout => {
                 db.collection("workouts").doc(workout.id).get().then(workoutDoc => {
-                    this.userWorkouts.push(workoutDoc.data());
+                    let data = workoutDoc.data();
+                    data.id = workoutDoc.id;
+                    this.userWorkouts.push(data);
 
                     // Check if this is our route query workout. If so put in workoutData to avoid loading twice.
                     if (this.$route.query.w && this.$route.query.w === workoutDoc.id) {
-                        this.workoutData = { type: 'workout', data: workoutDoc.data() };
+                        this.workoutData = { type: 'workout', data: data };
                     }
 
                     this.downloadedWorkouts ++;
@@ -146,7 +149,8 @@ export default {
         }))
 
         // Download recent workouts.
-        workoutPromises.push(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").orderBy("createdAt", "desc").limit(10).get().then(recentWorkoutsSnapshot => {
+        workoutPromises.push(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("burns").orderBy("createdAt", "desc").limit(10).get()
+        .then(recentWorkoutsSnapshot => {
             // Only push most recent of each workout.
             let uniqueNames = [];
             recentWorkoutsSnapshot.forEach(recentWorkout => {
@@ -165,14 +169,16 @@ export default {
 
         // Once everything is loaded, check that we have downloaded the query if there is one there.
         // If not, download it.
-        Promise.all(workoutPromises).then(() => {
+        Promise.all(workoutPromises)
+        .then(() => {
             if (this.$route.query.w || this.$route.query.rw) {
                 if (this.workoutData) {
                     this.startWorkoutDialogue = true;
                     this.isLoading = false;
                 } else {
                     console.log("Download");
-                    db.collection("workouts").doc(this.$route.query.w).get().then(workout => {
+                    db.collection("workouts").doc(this.$route.query.w).get()
+                    .then(workout => {
                         this.workoutData = { type: 'workout', data: workout.data() }
                         this.startWorkoutDialogue = true;
                         this.isLoading = false;

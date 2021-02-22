@@ -74,7 +74,7 @@ export default {
                         this.destination = canvas.toDataURL();
                     })
                 })
-            }, 500)
+            }, 250);
         }
 
         // If avatar, add class that makes Cropper circular.

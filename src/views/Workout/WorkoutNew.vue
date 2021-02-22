@@ -1,13 +1,3 @@
-<!--
-    workout:
-    {
-        name: string,
-        description: string,
-        difficulty: integer,
-        exercises: array of objects // { name, id, suggestedSets }
-    }
--->
-
 <template>
     <v-sheet>
         <v-container v-if="!isLoading">
@@ -61,9 +51,6 @@ export default {
                 tags: []
             },
 
-            // Firebase:
-            idAttempts: 0,
-
             // Vuetify:
             rules: {
                 required: value => !!value || 'Required.'
@@ -73,7 +60,8 @@ export default {
 
     created: function() {
         // Download user exercises.
-        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").orderBy("createdAt", "desc").get().then(exercisesSnapshot => {
+        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("exercises").orderBy("createdAt", "desc").get()
+        .then(exercisesSnapshot => {
             if (exercisesSnapshot.size > 0) {
                 exercisesSnapshot.forEach(exercise => {
                     if (exercise.data().isFollow) {
@@ -85,7 +73,8 @@ export default {
                     this.isLoading = false;
                 })
             }
-        }).catch(e => {
+        })
+        .catch(e => {
             this.isLoading = false;
             this.errorMessage = "Error downloading exercises " + e;
             console.log(this.errorMessage);
@@ -96,7 +85,7 @@ export default {
         createWorkout: function() {
             this.isCreating = true;
             const createWorkout = functions.httpsCallable("createWorkout");
-            const user = { username: this.$store.state.userProfile.docData.username, profilePhotoUrl: this.$store.state.userProfile.docData.profilePhotoUrl };
+            const user = { username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhoto };
 
             createWorkout({ workoutForm: this.workoutForm, user: user })
             .then(result => {

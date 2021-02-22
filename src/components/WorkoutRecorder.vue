@@ -168,7 +168,7 @@ export default {
             let incrementor = 0;
             // Here we format the sets array of objects to be correct.
             if (this.$props.workoutObj.type === "workout") {
-                e.suggestedSets.forEach(set => {
+                e.sets.forEach(set => {
                     let data = { measureAmount: set.measureAmount, measureBy: set.measureBy, kg: null, id: incrementor, completed: false }
 
                     if (data.measureBy === "Time") {
@@ -179,7 +179,6 @@ export default {
                 })
             } else {
                 e.sets.forEach(set => {
-                    set.completed = false;
                     set.id = incrementor;
 
                     if (set.measureBy === "Time") {
@@ -268,7 +267,6 @@ export default {
         removeSet: function(sets) {
             if (sets.length > 1) {
                 sets.pop();
-                console.log(this.previousExercises[0].sets.length);
             }
         },
 
@@ -277,7 +275,8 @@ export default {
             this.finishTime = new Date().getTime();
 
             // First see if the user has done this workout before.
-            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").where("id", "==", this.workout.id).get().then(workoutSnapshot => {
+            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("burns").where("id", "==", this.workout.id).get()
+            .then(workoutSnapshot => {
                 if (workoutSnapshot.size > 0) {
                     // If so, user has done this before.
                     // TODO: Check for differences between this workout and previous.
@@ -290,6 +289,9 @@ export default {
 
                 console.log(this.isNew);
                 this.finishingDialogue = true;
+            })
+            .catch(e => {
+                console.error("Error seeing if this user has finished before.", e);
             })
         },
 
@@ -320,13 +322,23 @@ export default {
                 })
             })
 
-            let payload = { exercises: this.exercises, createdAt: new Date(), id: this.workout.id, name: this.workout.name, workoutName: this.origWorkoutName, duration: this.finishTime - this.startTime }
+            let payload = { 
+                exercises: this.exercises,
+                createdAt: new Date(), 
+                workout: { 
+                    id: this.workout.id,
+                    workoutName: this.origWorkoutName,
+                },
+                name: this.workout.name, 
+                duration: this.finishTime - this.startTime
+            }
             console.log("PL", payload);
-            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").add(payload).then(() => {
-                console.log("Created");
+            db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("burns").add(payload)
+            .then(() => {
                 this.$router.push("/burn/recent");
-            }).catch(e => {
-                console.log("Error saving this workout!", e);
+            })
+            .catch(e => {
+                console.error("Error saving this workout!", e);
             })
         },
 
