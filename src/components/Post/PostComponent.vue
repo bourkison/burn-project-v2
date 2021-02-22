@@ -31,13 +31,10 @@
         </div>
         <v-container>
             <v-container style="padding:0 40px;" v-if="postData.share && postData.share.type == 'exercises'">
-                <!-- <v-expansion-panels>
-                    <ExerciseExpandable :exerciseToDownload="postData.share" />
-                </v-expansion-panels> -->
                 <ExerciseShare :exerciseId="postData.share.id" />
             </v-container>
             <v-container style="padding: 0 40px 5px;" v-if="postData.share && postData.share.type == 'workouts'">
-                <WorkoutExpandable :workout="postData.workout" />
+                <WorkoutShare :workoutId="postData.share.id" />
             </v-container>
             <v-container style="padding:0 20px;" v-if="postData.share && postData.share.type === 'burns'">
                 <BurnShare :burnId="postData.share.id" :userId="postData.createdBy.id" />
@@ -72,11 +69,11 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import BurnShare from '@/components/Burn/BurnShare.vue'
 import CommentSection from '@/components/Comment/CommentSection.vue'
 import ExerciseShare from '@/components/Exercise/ExerciseShare.vue'
-import WorkoutExpandable from '@/components/Workout/WorkoutExpandable'
+import WorkoutShare from '@/components/Workout/WorkoutShare.vue'
 
 export default {
     name: 'ViewPostMin',
-    components: { BurnShare, CommentSection, ExerciseShare, WorkoutExpandable },
+    components: { BurnShare, CommentSection, ExerciseShare, WorkoutShare },
     props: {
         postId: {
             type: String,

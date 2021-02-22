@@ -28,7 +28,7 @@
                         <v-spacer/>
                         <v-btn icon @click="selectedWorkout = null;"><v-icon small color="error">mdi-close</v-icon></v-btn>
                     </div>
-                    <WorkoutExpandable :workout="selectedWorkout"></WorkoutExpandable>
+                    <WorkoutShare :workoutObj="selectedWorkout" />
                 </v-container>
             </v-row>
             <v-row v-if="selectedRecentWorkout">
@@ -88,7 +88,7 @@ import { storage, functions } from '@/firebase'
 
 import BurnShare from '@/components/Burn/BurnShare.vue'
 import ExerciseShare from '@/components/Exercise/ExerciseShare.vue'
-import WorkoutExpandable from '@/components/Workout/WorkoutExpandable.vue'
+import WorkoutShare from '@/components/Workout/WorkoutShare.vue'
 import ImageEditorDialogue from '@/components/ImageEditorDialogue.vue'
 
 import ExerciseSearch from '@/components/Search/ExerciseSearch.vue'
@@ -98,7 +98,7 @@ import WorkoutSearch from '@/components/Search/WorkoutSearch.vue'
 
 export default {
     name: 'PostNew',
-    components: { BurnShare, BurnSearch, ExerciseShare, ExerciseSearch, ImageEditorDialogue, WorkoutExpandable, WorkoutSearch },
+    components: { BurnShare, BurnSearch, ExerciseShare, ExerciseSearch, ImageEditorDialogue, WorkoutShare, WorkoutSearch },
     data() {
         return {
             isLoading: false,
