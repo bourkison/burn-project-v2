@@ -43,6 +43,9 @@ export default {
             destination: null,
             cropper: {},
 
+            minAspectRatio: 0.8,
+            maxAspectRatio: 1,
+
             isLoading: false
         }
     },
@@ -64,6 +67,8 @@ export default {
 
             imageCompression(this.$props.imgFile, options)
             .then(file => {
+                console.log("Initial File", this.$props.imgFile);
+                console.log("Compressed file:", file);
                 this.imgUrl = URL.createObjectURL(file);
                 // Timeout is set to give image a chance to load before setting cropper.
                 setTimeout(() => {
@@ -79,10 +84,29 @@ export default {
                     this.cropper = new Cropper(this.imgEl, {
                         scalable: false,
                         viewMode: 3,
-                        aspectRatio: 1,
+                        ready: (() => {
+                            // On launch, set the initial cropBox to have an aspect ratio of 1.
+                            let cropBoxData = this.cropper.getCropBoxData();
+                            let cropBoxWidth = cropBoxData.width;
+
+                            this.cropper.setCropBoxData({ height: cropBoxWidth / this.minAspectRatio });
+                        }),
                         crop: (() => {
                             const canvas = this.cropper.getCroppedCanvas();
-                            this.destination = canvas.toDataURL();
+                            this.destination = canvas.toDataURL(this.$props.imgFile.type, 1.0);
+                        }),
+
+                        cropmove: (() => {
+                            // Here we check that we are not going above or below min/max aspect ratio.
+                            let cropBoxData = this.cropper.getCropBoxData();
+                            let cropBoxWidth = cropBoxData.width;
+                            let aspectRatio = cropBoxWidth / cropBoxData.height;
+
+                            if (aspectRatio < this.minAspectRatio) {
+                                this.cropper.setCropBoxData({ height: cropBoxWidth / this.minAspectRatio });
+                            } else if (aspectRatio > this.maxAspectRatio) {
+                                this.cropper.setCropBoxData({ height: cropBoxWidth / this.maxAspectRatio });
+                            }
                         })
                     })
                 }, 250);
@@ -103,7 +127,7 @@ export default {
         addImage: function() {
             this.$emit("outputEdit", this.destination, this.$props.imgId);
             // let b = this.dataURLtoBlob(this.destination);
-            // console.log(b);
+            // console.log("Cropped file:", b);
         },
 
         // dataURLtoBlob: function(dataurl) {

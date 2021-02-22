@@ -79,7 +79,12 @@ export default {
     methods: {
         createExercise: function() {
             this.isCreating = true;
-            // exerciseForm.id = this.generateId();
+
+            this.exerciseForm.id += this.exerciseForm.name.replace(/[^A-Za-z0-9]/g, "").substring(0, 8).toLowerCase();
+            if (this.exerciseForm.id.length > 0) {
+                this.exerciseForm.id += '-';
+            }
+            this.exerciseForm.id += this.generateId(16 - this.exerciseForm.id.length);
 
             // First upload the image files.
             let imageUploadPromises = [];
@@ -95,14 +100,14 @@ export default {
                 const createExercise = functions.httpsCallable("createExercise");
                 const user = { username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhoto };
 
-                createExercise({ exerciseForm: this.exerciseForm, imageFiles: this.imageFiles, user: user })
+                createExercise({ exerciseForm: this.exerciseForm, user: user })
                 .then(result => {
                     this.isCreating = false;
                     console.log(result);
                     this.$router.push("/exercises/" + result.data.id);
                 })
                 .catch(e => {
-                    console.log("Error creating document:", e);
+                    console.log("Error creating exercise:", e);
                     this.isCreating = false;
                 })
             })
