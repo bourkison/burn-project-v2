@@ -16,7 +16,8 @@
             <v-row v-if="selectedExercise">
                 <v-container>
                     <v-expansion-panels>
-                        <ExerciseExpandable :exercise="selectedExercise"></ExerciseExpandable>
+                        <!-- <ExerciseExpandable :exercise="selectedExercise"></ExerciseExpandable> -->
+                        <ExerciseShare :exerciseObj="selectedExercise" />
                     </v-expansion-panels>
                 </v-container>
             </v-row>
@@ -31,7 +32,6 @@
             </v-row>
             <v-row v-if="selectedRecentWorkout">
                 <v-container>
-                    <!-- <BurnMin :recentWorkout="selectedRecentWorkout"></BurnMin> -->
                     <BurnShare :burnObj="selectedRecentWorkout" />
                 </v-container>
             </v-row>
@@ -82,7 +82,7 @@ import Sortable from 'sortablejs'
 import { storage, functions } from '@/firebase'
 
 import BurnShare from '@/components/Burn/BurnShare.vue'
-import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable.vue'
+import ExerciseShare from '@/components/Exercise/ExerciseShare.vue'
 import WorkoutExpandable from '@/components/Workout/WorkoutExpandable.vue'
 import ImageEditorDialogue from '@/components/ImageEditorDialogue.vue'
 
@@ -93,7 +93,7 @@ import WorkoutSearch from '@/components/Search/WorkoutSearch.vue'
 
 export default {
     name: 'PostNew',
-    components: { BurnShare, BurnSearch, ExerciseExpandable, ExerciseSearch, ImageEditorDialogue, WorkoutExpandable, WorkoutSearch },
+    components: { BurnShare, BurnSearch, ExerciseShare, ExerciseSearch, ImageEditorDialogue, WorkoutExpandable, WorkoutSearch },
     data() {
         return {
             isLoading: false,
@@ -164,6 +164,8 @@ export default {
                 const createPost = functions.httpsCallable("createPost");
                 const user = { username: this.$store.state.userProfile.docData.username, profilePhoto: this.$store.state.userProfile.docData.profilePhoto };
 
+                console.log(this.postForm);
+                console.log(user, this.$store.state.userProfile.docData);
                 return createPost({ postForm: this.postForm, user: user });
             })
             .then(() => {

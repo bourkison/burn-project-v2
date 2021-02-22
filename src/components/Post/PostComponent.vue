@@ -9,9 +9,9 @@
                     <v-row justify="center" align="center" style="padding:10px">
                         <div>
                             <router-link :to="'/' + postData.createdBy.username"><b>{{ postData.createdBy.username }}</b></router-link>&nbsp;
-                            <span v-if="postData.exercise">&nbsp;shared an <router-link :to="'/exercises/' + postData.exercise.id">exercise</router-link></span>
-                            <span v-if="postData.workout">&nbsp;shared a <router-link :to="'/workouts/' + postData.workout.id">workout</router-link></span>
-                            <span v-if="postData.burn">&nbsp;shared a recent workout</span>
+                            <span v-if="postData.share.type == 'exercises'">&nbsp;shared an <router-link :to="'/exercises/' + postData.exercise.id">exercise</router-link></span>
+                            <span v-if="postData.share.type == 'workouts'">&nbsp;shared a <router-link :to="'/workouts/' + postData.workout.id">workout</router-link></span>
+                            <span v-if="postData.share.type == 'burns'">&nbsp;shared a recent burn</span>
                         </div>
                         <v-spacer/>
                         <span style="font-size:12px;"><em>{{ createdAtText }}</em></span>
@@ -31,9 +31,10 @@
         </div>
         <v-container>
             <v-container style="padding:0 40px;" v-if="postData.share && postData.share.type == 'exercises'">
-                <v-expansion-panels>
+                <!-- <v-expansion-panels>
                     <ExerciseExpandable :exerciseToDownload="postData.share" />
-                </v-expansion-panels>
+                </v-expansion-panels> -->
+                <ExerciseShare :exerciseId="postData.share.id" />
             </v-container>
             <v-container style="padding: 0 40px 5px;" v-if="postData.share && postData.share.type == 'workouts'">
                 <WorkoutExpandable :workout="postData.workout" />
@@ -68,15 +69,14 @@ import { db, storage } from '@/firebase'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-// import BurnMin from '@/views/Burn/BurnMin.vue'
 import BurnShare from '@/components/Burn/BurnShare.vue'
 import CommentSection from '@/components/Comment/CommentSection.vue'
-import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable'
+import ExerciseShare from '@/components/Exercise/ExerciseShare.vue'
 import WorkoutExpandable from '@/components/Workout/WorkoutExpandable'
 
 export default {
     name: 'ViewPostMin',
-    components: { BurnShare, CommentSection, ExerciseExpandable, WorkoutExpandable },
+    components: { BurnShare, CommentSection, ExerciseShare, WorkoutExpandable },
     props: {
         postId: {
             type: String,
