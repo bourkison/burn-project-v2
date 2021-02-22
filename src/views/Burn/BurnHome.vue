@@ -35,7 +35,7 @@
                         <v-container v-for="burn in filteredBurns" :key="'recent_' + burn.name">
                             <v-row justify="center" align="center" @click="startDialogue(burn, 'burn')" class="rowHover">
                                 <v-col cols="12" sm="9">
-                                    <div>{{ burn.name }}<br><span class="burnTime"><em>{{ recentWorkout.createdAtText }}</em></span></div>
+                                    <div>{{ burn.name }}<br><span class="burnTime"><em>{{ burn.createdAtText }}</em></span></div>
                                 </v-col>
                                 <v-col cols="12" sm="3">
                                     <div align="right"><v-icon>mdi-chevron-right</v-icon></div>
@@ -63,7 +63,7 @@
             </div>
             <div v-else>
                 <v-card outlined rounded="lg">
-                    <WorkoutRecorder :workoutObj="burnData" @cancelWorkout="cancelWorkout"></WorkoutRecorder>
+                    <WorkoutRecorder :burnObj="burnData" @cancelWorkout="cancelWorkout"></WorkoutRecorder>
                 </v-card>
             </div>
         </v-container>
@@ -140,7 +140,14 @@ export default {
 
                     // Check if this is our route query workout. If so put in burnData to avoid loading twice.
                     if (this.$route.query.w && this.$route.query.w === workoutDoc.id) {
-                        this.burnData = { type: 'workout', data: data };
+                        this.burnData = {
+                            exercises: data.exercises,
+                            workout: {
+                                id: data.id,
+                                name: data.name 
+                            },
+                            name: data.name
+                        }
                     }
 
                     this.downloadedWorkouts ++;
@@ -162,7 +169,7 @@ export default {
                 }
 
                 if (this.$route.query.rw && this.$route.query.rw == recentWorkout.id) {
-                    this.burnData = { type: 'burn', data: recentWorkout.data() };
+                    this.burnData = data;
                 }
             })
         }))
@@ -179,7 +186,16 @@ export default {
                     console.log("Download");
                     db.collection("workouts").doc(this.$route.query.w).get()
                     .then(workout => {
-                        this.burnData = { type: 'workout', data: workout.data() }
+                        let data = workout.data();
+                        this.burnData = {
+                            exercises: data.exercises,
+                            workout: {
+                                id: data.id,
+                                name: data.name 
+                            },
+                            name: data.name
+                        }
+
                         this.startWorkoutDialogue = true;
                         this.isLoading = false;
                     })

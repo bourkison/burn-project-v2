@@ -14,6 +14,11 @@
                 <template v-slot:activator>
                     <v-list-item-title><span style="margin-right: 5px;"><v-icon class="sortableHandle">mdi-drag-horizontal-variant</v-icon></span><span style="vertical-align:middle;">{{ exercise.name }}</span></v-list-item-title>
                 </template>
+                <v-list-item>
+                    <v-container>
+                        <v-textarea v-model="exercise.notes" rows="3" outlined label="Add notes..." auto-grow></v-textarea>
+                    </v-container>
+                </v-list-item>
 
                 <v-list-item>
                     <v-spacer/>
@@ -122,7 +127,7 @@ import Sortable from 'sortablejs'
 export default {
     name: 'WorkoutRecorder',
     props: {
-        workoutObj: {
+        burnObj: {
             type: Object,
             required: true
         }
@@ -160,9 +165,11 @@ export default {
     },
 
     mounted: function() {
-        this.burn = this.$props.workoutObj;
+        this.burn = this.$props.burnObj;
         console.log(this.burn);
+        this.origWorkout = JSON.parse(JSON.stringify(this.burn));
         this.origWorkoutName = this.burn.name;
+        console.log(this.origWorkout.exercises[0].notes);
 
         this.burn.exercises.forEach(e => {
             let temp = [];
@@ -180,7 +187,7 @@ export default {
                 incrementor ++;
             })
 
-            const d = { id: e.id, sets: temp, name: e.name }
+            const d = { id: e.id, sets: temp, name: e.name, notes: e.notes }
             this.exercises.push(d);
             this.previousExercises.push(JSON.parse(JSON.stringify(d)));
         })
@@ -316,7 +323,7 @@ export default {
                 exercises: this.exercises,
                 createdAt: new Date(), 
                 workout: { 
-                    id: this.workout.id,
+                    id: this.burn.workout.id,
                     name: this.origWorkoutName,
                 },
                 name: this.burn.name, 
