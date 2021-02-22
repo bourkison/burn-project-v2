@@ -36,11 +36,24 @@
 <script>
 export default {
     name: 'TagSelect',
+    props: {
+        initialTags: {
+            type: Array,
+            required: false
+        }
+    },
+
     data() {
         return {
             selected: [],
             tagItems: ["Cardio", "Strength", "No Equipment"],
             searchText: ''
+        }
+    },
+
+    mounted: function() {
+        if (this.$props.initialTags) {
+            this.selected = this.$props.initialTags;
         }
     },
 

@@ -27,8 +27,8 @@
 
 <script>
 import { db, functions } from '@/firebase'
-import MarkdownInput from '@/components/MarkdownInput.vue'
-import DifficultySelector from '@/components/DifficultySelector.vue'
+import MarkdownInput from '@/components/Utility/MarkdownInput.vue'
+import DifficultySelector from '@/components/Utility/DifficultySelector.vue'
 import TagSelect from '@/components/Utility/TagSelect.vue'
 import ExerciseSelector from '@/components/Exercise/ExerciseSelector.vue'
 

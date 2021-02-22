@@ -9,10 +9,9 @@
                 <v-row>
                     <v-col cols="12" sm="6">
                         <MuscleGroupSelect :selectedMgs="oldExerciseData.muscleGroups" @mgCH="updateMgs"></MuscleGroupSelect>
-                        <DifficultySelector :initialDifficulty="oldExerciseData.difficulty" @setDifficulty="setDifficulty"></DifficultySelector>
                     </v-col>
                     <v-col cols="12" sm="6">
-                        <v-card style="margin-top:10px;" align="center" outlined>
+                        <!-- <v-card style="margin-top:10px;" align="center" outlined>
                             <v-container class="setsAdder">
                                 <h2>Suggested Sets</h2>
                                 <v-row v-for="set in newExerciseData.suggestedSets" :key="set.id" align="center" justify="center" style="border-bottom: 1px solid var(--v-secondary-base);">
@@ -30,6 +29,23 @@
                                 </v-row>
                                 <v-btn @click="addSet" style="margin-top: 25px;">Add Set</v-btn>
                             </v-container>
+                        </v-card> -->
+                        <v-card class="measureBySelect" align="center" outlined>
+                            <v-container>
+                                <h3>Measure By
+                                    <v-tooltip top offset-y>
+                                        <template v-slot:activator="{ on, attrs }">
+                                            <v-icon small v-bind="attrs" v-on="on">mdi-help-circle-outline</v-icon>
+                                        </template>
+                                        <span>Choose how this exercise is measured.</span>
+                                    </v-tooltip>
+                                </h3>
+                                <v-select :items="['Reps', 'Time']" v-model="newExerciseData.measureBy"></v-select>
+                            </v-container>
+                        </v-card>
+                        <DifficultySelector class="difficultySelect" :initialDifficulty="oldExerciseData.difficulty" @setDifficulty="setDifficulty" />
+                        <v-card class="tagSelect" outlined>
+                            <TagSelect :initialTags="oldExerciseData.tags" @updateTags="updateTags" />
                         </v-card>
                     </v-col>
                 </v-row>
@@ -46,13 +62,14 @@
 import { db, storage } from '@/firebase'
 
 import ExerciseImageUploader from '@/components/Exercise/ExerciseImageUploader.vue'
-import DifficultySelector from '@/components/DifficultySelector.vue'
-import MarkdownInput from '@/components/MarkdownInput.vue'
+import DifficultySelector from '@/components/Utility/DifficultySelector.vue'
+import TagSelect from '@/components/Utility/TagSelect.vue'
+import MarkdownInput from '@/components/Utility/MarkdownInput.vue'
 import MuscleGroupSelect from '@/components/Utility/MuscleGroupSelect.vue'
 
 export default {
     name: 'ExerciseEdit',
-    components: { ExerciseImageUploader, DifficultySelector, MarkdownInput, MuscleGroupSelect },
+    components: { ExerciseImageUploader, DifficultySelector, MarkdownInput, MuscleGroupSelect, TagSelect },
     data() {
         return {
             isLoading: true,
@@ -92,11 +109,16 @@ export default {
                     this.newExerciseData = exerciseDoc.data();
 
                     // Download images:
+                    let imageDownloadPromises = [];
                     this.newExerciseData.filePaths.forEach(img => {
-                        storage.ref(img).getDownloadURL().then(url => {
+                        imageDownloadPromises.push(storage.ref(img).getDownloadURL().then(url => {
                             this.imgUrls.push({ id: this.downloadImageCounter, imgUrl: url });
-                            this.downloadImageCounter ++;
-                        })
+                        }))
+                    })
+
+                    Promise.all(imageDownloadPromises)
+                    .then(() => {
+                        this.isLoading = false;
                     })
                 } else {
                     this.isLoading = false;
@@ -111,6 +133,7 @@ export default {
         updateExercise: function() {
             this.isUpdating = true;
 
+            // First delete images. This can be done asynchronously.
             if (this.imagesToDelete.length > 0) {
                 this.imagesToDelete.forEach(path => {
                     storage.ref(path).delete().catch(e => {
@@ -119,39 +142,42 @@ export default {
                 })
             }
 
+            // Next, check for additional images to upload and push them to array of promises.
             let i = 0;
-            // First step, check for additional images, then upload them.
-            // i is used to keep order.
+            let imageUploadPromises = []
+
             this.imageObjs.forEach(imageObj => {
                 if (imageObj.file) {
-                    this.uploadImage(imageObj.file, i);
+                    const imageRef = storage.ref("exercises/" + this.$route.params.exerciseid + "/images/" + Number(new Date()) + "-" + this.generateId(4));
+                    this.imageObjs[i].path = imageRef.fullPath;
+                    imageUploadPromises.push(imageRef.putString(imageObj.file, 'data_url'))
+
+                    i ++;
                 } else {
-                    this.imageChecker ++;
+                    i ++;
                 }
-
-                i ++;
             })
-        },
 
-        uploadImage: function(file, order) {
-            let imageRef = storage.ref("exercises/" + this.$route.params.exerciseid + "/images/" + Number(new Date()) + "-" + this.generateId(4));
+            // Once all images are uploaded, update the document.
+            Promise.all(imageUploadPromises)
+            .then(() => {
+                this.newExerciseData.filePaths = [];
 
-            imageRef.putString(file, 'data_url').then(() => {
-                this.imageObjs[order].path = imageRef.fullPath;
-                this.imageChecker ++;
+                this.imageObjs.forEach(img => {
+                    this.newExerciseData.filePaths.push(img.path);
+                })
+
+                this.newExerciseData.id = this.$route.params.exerciseid;
+                const editExercise = functions.httpsCallable("editExercise");
+
+                return editExercise({ exerciseForm: this.newExerciseData })
             })
-        },
-
-        addSet: function() {
-            this.setIterator ++;
-            this.newExerciseData.suggestedSets.push({ id: this.setIterator, measureBy: this.newExerciseData.suggestedSets[this.newExerciseData.suggestedSets.length - 1].measureBy })
-        },
-
-        deleteSet: function(i) {
-            if (this.newExerciseData.suggestedSets.length > 1) {
-                let index = this.newExerciseData.suggestedSets.findIndex(x => x.id === i);
-                this.newExerciseData.suggestedSets.splice(index, 1);
-            }
+            .then(result => {
+                this.$router.push("/exercises/" + result.data.id);
+            })
+            .catch(e => {
+                console.error("Error updating document", e);
+            })
         },
 
         setDifficulty: function(d) {
@@ -171,6 +197,10 @@ export default {
             this.imagesToDelete = del;
         },
 
+        updateTags: function(tags) {
+            this.newExerciseData.tags = tags;
+        },
+
         generateId(n) {
             let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
             let id = '';
@@ -180,39 +210,14 @@ export default {
             }
             return id;
         }
-    },
-
-    watch: {
-        downloadImageCounter: function() {
-            if (this.downloadImageCounter >= this.newExerciseData.filePaths.length) {
-                this.isLoading = false;
-            }
-        },
-
-        imageChecker: function() {
-            if (this.imageChecker >= this.imageObjs.length) {
-                // First we need to build out the filePaths array.
-                this.newExerciseData.filePaths = [];
-
-                this.imageObjs.forEach(img => {
-                    this.newExerciseData.filePaths.push(img.path);
-                })
-
-                // Next, remove ID from the suggested sets.
-                this.newExerciseData.suggestedSets.forEach(s => {
-                    delete s.id;
-                    s.measureAmount = Number(s.measureAmount);
-                })
-
-                db.collection("exercises").doc(this.$route.params.exerciseid).update(this.newExerciseData).then(() => {
-                    this.isUpdating = false;
-                    this.$router.push("/exercises/" + this.$route.params.exerciseid);
-                }).catch(e => {
-                    console.log("Error updating exercise", e);
-                    this.isUpdating = false;
-                });
-            }
-        }
     }
 }
 </script>
+
+<style scoped>
+    .measureBySelect,
+    .difficultySelect,
+    .tagSelect {
+        margin-top: 10px;
+    }
+</style>

@@ -19,9 +19,9 @@
 <script>
 import { db } from '@/firebase'
 
-import MarkdownInput from '@/components/MarkdownInput.vue'
+import MarkdownInput from '@/components/Utility/MarkdownInput.vue'
 import ExerciseSelector from '@/components/Exercise/ExerciseSelector.vue'
-import DifficultySelector from '@/components/DifficultySelector.vue'
+import DifficultySelector from '@/components/Utility/DifficultySelector.vue'
 
 export default {
     name: 'WorkoutEdit',

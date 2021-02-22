@@ -42,8 +42,8 @@
 import { functions, storage } from '@/firebase'
 
 import ExerciseImageUploader from '@/components/Exercise/ExerciseImageUploader.vue'
-import MarkdownInput from '@/components/MarkdownInput.vue'
-import DifficultySelector from '@/components/DifficultySelector.vue'
+import MarkdownInput from '@/components/Utility/MarkdownInput.vue'
+import DifficultySelector from '@/components/Utility/DifficultySelector.vue'
 import MuscleGroupSelect from '@/components/Utility/MuscleGroupSelect.vue'
 import TagSelect from '@/components/Utility/TagSelect.vue'
 

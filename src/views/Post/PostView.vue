@@ -9,7 +9,9 @@
             </v-col>
 
             <v-col cols="12" sm="6" lg="5" xl="4">
-                <PostComponent :postId="postId" />
+                <v-sheet rounded="lg">
+                    <PostComponent :postId="postId" />
+                </v-sheet>
             </v-col>
 
             <v-col cols="12" sm="3" xl="2">

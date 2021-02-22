@@ -20,7 +20,7 @@ import WorkoutFollowed from '@/views/Workout/WorkoutFollowed.vue'
 
 import Burn from '@/views/Burn/Burn.vue'
 import BurnHome from '@/views/Burn/BurnHome.vue'
-import RecentBurn from '@/views/Burn/RecentBurn.vue'
+import BurnRecent from '@/views/Burn/BurnRecent.vue'
 
 import Profile from '@/views/User/Profile.vue'
 import ProfileView from '@/views/User/ProfileView.vue'
@@ -41,10 +41,7 @@ const routes = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
-    meta: {
-      requiresAuth: true
-    }
+    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
   {
     path: '/signup',
@@ -142,7 +139,7 @@ const routes = [
       {
         path: '/burn/recent',
         name: 'Recent Burn.vue',
-        component: RecentBurn
+        component: BurnRecent
       }
     ]
   },
