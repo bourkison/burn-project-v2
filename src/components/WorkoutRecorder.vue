@@ -378,8 +378,6 @@ export default {
             this.exercises.push(data);
             this.previousExercises.push(data);
 
-            console.log("Data", data, "Exercise", e);
-
             this.addExerciseDialogue = false;
         }
     }

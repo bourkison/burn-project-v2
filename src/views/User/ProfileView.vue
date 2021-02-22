@@ -3,7 +3,7 @@
         <v-container v-if="!isLoading">
             <v-row>
                 <v-col cols="12" sm="3">
-                    <v-avatar size="100%"><v-img aspect-ratio="1" :src="profileData.profilePhotoUrl"></v-img></v-avatar>
+                    <v-avatar size="100%"><v-img aspect-ratio="1" :src="profileData.profilePhoto"></v-img></v-avatar>
                 </v-col>
                 <v-col cols="12" sm="9">
                     <v-container>
@@ -119,69 +119,66 @@ export default {
         },
 
         handleFollow: function() {
+            const batch = db.batch();
             this.isFollowing = true;
 
             if (!this.isFollowed) {
                 // First add to this users followers.
-                let payload = { createdBy: { username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid, profilePhoto: this.$store.state.userProfile.docData.profilePhotoUrl }, createdAt: new Date() }
-                db.collection("users").doc(this.profileData.id).collection("followers").doc(this.$store.state.userProfile.data.uid).set(payload).then(() => {
-                    // Increment follower count on the user.
-                    db.collection("users").doc(this.profileData.id).update({ followerCount: fv.increment(1) }).then(() => {
-                        // Add to logged in users following.
-                        payload = { followedUser: { username: this.profileData.username, id: this.profileData.id, profilePhoto: this.profileData.profilePhotoUrl }, createdAt: payload.createdAt }
-                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("following").doc(this.profileData.id).set(payload).then(() => {
-                            // Now increment following count on logged in user.
-                            db.collection("users").doc(this.$store.state.userProfile.data.uid).update({followingCount: fv.increment(1)}).then(() => {
-                                console.log("FOLLOWED USER");
-                                this.isFollowing = false;
-                                this.isFollowed = true;
-                                this.profileData.followerCount ++;
-                                this.$store.state.userProfile.docData.followingCount ++;
-                            }).catch(e => {
-                                console.warn("Error incrementing followingCount", e);
-                                this.isFollowing = false;
-                            })
-                        }).catch(e => {
-                            console.warn("Error adding this user to following collection", e);
-                            this.isFollowing = false;
-                        })
-                    }).catch(e => {
-                        console.warn("Error incrementing followerCount", e);
-                        this.isFollowing = false;
-                    })
-                }).catch(e => {
-                    console.warn("Error adding logged in user to follower collection", e);
+                let payload = { createdBy: { username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid, profilePhoto: this.$store.state.userProfile.docData.profilePhoto }, createdAt: new Date() }
+                batch.set(db.collection("users").doc(this.profileData.id).collection("followers").doc(this.$store.state.userProfile.data.uid), payload);
+
+                // Then add to logged in users following.
+                payload = { followedUser: { username: this.profileData.username, id: this.profileData.id, profilePhoto: this.profileData.profilePhoto }, createdAt: payload.createdAt }
+                batch.set(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("following").doc(this.profileData.id), payload)
+
+                // Increment follower count.
+                batch.update(db.collection("users").doc(this.profileData.id), {
+                    followerCount: fv.increment(1)
+                })
+
+                // Increment following count.
+                batch.update(db.collection("users").doc(this.$store.state.userProfile.data.uid), {
+                    followingCount: fv.increment(1)
+                })
+
+                // Commit the batch.
+                batch.commit()
+                .then(() => {
                     this.isFollowing = false;
+                    this.isFollowed = true;
+                    this.profileData.followerCount ++;
+                    this.$store.state.userProfile.docData.followingCount ++;
+                })
+                .catch(e => {
+                    console.error("Error following this user.", e);
                 })
             } else {
-                // First delete from users followers.
-                db.collection("users").doc(this.profileData.id).collection("followers").doc(this.$store.state.userProfile.data.uid).delete().then(() => {
-                    // Decrement follower count on the user.
-                    db.collection("users").doc(this.profileData.id).update({ followerCount: fv.increment(-1) }).then(() => {
-                        // Delete from logged in user's following
-                        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("following").doc(this.profileData.id).delete().then(() => {
-                            // Decrement following count on logged in user.
-                            db.collection("users").doc(this.$store.state.userProfile.data.uid).update({ followingCount: fv.increment(-1) }).then(() => {
-                                console.log("UNFOLLOWED USER");
-                                this.isFollowing = false;
-                                this.isFollowed = false;
-                                this.profileData.followerCount --;
-                                this.$store.state.userProfile.docData.followingCount --;
-                            }).catch(e => {
-                                console.warn("Error decrementing followingCount", e);
-                                this.isFollowing = false;
-                            })
-                        }).catch(e => {
-                            console.warn("Error deleting user from following collection", e);
-                            this.isFollowing = false;
-                        })
-                    }).catch(e => {
-                        console.warn("Error decrementing followerCount", e);
-                        this.isFollowing = false;
-                    })
-                }).catch(e => {
-                    console.warn("Error deleting user from follower collection", e);
+                // First delete from this users followers.
+                batch.delete(db.collection("users").doc(this.profileData.id).collection("followers").doc(this.$store.state.userProfile.data.uid));
+
+                // Then delete this user from loggedi n following.
+                batch.delete(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("following").doc(this.profileData.id));
+
+                // Decrement follower count.
+                batch.update(db.collection("users").doc(this.profileData.id), {
+                    followerCount: fv.increment(-1)
+                })
+
+                // Decrement following count.
+                batch.update(db.collection("users").doc(this.$store.state.userProfile.data.uid), {
+                    followingCount: fv.increment(-1)
+                })
+
+                // Commit the batch.
+                batch.commit()
+                .then(() => {
                     this.isFollowing = false;
+                    this.isFollowed = false;
+                    this.profileData.followerCount --;
+                    this.$store.state.userProfile.docData.followingCount --;
+                })
+                .catch(e => {
+                    console.error("Error unfollowing the user.", e);
                 })
             }
         },
