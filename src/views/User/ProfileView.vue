@@ -119,67 +119,69 @@ export default {
         },
 
         handleFollow: function() {
-            const batch = db.batch();
-            this.isFollowing = true;
+            if (!this.isFollowing) {
+                const batch = db.batch();
+                this.isFollowing = true;
 
-            if (!this.isFollowed) {
-                // First add to this users followers.
-                let payload = { createdBy: { username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid, profilePhoto: this.$store.state.userProfile.docData.profilePhoto }, createdAt: new Date() }
-                batch.set(db.collection("users").doc(this.profileData.id).collection("followers").doc(this.$store.state.userProfile.data.uid), payload);
+                if (!this.isFollowed) {
+                    // First add to this users followers.
+                    let payload = { createdBy: { username: this.$store.state.userProfile.docData.username, id: this.$store.state.userProfile.data.uid, profilePhoto: this.$store.state.userProfile.docData.profilePhoto }, createdAt: new Date() }
+                    batch.set(db.collection("users").doc(this.profileData.id).collection("followers").doc(this.$store.state.userProfile.data.uid), payload);
 
-                // Then add to logged in users following.
-                payload = { followedUser: { username: this.profileData.username, id: this.profileData.id, profilePhoto: this.profileData.profilePhoto }, createdAt: payload.createdAt }
-                batch.set(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("following").doc(this.profileData.id), payload)
+                    // Then add to logged in users following.
+                    payload = { followedUser: { username: this.profileData.username, id: this.profileData.id, profilePhoto: this.profileData.profilePhoto }, createdAt: payload.createdAt }
+                    batch.set(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("following").doc(this.profileData.id), payload)
 
-                // Increment follower count.
-                batch.update(db.collection("users").doc(this.profileData.id), {
-                    followerCount: fv.increment(1)
-                })
+                    // Increment follower count.
+                    batch.update(db.collection("users").doc(this.profileData.id), {
+                        followerCount: fv.increment(1)
+                    })
 
-                // Increment following count.
-                batch.update(db.collection("users").doc(this.$store.state.userProfile.data.uid), {
-                    followingCount: fv.increment(1)
-                })
+                    // Increment following count.
+                    batch.update(db.collection("users").doc(this.$store.state.userProfile.data.uid), {
+                        followingCount: fv.increment(1)
+                    })
 
-                // Commit the batch.
-                batch.commit()
-                .then(() => {
-                    this.isFollowing = false;
-                    this.isFollowed = true;
-                    this.profileData.followerCount ++;
-                    this.$store.state.userProfile.docData.followingCount ++;
-                })
-                .catch(e => {
-                    console.error("Error following this user.", e);
-                })
-            } else {
-                // First delete from this users followers.
-                batch.delete(db.collection("users").doc(this.profileData.id).collection("followers").doc(this.$store.state.userProfile.data.uid));
+                    // Commit the batch.
+                    batch.commit()
+                    .then(() => {
+                        this.isFollowing = false;
+                        this.isFollowed = true;
+                        this.profileData.followerCount ++;
+                        this.$store.state.userProfile.docData.followingCount ++;
+                    })
+                    .catch(e => {
+                        console.error("Error following this user.", e);
+                    })
+                } else {
+                    // First delete from this users followers.
+                    batch.delete(db.collection("users").doc(this.profileData.id).collection("followers").doc(this.$store.state.userProfile.data.uid));
 
-                // Then delete this user from loggedi n following.
-                batch.delete(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("following").doc(this.profileData.id));
+                    // Then delete this user from loggedin users following.
+                    batch.delete(db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("following").doc(this.profileData.id));
 
-                // Decrement follower count.
-                batch.update(db.collection("users").doc(this.profileData.id), {
-                    followerCount: fv.increment(-1)
-                })
+                    // Decrement follower count.
+                    batch.update(db.collection("users").doc(this.profileData.id), {
+                        followerCount: fv.increment(-1)
+                    })
 
-                // Decrement following count.
-                batch.update(db.collection("users").doc(this.$store.state.userProfile.data.uid), {
-                    followingCount: fv.increment(-1)
-                })
+                    // Decrement following count.
+                    batch.update(db.collection("users").doc(this.$store.state.userProfile.data.uid), {
+                        followingCount: fv.increment(-1)
+                    })
 
-                // Commit the batch.
-                batch.commit()
-                .then(() => {
-                    this.isFollowing = false;
-                    this.isFollowed = false;
-                    this.profileData.followerCount --;
-                    this.$store.state.userProfile.docData.followingCount --;
-                })
-                .catch(e => {
-                    console.error("Error unfollowing the user.", e);
-                })
+                    // Commit the batch.
+                    batch.commit()
+                    .then(() => {
+                        this.isFollowing = false;
+                        this.isFollowed = false;
+                        this.profileData.followerCount --;
+                        this.$store.state.userProfile.docData.followingCount --;
+                    })
+                    .catch(e => {
+                        console.error("Error unfollowing the user.", e);
+                    })
+                }
             }
         },
 

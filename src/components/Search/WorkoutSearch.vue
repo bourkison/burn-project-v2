@@ -57,7 +57,9 @@ export default {
             // Download each workout and push to unsortedWorkouts array.    
             workoutsSnapshot.forEach(workout => {
                 return workoutPromises.push(db.collection("workouts").doc(workout.id).get().then(workoutDoc => {
-                    this.unsortedWorkouts.push({ data: workoutDoc.data(), isFollow: workout.data().isFollow });
+                    let data = workoutDoc.data();
+                    data.id = workoutDoc.id;
+                    this.unsortedWorkouts.push({ data: data, isFollow: workout.data().isFollow });
                 }))
             })
         })

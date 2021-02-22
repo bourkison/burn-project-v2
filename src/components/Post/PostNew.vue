@@ -56,7 +56,7 @@
                 <div v-if="img.dialogueOpen">
                     <v-card-title>Edit Image</v-card-title>
                     <v-card-text ref="dialogueContainer">
-                        <ImageEditorDialogue :imgUrl="img.url" :imgId="img.id" @outputEdit="outputEdit" />
+                        <ImageEditorDialogue :imgFile="img.file" :imgId="img.id" @outputEdit="outputEdit" />
                     </v-card-text>
                 </div>
             </v-card>
@@ -71,7 +71,7 @@
         </v-dialog>
 
         <v-dialog v-model="recentWorkoutSearchDialogue" style="min-height:300px;" max-width="600">
-            <BurnSearch @selectRecentWorkout="addRecentWorkout" />
+            <BurnSearch @selectBurn="addBurn" />
         </v-dialog>
     </v-card>
 </template>
@@ -98,10 +98,11 @@ export default {
             isLoading: false,
             postForm: {
                 content: '',
-                exercise: null,
-                workout: null,
-                burn: null,
-                imgPaths: []
+                share: {
+                    id: '',
+                    type: ''
+                },
+                filePaths: []
             },
             imageFiles: [],
             imagesToEdit: [],
@@ -118,10 +119,6 @@ export default {
                 animation: 300,
                 onEnd: this.changeOrder
             },
-
-            // Firebase:
-            idAttempts: 0,
-            imagesUploaded: 0,
 
             // Vuetify:
             editingImageDialogue: false,
@@ -140,38 +137,23 @@ export default {
             this.isLoading = true;
             let imageUploadPromises = [];
 
-            // First check if we are sharing anything.
             if (this.selectedExercise) {
-                this.postForm.exercise = { name: this.selectedExercise.name, id: this.selectedExercise.id }
+                this.postForm.share = { id: this.selectedExercise.id, type: "exercises" }
             } else if (this.selectedWorkout) {
-                let temp = [];
-
-                this.selectedWorkout.exercises.forEach(exercise => {
-                    temp.push({ name: exercise.name, id: exercise.id })
-                })
-
-                this.postForm.workout = { name: this.selectedWorkout.name, exercises: temp, id: this.selectedWorkout.id }
+                this.postForm.share = { id: this.selectedWorkout.id, type: "workouts" }
             } else if (this.selectedRecentWorkout) {
-                let exercises = [];
-
-                this.selectedRecentWorkout.exercises.forEach(exercise => {
-                    let sets = [];
-                    exercise.sets.forEach(set => {
-                        sets.push({ kg: set.kg, measureAmount: set.measureAmount });
-                    })
-
-                    exercises.push({ name: exercise.name, id: exercise.id, sets: sets });
-                })
-
-                this.postForm.burn = { name: this.selectedRecentWorkout.name, createdAt: this.selectedRecentWorkout.createdAt, exercises: exercises };
+                this.postForm.share = { id: this.selectedRecentWorkout.id, type: "burns" }
             }
+
+            // Build the post ID.
+            this.postForm.id = this.generateId(16);
 
             // Then upload images if user has inputted any.
             if (this.imageObjs.length > 0) {
                 this.imageObjs.forEach(img => {
                     let imageRef = storage.ref("posts/" + this.postForm.id + "/images/" + Number(new Date()) + "-" + this.generateId(4));
                     imageUploadPromises.push(imageRef.putString(img.file, 'data_url'));
-                    this.postForm.imgPaths.push(imageRef.fullPath);
+                    this.postForm.filePaths.push(imageRef.fullPath);
                 })
             }
 
@@ -196,7 +178,7 @@ export default {
 
         handleFileUpload: function(e) {
             this.imageFiles = e;
-            this.imagesToEdit[this.imageEditIncrementor].url = URL.createObjectURL(e);
+            this.imagesToEdit[this.imageEditIncrementor].file = e;
             this.imagesToEdit[this.imageEditIncrementor].dialogueOpen = true;
             this.editingImageDialogue = true;
         },
@@ -245,14 +227,14 @@ export default {
 
         // This is called once post is uploaded and resets all variables.
         resetVariables: function() {
-            this.postForm = { content: '', exercise: null, workout: null, burn: null, imgPaths: [] };
+            this.postForm = { content: '', share: { id: '', type: '' }, filePaths: [] };
             this.imageFiles = [];
             this.imagesToEdit = [];
             this.imageEditIncrementor = 0;
             this.imageObjs = [];
-            this.imagesUploaded = 0;
             this.selectedExercise = null;
             this.selectedWorkout = null;
+            this.selectedRecentWorkout = null;
 
             this.imagesToEdit.push({ id: this.imageEditIncrementor, url: null, dialogueOpen: false });
         },
@@ -273,7 +255,7 @@ export default {
             this.selectedRecentWorkout = null;
         },
 
-        addRecentWorkout: function(recentWorkout) {
+        addBurn: function(recentWorkout) {
             this.recentWorkoutSearchDialogue = false;
 
             this.selectedRecentWorkout = recentWorkout;

@@ -2,11 +2,11 @@
     <v-card>
         <v-container v-if="!isLoading">
             <v-text-field prepend-inner-icon="mdi-magnify" v-model="searchText" clearable label="Search recent workout..."></v-text-field>
-            <div v-if="filteredRecentWorkouts.length > 0">
+            <div v-if="filteredBurns.length > 0">
                 <h2>Recent Workouts</h2>
                 <v-list>
-                    <v-list-item v-for="recentWorkout in filteredRecentWorkouts" :key="recentWorkout.id" @click="selectRecentWorkout(recentWorkout)">
-                        <v-list-item-title>{{ recentWorkout.name }}</v-list-item-title>
+                    <v-list-item v-for="burn in filteredBurns" :key="burn.id" @click="selectBurn(burn)">
+                        <v-list-item-title>{{ burn.name }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </div>
@@ -26,20 +26,20 @@ export default {
         return {
             isLoading: true,
             searchText: '',
-            recentWorkouts: []
+            burns: []
         }
     },
 
     mounted: function() {
-        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("recentWorkouts").orderBy("createdAt", "desc").get()
-        .then(recentWorkoutsSnapshot => {
+        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("burns").orderBy("createdAt", "desc").get()
+        .then(burnsSnapshot => {
             // Only push most recent of each workout.
             let uniqueNames = [];
-            recentWorkoutsSnapshot.forEach(recentWorkout => {
+            burnsSnapshot.forEach(recentWorkout => {
                 let data = recentWorkout.data();
                 if (!uniqueNames.includes(data.name)) {
                     data.id = recentWorkout.id;
-                    this.recentWorkouts.push(data);
+                    this.burns.push(data);
                     uniqueNames.push(data.name)
                 }
             })
@@ -49,20 +49,20 @@ export default {
     },
 
     computed: {
-        filteredRecentWorkouts: function() {
+        filteredBurns: function() {
             if (this.searchText) {
-                return this.recentWorkouts.filter(recentWorkout => {
+                return this.burns.filter(recentWorkout => {
                     return recentWorkout.name.toLowerCase().includes(this.searchText.toLowerCase());
                 })
             } else {
-                return this.recentWorkouts;
+                return this.burns;
             }
         }
     },
 
     methods: {
-        selectRecentWorkout: function(id) {
-            this.$emit("selectRecentWorkout", id);
+        selectBurn: function(id) {
+            this.$emit("selectBurn", id);
         }
     }
 }
