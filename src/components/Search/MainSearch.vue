@@ -1,9 +1,9 @@
 <template>
     <v-menu v-model="menuModel" :open-on-click="false" :close-on-click="false" bottom offset-y left allow-overflow>
         <template v-slot:activator="{ on }">
-            <v-response max-width="280">
-                <v-text-field v-model="searchText" v-on="on" dense flat hide-details rounded solo-inverted label="Search..." @focus="menuModel = true;" @blur="menuModel = false;"></v-text-field>
-            </v-response>
+            <v-responsive max-width="280">
+                <v-text-field v-model="searchText" v-on="on" dense flat hide-details prepend-inner-icon="mdi-magnify" solo-inverted label="Search..." @focus="menuModel = true;" @blur="closeDialog"></v-text-field>
+            </v-responsive>
         </template>
 
         <div style="width:400px;">
@@ -43,27 +43,6 @@
             </v-card>
         </div>
     </v-menu>
-
-    <!-- <v-autocomplete
-        v-model="model"
-        :items="responses"
-        :loading="isLoading"
-        :search-input.sync="searchText"
-        clearable
-        solo
-    >
-        <template v-slot:no-data>
-            <v-list-item>
-                <v-list-item-title>Search for a user, exercise or workout...</v-list-item-title>
-            </v-list-item>
-        </template>
-
-        <template v-slot:item="{ item }" v-if="item.type == 'exercise'">
-            <v-list-item-content>
-                <v-list-item-title v-text="item.name"></v-list-item-title>
-            </v-list-item-content>
-        </template>
-    </v-autocomplete> -->
 </template>
 
 <script>
@@ -130,7 +109,19 @@ export default {
                 console.log("USER RESPONSES:", this.userResponses, "EXERCISE RESPONSES:", this.exerciseResponses);
                 this.isLoading = false;
             })
-        }, 500)
+        }, 750),
+
+        closeDialog: function() {
+            // Must set a timeout, as if instant, we are not able to click on links.
+            // This is gross and we should come back to this
+            setTimeout(() => {
+                this.menuModel = false;
+            }, 100)
+        },
+
+        searchClick: function(path) {
+            this.$router.push("/exercises/" + path);
+        }
     },
 
     watch: {

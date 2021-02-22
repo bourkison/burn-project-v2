@@ -136,7 +136,10 @@ export default {
     created: function() {
         this.downloadExercise();
     },
-    beforeRouteUpdate: function() {
+
+    beforeRouteUpdate: function(to, from, next) {
+        this.resetVariables();
+        next();
         this.downloadExercise();
     },
 
@@ -245,6 +248,25 @@ export default {
         popUpImage: function(url) {
             this.viewingImageDialogue = true;
             this.imageDialogueUrl = url;
+        },
+
+        resetVariables: function() {
+            this.exerciseExists = false,
+            this.isLoading = true,
+            this.isDeleting = false,
+            this.exerciseData = {},
+            this.imgUrls = [],
+            this.isLiked = '',
+            this.errorMessage = '',
+            this.likeCount = 0,
+            this.commentCount = 0,
+            this.followCount = 0,
+            this.downloadedImageCounter = 0,
+            this.model = 0,
+            this.starsAmount = 0,
+            this.isDeletingDialogue = false,
+            this.viewingImageDialogue = false,
+            this.imageDialogueUrl = ''
         }
     }
 }
