@@ -9,8 +9,8 @@
                     <v-row justify="center" align="center" style="padding:10px">
                         <div>
                             <router-link :to="'/' + postData.createdBy.username"><b>{{ postData.createdBy.username }}</b></router-link>&nbsp;
-                            <span v-if="postData.share.type == 'exercises'">&nbsp;shared an <router-link :to="'/exercises/' + postData.exercise.id">exercise</router-link></span>
-                            <span v-if="postData.share.type == 'workouts'">&nbsp;shared a <router-link :to="'/workouts/' + postData.workout.id">workout</router-link></span>
+                            <span v-if="postData.share.type == 'exercises'">&nbsp;shared an <router-link :to="'/exercises/' + postData.share.id">exercise</router-link></span>
+                            <span v-if="postData.share.type == 'workouts'">&nbsp;shared a <router-link :to="'/workouts/' + postData.share.id">workout</router-link></span>
                             <span v-if="postData.share.type == 'burns'">&nbsp;shared a recent burn</span>
                         </div>
                         <v-spacer/>

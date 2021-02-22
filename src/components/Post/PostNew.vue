@@ -15,10 +15,11 @@
             </v-row>
             <v-row v-if="selectedExercise">
                 <v-container>
-                    <v-expansion-panels>
-                        <!-- <ExerciseExpandable :exercise="selectedExercise"></ExerciseExpandable> -->
-                        <ExerciseShare :exerciseObj="selectedExercise" />
-                    </v-expansion-panels>
+                    <div align="right">
+                        <v-spacer/>
+                        <v-btn icon @click="selectedExercise = null;"><v-icon small color="error">mdi-close</v-icon></v-btn>
+                    </div>
+                    <ExerciseShare :exerciseObj="selectedExercise" />
                 </v-container>
             </v-row>
             <v-row v-if="selectedWorkout">
@@ -32,6 +33,10 @@
             </v-row>
             <v-row v-if="selectedRecentWorkout">
                 <v-container>
+                    <div align="right">
+                        <v-spacer/>
+                        <v-btn icon @click="selectedRecentWorkout = null;"><v-icon small color="error">mdi-close</v-icon></v-btn>
+                    </div>
                     <BurnShare :burnObj="selectedRecentWorkout" />
                 </v-container>
             </v-row>
