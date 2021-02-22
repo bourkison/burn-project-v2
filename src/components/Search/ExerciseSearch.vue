@@ -27,12 +27,15 @@
 
             <div v-if="searchText">
                 <h2>Other</h2>
-                <v-list>
+                <v-list v-if="!isSearching">
                     <v-list-item v-for="exercise in otherExercises" :key="exercise.id" @click="selectExercise(exercise)">
                         <v-list-item-title>{{ exercise.name }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
-                <v-btn @click="searchExercise">Search</v-btn>
+                <div v-if="isSearching">
+                    <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
+                </div>
+                <v-btn v-if="!exerciseIndex" @click="searchExercise">Search</v-btn>
             </div>
         </v-container>
         <v-container v-else>
@@ -43,12 +46,15 @@
 
 <script>
 import { db } from '@/firebase'
+import algoliasearch from 'algoliasearch'
+import _ from 'lodash'
 
 export default {
     name: 'ExerciseSearch',
     data() {
         return {
             isLoading: true,
+            isSearching: false,
             searchText: '',
             userExercises: [],
             followedExercises: [],
@@ -59,6 +65,13 @@ export default {
             // Firebase:
             exercisesToDownload: 0,
             downloadedExercises: 0,
+
+            // Algolia
+            searchClient: algoliasearch(
+                "O9KO1L25CJ",
+                "e6492bc28cfda8670d4981bb26e4bbbd"
+            ),
+            exerciseIndex: null,
         }
     },
 
@@ -122,7 +135,33 @@ export default {
         },
 
         searchExercise: function() {
-            console.log("Search");
+            this.exerciseIndex = this.searchClient.initIndex("exercises");
+            this.isSearching = true;
+            this.search();
+        },
+
+        search: _.debounce(function() {
+            // If exerciseIndex is not null, then user has initiated it by clicking search button.
+            this.otherExercises = [];
+            this.exerciseIndex.search(this.searchText).then(responses => {
+                responses.hits.forEach(hit => {
+                    let d = hit;
+                    d.id = d.objectID;
+                    delete d.objectID;
+
+                    this.otherExercises.push(d);
+                    this.isSearching = false;
+                })
+            })
+        })
+    },
+
+    watch: {
+        searchText: function() {
+            if (this.exerciseIndex) {
+                this.isSearching = true;
+                this.search();
+            }
         }
     }
 }
