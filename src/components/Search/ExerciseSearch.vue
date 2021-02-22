@@ -69,7 +69,9 @@ export default {
         .then(exercisesSnapshot => {
             exercisesSnapshot.forEach(exercise => {
                 return exercisePromises.push(db.collection("exercises").doc(exercise.id).get().then(exerciseDoc => {
-                    this.unsortedExercises.push({ data: exerciseDoc.data(), isFollow: exercise.data().isFollow });
+                    let data = exerciseDoc.data();
+                    data.id = exerciseDoc.id;
+                    this.unsortedExercises.push({ data: data, isFollow: exercise.data().isFollow });
                 }))
 
             })

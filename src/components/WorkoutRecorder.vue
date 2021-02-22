@@ -75,12 +75,11 @@
             </v-list-group>
         </div>
 
-        <v-row>
+        <v-row style="margin:10px 0;">
             <v-spacer/>
-            <v-col cols="12" sm="6" align="center" style="margin:10px;">
-                <v-btn @click.stop="cancellingDialogue = true" style="margin-right: 5px;">Cancel</v-btn>
-                <v-btn @click="finishWorkout" color="success" :loading="isFinishing">Finish</v-btn>
-            </v-col>
+            <v-btn @click.stop="cancellingDialogue = true" style="margin-right: 5px;">Cancel</v-btn>
+            <v-btn @click.stop="addExerciseDialogue = true" style="margin-right:5px;">Add Exercise</v-btn>
+            <v-btn @click="finishWorkout" color="success" :loading="isFinishing">Finish</v-btn>
             <v-spacer/>
         </v-row>
 
@@ -104,6 +103,10 @@
             </v-card>
         </v-dialog>
 
+        <v-dialog v-model="addExerciseDialogue" max-width="600">
+            <ExerciseSearch @selectExercise="addExercise" />
+        </v-dialog>
+
         <v-dialog v-model="cancellingDialogue" persistent max-width="600">
             <v-card>
                 <v-card-title>Cancel Workout</v-card-title>
@@ -124,8 +127,11 @@
 import { db } from '@/firebase'
 import Sortable from 'sortablejs'
 
+import ExerciseSearch from '@/components/Search/ExerciseSearch.vue'
+
 export default {
     name: 'WorkoutRecorder',
+    components: { ExerciseSearch },
     props: {
         burnObj: {
             type: Object,
@@ -157,6 +163,7 @@ export default {
             isUploading: false,
             finishingDialogue: false,
             cancellingDialogue: false,
+            addExerciseDialogue: false,
             isNew: true,
             rules: {
                 isNumber: value => !isNaN(value) || 'Must be a number'
@@ -353,6 +360,27 @@ export default {
                 this.exercises.splice(event.newIndex, 0, this.exercises.splice(event.oldIndex, 1)[0]);
                 this.previousExercises.splice(event.newIndex, 0, this.previousExercises.splice(event.oldIndex, 1)[0]);
             }
+        },
+
+        addExercise: function(e) {
+            let data = {
+                id: e.id,
+                name: e.name,
+                notes: "",
+                sets: [{
+                    id: 0,
+                    kg: 0,
+                    measureAmount: 0,
+                    measureBy: e.measureBy
+                }]
+            }
+
+            this.exercises.push(data);
+            this.previousExercises.push(data);
+
+            console.log("Data", data, "Exercise", e);
+
+            this.addExerciseDialogue = false;
         }
     }
 }

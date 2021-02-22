@@ -56,29 +56,29 @@
                 <div v-if="img.dialogueOpen">
                     <v-card-title>Edit Image</v-card-title>
                     <v-card-text ref="dialogueContainer">
-                        <ImageEditorDialogue :imgUrl="img.url" :imgId="img.id" @outputEdit="outputEdit"></ImageEditorDialogue>
+                        <ImageEditorDialogue :imgUrl="img.url" :imgId="img.id" @outputEdit="outputEdit" />
                     </v-card-text>
                 </div>
             </v-card>
         </v-dialog>
 
         <v-dialog v-model="exerciseSearchDialogue" style="min-height:300px;" max-width="600">
-            <ExerciseSearch @selectExercise="addExercise"></ExerciseSearch>
+            <ExerciseSearch @selectExercise="addExercise" />
         </v-dialog>
 
         <v-dialog v-model="workoutSearchDialogue" style="min-height:300px;" max-width="600">
-            <WorkoutSearch @selectWorkout="addWorkout"></WorkoutSearch>
+            <WorkoutSearch @selectWorkout="addWorkout" />
         </v-dialog>
 
         <v-dialog v-model="recentWorkoutSearchDialogue" style="min-height:300px;" max-width="600">
-            <BurnSearch @selectRecentWorkout="addRecentWorkout"></BurnSearch>
+            <BurnSearch @selectRecentWorkout="addRecentWorkout" />
         </v-dialog>
     </v-card>
 </template>
 
 <script>
 import Sortable from 'sortablejs'
-import { db, storage, functions } from '@/firebase'
+import { storage, functions } from '@/firebase'
 
 import BurnMin from '@/views/Burn/BurnMin.vue'
 import ExerciseExpandable from '@/components/Exercise/ExerciseExpandable.vue'
