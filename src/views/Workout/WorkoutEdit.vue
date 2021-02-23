@@ -5,7 +5,7 @@
                 <h1>{{ newWorkoutData.name }}</h1>
                 <v-text-field v-model="newWorkoutData.name" :rules=[rules.required] label="Workout Name"></v-text-field>
                 <MarkdownInput :starting-text="oldWorkoutData.description" @update-text="updateDescription" />
-                <ExerciseSelector class="exerciseSelector" :initExercises="oldWorkoutData.exercises" :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises" @selectedExercisesChange="updateSelectedExercises" />
+                <ExerciseSelector class="exerciseSelector" :initExercises="oldWorkoutData.exercises" :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises" @selectedExercisesChange="updateSelectedExercises" @updateSets="updateSets" />
                 <v-row justify="center" align="center">
                     <v-col cols="12" md="6">
                         <DifficultySelector class="difficultySelector" :initialDifficulty="oldWorkoutData.difficulty" @setDifficulty="setDifficulty" />
@@ -122,7 +122,37 @@ export default {
         },
 
         updateSelectedExercises: function(s) {
-            this.newWorkoutData.exercises = s;
+            let muscleGroups = [];
+            this.newWorkoutData.exercises = [];
+
+            // Push each exercises ID and Name to this Workout.
+            s.forEach(exercise => {
+                console.log(exercise);
+                this.newWorkoutData.exercises.push({
+                    id: exercise.id,
+                    name: exercise.name,
+                    sets: [{ measureBy: 'Reps', measureAmount: 0 }]
+                })
+
+                // Then push unique muscle groups to this array.
+                exercise.muscleGroups.forEach(muscleGroup => {
+                    if (!muscleGroups.includes(muscleGroup)) {
+                        muscleGroups.push(muscleGroup)
+                    }
+                })
+            })
+
+            this.newWorkoutData.muscleGroups = muscleGroups;
+        },
+
+        updateSets: function(index, sets) {
+            let s = [];
+            sets.forEach(set => {
+                delete set.id
+                set.measureAmount = Number(set.measureAmount);
+                s.push(set);
+            })
+            this.newWorkoutData.exercises[index].sets = sets;
         },
 
         updateTags: function(tags) {

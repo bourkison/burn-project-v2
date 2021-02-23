@@ -131,7 +131,17 @@ export default {
 
     methods: {
         selectExercise: function(obj, loaded) {
-            this.$emit("selectExercise", obj, loaded);
+            if (loaded) {
+                this.$emit("selectExercise", obj);
+            } else {
+                this.isSearching = true;
+                db.collection("exercises").doc(obj.id).get()
+                .then(exerciseDoc => {
+                    let data = exerciseDoc.data();
+                    data.id = exerciseDoc.id;
+                    this.$emit("selectExercise", data)
+                })
+            }
         },
 
         searchExercise: function() {

@@ -47,6 +47,7 @@ export default {
 
     mounted: function() {
         if (this.$props.initSuggestedSets) {
+            console.log("INIT SUGGESTED");
             this.suggestedSets = this.$props.initSuggestedSets;
         }
     },
@@ -68,8 +69,11 @@ export default {
     },
 
     watch: {
-        suggestedSets: function() {
-            this.$emit("updateSets", this.suggestedSets, this.$props.id);
+        suggestedSets: {
+            handler: function() {
+                this.$emit("updateSets", this.suggestedSets, this.$props.id);
+            },
+            deep: true
         }
     }
 }

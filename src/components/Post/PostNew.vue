@@ -19,7 +19,7 @@
                         <v-spacer/>
                         <v-btn icon @click="selectedExercise = null;selectedExerciseId = null"><v-icon small color="error">mdi-close</v-icon></v-btn>
                     </div>
-                    <ExerciseShare :exerciseObj="selectedExercise" :exerciseId="selectedExerciseId" />
+                    <ExerciseShare :exerciseObj="selectedExercise" />
                 </v-container>
             </v-row>
             <v-row v-if="selectedWorkout">
@@ -116,7 +116,6 @@ export default {
             imageObjs: [],
 
             selectedExercise: null,
-            selectedExerciseId: null,
             selectedRecentWorkout: null,
             selectedWorkout: null,
 
@@ -248,16 +247,9 @@ export default {
             this.imagesToEdit.push({ id: this.imageEditIncrementor, url: null, dialogueOpen: false });
         },
 
-        addExercise: function(exercise, loaded) {
+        addExercise: function(exercise) {
             this.exerciseSearchDialogue = false;
-
-            if (loaded) {
-                this.selectedExercise = exercise;
-                this.selectedExerciseId = null;
-            } else {
-                this.selectedExerciseId = exercise.id;
-                this.selectedExercise = null;
-            }
+            this.selectedExercise = exercise;
             this.selectedWorkout = null;
             this.selectedRecentWorkout = null;
         },

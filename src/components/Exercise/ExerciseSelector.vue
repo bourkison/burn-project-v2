@@ -54,7 +54,7 @@
                             <v-expansion-panel-content>
                                 <div align="right"><v-icon @click="removeSet(index)">mdi-close</v-icon></div>
                                 <v-sheet class="mdOutput" v-html="compiledMarkdown(selectedExercise.description)"></v-sheet>
-                                <v-card align="center"><SuggestedSetsSelector class="suggestedSets" :id="selectedExercise.id" @updateSets="updateSets"></SuggestedSetsSelector></v-card>
+                                <v-card align="center"><SuggestedSetsSelector class="suggestedSets" :id="selectedExercise.id" :initSuggestedSets="initExercises[index] ? initExercises[index].sets : null" @updateSets="updateSets"></SuggestedSetsSelector></v-card>
                             </v-expansion-panel-content>    
                         </v-expansion-panel>
                     </v-expansion-panels>   
@@ -150,6 +150,7 @@ export default {
         Promise.all(exercisePromises)
         .then(() => {
             if (this.$props.initExercises) {
+                let initExercisePromises = [];
                 console.log("Init", this.$props.initExercises);
 
                 this.$props.initExercises.forEach(exercise => {
@@ -163,11 +164,11 @@ export default {
 
 
                     if (cIndex < 0 && fIndex < 0) {
-                        return db.collection("exercises").doc(exercise.id).get()
+                        initExercisePromises.push(db.collection("exercises").doc(exercise.id).get()
                         .then(exerciseDoc => {
                             this.selectedExercisesData.push(exerciseDoc.data);
                             this.selectedFollowedExercises.push(exercise.id);
-                        })
+                        }))
                     } else if (cIndex >= 0) {
                         this.selectedCreatedExercises.push(exercise.id);
                         this.selectedExercisesData.push(this.createdExercisesData[cIndex]);
@@ -176,6 +177,8 @@ export default {
                         this.selectedExercisesData.push(this.followedExercisesData[fIndex]);
                     }
                 })
+
+                return Promise.all(initExercisePromises);
             }
         })
         .then(() => {
