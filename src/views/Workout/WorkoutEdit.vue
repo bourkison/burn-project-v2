@@ -103,10 +103,18 @@ export default {
         updateWorkout: function() {
             this.isUpdating = true;
             this.newWorkoutData.id = this.$route.params.workoutid;
+
+            let updateAlgolia;
+
+            if (this.newWorkoutData.name !== this.oldWorkoutData.name) {
+                updateAlgolia = true;
+            } else {
+                updateAlgolia = false;
+            }
             
             const editWorkout = functions.httpsCallable("editWorkout");
 
-            editWorkout({ workoutForm: this.newWorkoutData })
+            editWorkout({ workoutForm: this.newWorkoutData, updateAlgolia: updateAlgolia })
             .then(result => {
                 this.isUpdating = false;
                 this.$router.push("/workouts/" + result.data.id);

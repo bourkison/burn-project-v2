@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { functions } from '@/firebase'
+import { db } from '@/firebase'
 
 import PostFeed from '@/components/Post/PostFeed.vue'
 
@@ -26,13 +26,12 @@ export default {
     },
 
     created: function() {
-        let buildFeedFunction = functions.httpsCallable("buildFeed");
+        db.collection("users").doc(this.$store.state.userProfile.data.uid).collection("feed").orderBy("createdAt", "desc").get()
+        .then(postSnapshots => {
+            postSnapshots.forEach(post => {
+                this.posts.push(post.id);
+            })
 
-        buildFeedFunction().then(result => {
-            this.posts = result.data.posts;
-            this.isLoading = false;
-        }).catch(e => {
-            console.error("Failure", e);
             this.isLoading = false;
         })
     },

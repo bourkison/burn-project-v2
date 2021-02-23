@@ -179,8 +179,15 @@ export default {
 
                 this.newExerciseData.id = this.$route.params.exerciseid;
 
+                let updateAlgolia;
+                if (this.newExerciseData.name !== this.oldExerciseData.name) {
+                    updateAlgolia = true;
+                } else {
+                    updateAlgolia = false;
+                }
+
                 const editExercise = functions.httpsCallable("editExercise");
-                return editExercise({ exerciseForm: this.newExerciseData })
+                return editExercise({ exerciseForm: this.newExerciseData, updateAlgolia: updateAlgolia })
             })
             .then(result => {
                 this.$router.push("/exercises/" + result.data.id);

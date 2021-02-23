@@ -38,14 +38,24 @@
             </v-container>
 
 
-            <div align="center"><v-btn color="success" @click="restartWorkout"><v-icon>mdi-plus</v-icon>Workout</v-btn></div>
+            <div align="center">
+                <v-btn @click.stop="share">Share</v-btn>
+                <v-btn color="success" @click="restartWorkout"><v-icon>mdi-plus</v-icon>Workout</v-btn>
+            </div>
         </v-container>
+
+        <v-dialog v-model="sharingDialogue" max-width="600">
+            <PostNew :initShareBurn="shareObj" />
+        </v-dialog>
     </v-card>
 </template>
 
 <script>
+import PostNew from '@/components/Post/PostNew.vue'
+
 export default {
     name: 'BurnComponent',
+    components: { PostNew },
     props: {
         recentWorkout: {
             type: Object,
@@ -55,7 +65,11 @@ export default {
 
     data() {
         return {
-            timeString: ''
+            timeString: '',
+            shareObj: {},
+
+            // Vuetify:
+            sharingDialogue: false
         }
     },
 
@@ -78,6 +92,11 @@ export default {
     methods: {
         restartWorkout: function() {
             this.$router.push({ path: '/burn', query: { rw: this.$props.recentWorkout.rId } })
+        },
+
+        share: function() {
+            this.shareObj = this.$props.recentWorkout;
+            this.sharingDialogue = true;
         }
     }
 }

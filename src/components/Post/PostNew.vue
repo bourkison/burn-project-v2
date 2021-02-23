@@ -13,11 +13,11 @@
                     </v-card>
                 </v-col>
             </v-row>
-            <v-row v-if="selectedExercise || selectedExerciseId">
+            <v-row v-if="selectedExercise">
                 <v-container>
                     <div align="right">
                         <v-spacer/>
-                        <v-btn icon @click="selectedExercise = null;selectedExerciseId = null"><v-icon small color="error">mdi-close</v-icon></v-btn>
+                        <v-btn icon @click="selectedExercise = null;"><v-icon small color="error">mdi-close</v-icon></v-btn>
                     </div>
                     <ExerciseShare :exerciseObj="selectedExercise" />
                 </v-container>
@@ -99,6 +99,12 @@ import WorkoutSearch from '@/components/Search/WorkoutSearch.vue'
 export default {
     name: 'PostNew',
     components: { BurnShare, BurnSearch, ExerciseShare, ExerciseSearch, ImageEditorDialogue, WorkoutShare, WorkoutSearch },
+    props: {
+        initShareBurn: {
+            type: Object,
+            required: false
+        }
+    },
     data() {
         return {
             isLoading: false,
@@ -136,6 +142,10 @@ export default {
 
     created: function() {
         this.imagesToEdit.push({ id: this.imageEditIncrementor, url: null, dialogueOpen: false });
+
+        if (this.$props.initShareBurn) {
+            this.selectedRecentWorkout = this.$props.initShareBurn;
+        }
     },
 
     methods: {
@@ -145,8 +155,6 @@ export default {
 
             if (this.selectedExercise) {
                 this.postForm.share = { id: this.selectedExercise.id, type: "exercises" }
-            } else if (this.selectedExerciseId) {
-                this.postForm.share = { id: this.selectedExerciseId, type: "exercises" }
             } else if (this.selectedWorkout) {
                 this.postForm.share = { id: this.selectedWorkout.id, type: "workouts" }
             } else if (this.selectedRecentWorkout) {
@@ -176,6 +184,11 @@ export default {
             .then(() => {
                 this.$emit("newPost", this.postForm);
                 this.isLoading = false;
+
+                if (this.$props.initShareBurn) {
+                    this.$router.push("/");
+                }
+
                 this.resetVariables();
             })
             .catch(e => {

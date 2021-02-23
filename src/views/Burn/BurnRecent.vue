@@ -16,7 +16,7 @@ import { db } from '@/firebase'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-import BurnComponent from '@//components/Burn/BurnComponent.vue'
+import BurnComponent from '@/components/Burn/BurnComponent.vue'
 
 export default {
     name: 'RecentBurn',
@@ -35,7 +35,7 @@ export default {
         .then(recentWorkoutsSnapshot => {
             recentWorkoutsSnapshot.forEach(recentWorkout => {
                 let d = recentWorkout.data();
-                d.rId = recentWorkout.id;
+                d.id = recentWorkout.id;
                 d.createdAtText = dayjs(dayjs.unix(d.createdAt.seconds)).fromNow();
                 this.recentWorkouts.push(d);
             })
