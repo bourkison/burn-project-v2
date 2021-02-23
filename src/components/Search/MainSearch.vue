@@ -31,6 +31,14 @@
                             <v-list-item-title>{{ exercise.name }}</v-list-item-title>
                         </v-list-item>
                     </v-list>
+
+                    <v-list v-if="!isLoading && workoutResponses.length > 0">
+                        <h2>Workouts</h2>
+                        <v-list-item v-for="workout in workoutResponses" :key="workout.objectID" :to="'/workouts/' + workout.objectID">
+                            <v-list-item-title>{{ workout.name }}</v-list-item-title>
+                        </v-list-item>
+                    </v-list>
+
                     <v-container v-if="isLoading">
                         <div align="center"><v-progress-circular indeterminate centered></v-progress-circular></div>
                     </v-container>
@@ -55,12 +63,10 @@ export default {
         return {
             isLoading: false,
             searchText: '',
-            userIndex: null,
-            exerciseIndex: null,
 
-            responses: [],
             userResponses: [],
             exerciseResponses: [],
+            workoutResponses: [],
 
             // Vuetify:
             menuModel: false,
@@ -69,44 +75,48 @@ export default {
             searchClient: algoliasearch(
                 "O9KO1L25CJ",
                 "e6492bc28cfda8670d4981bb26e4bbbd"
-            )
+            ),
+            userIndex: null,
+            exerciseIndex: null,
+            workoutIndex: null,
         }
     },
 
     created: function() {
         this.userIndex = this.searchClient.initIndex("users");
         this.exerciseIndex = this.searchClient.initIndex("exercises");
+        this.workoutIndex = this.searchClient.initIndex("workouts");
     },
 
     methods: {
         search: _.debounce(function() {
             let searchPromises = [];
 
-            this.responses = [];
             this.userResponses = [];
             this.exerciseResponses = [];
+            this.workoutResponses = [];
             
             searchPromises.push(this.userIndex.search(this.searchText).then(responses => {
                 responses.hits.forEach(hit => {
                     this.userResponses.push(hit);
-                    let d = hit;
-                    d.type = "user";
-                    this.responses.push(d);
                 })
             }))
 
             searchPromises.push(this.exerciseIndex.search(this.searchText).then(responses => {
                 responses.hits.forEach(hit => {
                     this.exerciseResponses.push(hit);
-                    let d = hit;
-                    d.type = "exercise";
-                    this.responses.push(d);
+                })
+            }))
+
+            searchPromises.push(this.workoutIndex.search(this.searchText).then(responses => {
+                responses.hits.forEach(hit => {
+                    this.workoutResponses.push(hit);
                 })
             }))
 
             Promise.all(searchPromises)
             .then(() => {
-                console.log("USER RESPONSES:", this.userResponses, "EXERCISE RESPONSES:", this.exerciseResponses);
+                console.log("USER RESPONSES:", this.userResponses, "EXERCISE RESPONSES:", this.exerciseResponses, "WORKOUT RESPONSES:", this.workoutResponses);
                 this.isLoading = false;
             })
         }, 750),
@@ -114,9 +124,10 @@ export default {
         closeDialog: function() {
             // Must set a timeout, as if instant, we are not able to click on links.
             // This is gross and we should come back to this
-            setTimeout(() => {
+            return setTimeout(() => {
+                console.log("Timeout");
                 this.menuModel = false;
-            }, 100)
+            }, 1000)
         },
 
         searchClick: function(path) {

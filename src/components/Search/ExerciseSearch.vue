@@ -6,7 +6,7 @@
             <div v-if="filteredUserExercises.length > 0">
                 <h2>My Exercises</h2>
                 <v-list>
-                    <v-list-item v-for="exercise in filteredUserExercises" :key="exercise.id" @click="selectExercise(exercise)">
+                    <v-list-item v-for="exercise in filteredUserExercises" :key="exercise.id" @click="selectExercise(exercise, true)">
                         <v-list-item-title>{{ exercise.name }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
@@ -15,7 +15,7 @@
             <div v-if="filteredFollowedExercises.length > 0">
                 <h2>Followed Exercises</h2>
                 <v-list>
-                    <v-list-item v-for="exercise in filteredFollowedExercises" :key="exercise.id" @click="selectExercise(exercise)">
+                    <v-list-item v-for="exercise in filteredFollowedExercises" :key="exercise.id" @click="selectExercise(exercise, true)">
                         <v-list-item-title>{{ exercise.name }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
@@ -28,7 +28,7 @@
             <div v-if="searchText">
                 <h2>Other</h2>
                 <v-list v-if="!isSearching">
-                    <v-list-item v-for="exercise in otherExercises" :key="exercise.id" @click="selectExercise(exercise)">
+                    <v-list-item v-for="exercise in otherExercises" :key="exercise.id" @click="selectExercise(exercise, false)">
                         <v-list-item-title>{{ exercise.name }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
@@ -130,8 +130,8 @@ export default {
     },
 
     methods: {
-        selectExercise: function(obj) {
-            this.$emit("selectExercise", obj);
+        selectExercise: function(obj, loaded) {
+            this.$emit("selectExercise", obj, loaded);
         },
 
         searchExercise: function() {

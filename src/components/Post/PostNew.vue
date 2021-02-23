@@ -13,13 +13,13 @@
                     </v-card>
                 </v-col>
             </v-row>
-            <v-row v-if="selectedExercise">
+            <v-row v-if="selectedExercise || selectedExerciseId">
                 <v-container>
                     <div align="right">
                         <v-spacer/>
-                        <v-btn icon @click="selectedExercise = null;"><v-icon small color="error">mdi-close</v-icon></v-btn>
+                        <v-btn icon @click="selectedExercise = null;selectedExerciseId = null"><v-icon small color="error">mdi-close</v-icon></v-btn>
                     </div>
-                    <ExerciseShare :exerciseObj="selectedExercise" />
+                    <ExerciseShare :exerciseObj="selectedExercise" :exerciseId="selectedExerciseId" />
                 </v-container>
             </v-row>
             <v-row v-if="selectedWorkout">
@@ -116,6 +116,7 @@ export default {
             imageObjs: [],
 
             selectedExercise: null,
+            selectedExerciseId: null,
             selectedRecentWorkout: null,
             selectedWorkout: null,
 
@@ -145,6 +146,8 @@ export default {
 
             if (this.selectedExercise) {
                 this.postForm.share = { id: this.selectedExercise.id, type: "exercises" }
+            } else if (this.selectedExerciseId) {
+                this.postForm.share = { id: this.selectedExerciseId, type: "exercises" }
             } else if (this.selectedWorkout) {
                 this.postForm.share = { id: this.selectedWorkout.id, type: "workouts" }
             } else if (this.selectedRecentWorkout) {
@@ -245,10 +248,16 @@ export default {
             this.imagesToEdit.push({ id: this.imageEditIncrementor, url: null, dialogueOpen: false });
         },
 
-        addExercise: function(exercise) {
+        addExercise: function(exercise, loaded) {
             this.exerciseSearchDialogue = false;
 
-            this.selectedExercise = exercise;
+            if (loaded) {
+                this.selectedExercise = exercise;
+                this.selectedExerciseId = null;
+            } else {
+                this.selectedExerciseId = exercise.id;
+                this.selectedExercise = null;
+            }
             this.selectedWorkout = null;
             this.selectedRecentWorkout = null;
         },

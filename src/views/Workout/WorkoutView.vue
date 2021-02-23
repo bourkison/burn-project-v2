@@ -110,7 +110,9 @@ export default {
         this.downloadWorkout();
     },
 
-    beforeRouteUpdate: function() {
+    beforeRouteUpdate: function(to, from, next) {
+        this.resetVariables();
+        next();
         this.downloadWorkout();
     },
 
@@ -173,6 +175,18 @@ export default {
             }
 
             this.isLiked = s;
+        },
+
+        resetVariables: function() {
+            this.isLoading = true;
+            this.isDeleting = false;
+            this.workoutData = {};
+            this.workoutExists = false;
+            this.isLiked = '';
+            this.likeCount = 0;
+            this.commentCount = 0;
+            this.followCount = 0;
+            this.isDeletingDialogue = false;
         },
 
         startWorkout: function() {
