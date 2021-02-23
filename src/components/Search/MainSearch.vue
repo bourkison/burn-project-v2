@@ -15,7 +15,7 @@
                             <v-list-item-title>
                                 <v-row align="center" justify="center">
                                     <v-col cols="12" sm="2">
-                                        <v-avatar size="40"><v-img :src="user.profilePhotoUrl"></v-img></v-avatar>
+                                        <v-avatar size="40"><v-img :src="user.profilePhoto"></v-img></v-avatar>
                                     </v-col>
                                     <v-col cols="12" sm="10">
                                         <b>{{ user.username }}</b>
@@ -127,7 +127,7 @@ export default {
             return setTimeout(() => {
                 console.log("Timeout");
                 this.menuModel = false;
-            }, 1000)
+            }, 100)
         },
 
         searchClick: function(path) {

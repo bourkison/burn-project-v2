@@ -49,7 +49,10 @@
                         </v-card>
                     </v-col>
                 </v-row>
-                <div class="text-center" style="margin-top:10px;"><v-btn type="submit" :loading="isUpdating" :disabled="isUpdating">Update Exercise</v-btn></div>
+                <div class="text-center" style="margin-top:10px;">
+                    <v-btn @click="$router.push('/exercises/' + $route.params.exerciseid + '/')" style="margin-right:5px;" color="error">Close</v-btn>
+                    <v-btn type="submit" :loading="isUpdating" :disabled="isUpdating" style="margin-left:5px;">Update Exercise</v-btn>
+                </div>
             </v-form>
         </v-container>
         <v-container v-else>

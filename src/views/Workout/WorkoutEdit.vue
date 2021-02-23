@@ -4,10 +4,22 @@
             <v-form @submit.prevent="updateWorkout">
                 <h1>{{ newWorkoutData.name }}</h1>
                 <v-text-field v-model="newWorkoutData.name" :rules=[rules.required] label="Workout Name"></v-text-field>
-                <MarkdownInput :starting-text="oldWorkoutData.description" @update-text="updateDescription"></MarkdownInput>
-                <ExerciseSelector class="exerciseSelector" :initExercises="oldWorkoutData.exercises" :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises" @selectedExercisesChange="updateSelectedExercises"></ExerciseSelector>
-                <DifficultySelector class="difficultySelector" :initialDifficulty="oldWorkoutData.difficulty" @setDifficulty="setDifficulty"></DifficultySelector>
-                <div class="text-center submitButton"><v-btn type="submit" :loading="isUpdating" :disabled="isUpdating">Update Workout</v-btn></div>
+                <MarkdownInput :starting-text="oldWorkoutData.description" @update-text="updateDescription" />
+                <ExerciseSelector class="exerciseSelector" :initExercises="oldWorkoutData.exercises" :createdExercises="userCreatedExercises" :followedExercises="userFollowedExercises" @selectedExercisesChange="updateSelectedExercises" />
+                <v-row justify="center" align="center">
+                    <v-col cols="12" md="6">
+                        <DifficultySelector class="difficultySelector" :initialDifficulty="oldWorkoutData.difficulty" @setDifficulty="setDifficulty" />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-card class="tagSelector" outlined>
+                            <TagSelect @updateTags="updateTags" :initialTags="oldWorkoutData.tags" />
+                        </v-card>
+                    </v-col>
+                </v-row>
+                <div class="text-center submitButton">
+                    <v-btn @click="$router.push('/workouts/' + $route.params.workoutid +'/')" color="error" style="margin-right:5px;">Close</v-btn>
+                    <v-btn type="submit" :loading="isUpdating" :disabled="isUpdating" style="margin-left:5px;">Update Workout</v-btn>
+                </div>
             </v-form>
         </v-container>
         <v-container v-else>
@@ -22,11 +34,12 @@ import { db } from '@/firebase'
 import MarkdownInput from '@/components/Utility/MarkdownInput.vue'
 import ExerciseSelector from '@/components/Exercise/ExerciseSelector.vue'
 import DifficultySelector from '@/components/Utility/DifficultySelector.vue'
+import TagSelect from '@/components/Utility/TagSelect.vue'
 import { functions } from '../../firebase'
 
 export default {
     name: 'WorkoutEdit',
-    components: { MarkdownInput, ExerciseSelector, DifficultySelector },
+    components: { MarkdownInput, ExerciseSelector, DifficultySelector, TagSelect },
     data() {
         return {
             isLoading: true,
@@ -44,9 +57,6 @@ export default {
     },
 
     created: function() {
-        this.downloadWorkout();
-    },
-    beforeRouteUpdate: function() {
         this.downloadWorkout();
     },
 
@@ -114,6 +124,10 @@ export default {
         updateSelectedExercises: function(s) {
             this.newWorkoutData.exercises = s;
         },
+
+        updateTags: function(tags) {
+            this.newWorkoutData.tags = tags;
+        },
         
         setDifficulty: function(d) {
             this.newWorkoutData.difficulty = d;
@@ -124,7 +138,8 @@ export default {
 
 <style scoped>
     .exerciseSelector,
-    .difficultySelector {
+    .difficultySelector,
+    .tagSelector {
         margin-top: 20px;
         padding: 10px;
     }
